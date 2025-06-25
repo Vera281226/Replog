@@ -1,0 +1,145 @@
+.input-warning {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  animation: slideInFade 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.input-warning::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+  border-radius: 0 2px 2px 0;
+}
+
+.input-warning::after {
+  content: '⚠';
+  font-size: 1rem;
+  color: #ef4444;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-right: 2px;
+}
+
+/* 호버 효과 */
+.input-warning:hover {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-color: #f87171;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.15);
+}
+
+/* 애니메이션 */
+@keyframes slideInFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 50px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+/* 텍스트 강조 */
+.input-warning strong {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .input-warning {
+    font-size: 0.8125rem;
+    padding: 6px 10px;
+    gap: 4px;
+  }
+  
+  .input-warning::after {
+    font-size: 0.875rem;
+  }
+}
+
+/* 다크모드 대응 */
+@media (prefers-color-scheme: dark) {
+  .input-warning {
+    background: linear-gradient(135deg, #451a1a 0%, #3c1414 100%);
+    border-color: #7c2d12;
+    color: #fca5a5;
+  }
+  
+  .input-warning::before {
+    background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
+  }
+  
+  .input-warning::after {
+    color: #f87171;
+  }
+  
+  .input-warning:hover {
+    background: linear-gradient(135deg, #3c1414 0%, #451a1a 100%);
+    border-color: #dc2626;
+  }
+}
+
+/* 접근성 개선 */
+.input-warning:focus-within {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+
+/* 성공 메시지 변형 (확장성을 위해) */
+.input-warning.success {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #bbf7d0;
+  border-left-color: #22c55e;
+  color: #16a34a;
+}
+
+.input-warning.success::before {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+}
+
+.input-warning.success::after {
+  content: '✓';
+  color: #22c55e;
+}
+
+/* 정보 메시지 변형 */
+.input-warning.info {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-color: #bae6fd;
+  border-left-color: #3b82f6;
+  color: #1d4ed8;
+}
+
+.input-warning.info::before {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.input-warning.info::after {
+  content: 'ℹ';
+  color: #3b82f6;
+}
