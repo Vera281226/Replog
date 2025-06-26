@@ -2,7 +2,9 @@ package pack.service.board;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import pack.dto.board.CommentDto;
+import org.springframework.web.server.ResponseStatusException;
+import pack.dto.board.CommentRequest;
+import pack.dto.board.CommentResponse;
 import pack.model.board.Comment;
 import pack.repository.board.CommentRepository;
 
@@ -10,14 +12,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
 
-    private CommentDto toDto(Comment entity) {
-        return CommentDto.builder()
+    // Entity → Response DTO
+    private CommentResponse toDto(Comment entity) {
+        return CommentResponse.builder()
                 .commentNo(entity.getCommentNo())
                 .id(entity.getId())
                 .nickname(entity.getNickname())
@@ -30,50 +36,65 @@ public class CommentServiceImpl implements CommentService {
                 .build();
     }
 
-    private Comment toEntity(CommentDto dto) {
+    // Request DTO → Entity
+    private Comment toEntity(CommentRequest dto) {
         return Comment.builder()
-                .commentNo(dto.getCommentNo())
                 .id(dto.getId())
                 .nickname(dto.getNickname())
                 .postNo(dto.getPostNo())
                 .content(dto.getContent())
-                .createdAt(dto.getCreatedAt())
-                .updatedAt(dto.getUpdatedAt())
-                .isHidden(dto.getIsHidden())
-                .likes(dto.getLikes())
+                .isHidden(false)
+                .likes(0)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
+    private void validateCommentRequest(CommentRequest dto) {
+        if (dto.getId() == null || dto.getId().isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "작성자 ID는 필수입니다.");
+        }
+        if (dto.getContent() == null || dto.getContent().isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "댓글 내용은 필수입니다.");
+        }
+    }
+
     @Override
-    public List<CommentDto> getCommentsByPostNo(Integer postNo) {
+    public List<CommentResponse> getCommentsByPostNo(Integer postNo) {
         return commentRepository.findByPostNoAndIsHiddenFalseOrderByCreatedAtAsc(postNo)
                 .stream().map(this::toDto).collect(Collectors.toList());
     }
 
     @Override
-    public CommentDto getCommentById(Integer commentNo) {
-        return commentRepository.findById(commentNo)
-                .map(this::toDto).orElse(null);
+    public CommentResponse getCommentById(Integer commentNo) {
+        Comment comment = commentRepository.findById(commentNo)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "댓글을 찾을 수 없습니다."));
+        return toDto(comment);
     }
 
     @Override
-    public CommentDto createComment(CommentDto dto) {
+    public CommentResponse createComment(CommentRequest dto) {
+        validateCommentRequest(dto);
         Comment comment = toEntity(dto);
-        comment.setCreatedAt(LocalDateTime.now());
         return toDto(commentRepository.save(comment));
     }
 
     @Override
-    public CommentDto updateComment(Integer commentNo, CommentDto dto) {
-        Comment comment = commentRepository.findById(commentNo).orElseThrow();
+    public CommentResponse updateComment(Integer commentNo, CommentRequest dto) {
+        Comment comment = commentRepository.findById(commentNo)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "수정할 댓글이 존재하지 않습니다."));
+
+        validateCommentRequest(dto);
+
         comment.setContent(dto.getContent());
         comment.setUpdatedAt(LocalDateTime.now());
-        comment.setIsHidden(dto.getIsHidden());
         return toDto(commentRepository.save(comment));
     }
 
     @Override
     public void deleteComment(Integer commentNo) {
+        if (!commentRepository.existsById(commentNo)) {
+            throw new ResponseStatusException(NOT_FOUND, "삭제할 댓글이 존재하지 않습니다.");
+        }
         commentRepository.deleteById(commentNo);
     }
 }

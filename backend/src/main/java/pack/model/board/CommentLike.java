@@ -9,27 +9,26 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "post_likes")
+@Table(name = "comment_likes")
+@IdClass(CommentLikeId.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@IdClass(PostLikeId.class)
-public class PostLike {
+public class CommentLike {
 
     @Id
-    @Column(length = 20)
-    private String id; // member.id
+    @Column(name = "id", nullable = false, length = 20)
+    private String id;
 
     @Id
-    private Integer postNo; // posts.post_no
+    @Column(name = "comment_no", nullable = false)
+    private Integer commentNo;
 
     @Column(name = "liked_at")
     private LocalDateTime likedAt;

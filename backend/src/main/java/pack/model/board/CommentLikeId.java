@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class PostLikeId implements Serializable {
+public class CommentLikeId implements Serializable {
     private String id;
-    private Integer postNo;
+    private Integer commentNo;
 }
