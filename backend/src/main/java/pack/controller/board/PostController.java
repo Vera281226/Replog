@@ -26,12 +26,6 @@ public class PostController {
 
     private final PostService postService;
 
-    // 전체 출력 (페이징 x)
-    @GetMapping
-    public List<PostResponse> getAllPosts() {
-        return postService.getAllPosts();
-    }
-
     // 조회 + 조회수 증가
     @GetMapping("/{postNo}")
     public PostResponse getPostDetail(@PathVariable("postNo") Integer postNo) {
