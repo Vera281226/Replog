@@ -1,7 +1,13 @@
 package pack.controller.board;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
 import pack.service.board.PostLikeService;
 
 @RestController
@@ -20,11 +26,5 @@ public class PostLikeController {
     @GetMapping("/{postNo}/like")
     public boolean checkLiked(@PathVariable("postNo") Integer postNo, @RequestParam("id") String id) {
         return postLikeService.isPostLiked(id, postNo);
-    }
-    // 토글이라 삭제 확인용으로 만들었음
-    @DeleteMapping("/{postNo}/like")
-    public String cancelLike(@PathVariable("postNo") Integer postNo, @RequestParam("id") String id) {
-        postLikeService.cancelLike(id, postNo);
-        return "unliked";
     }
 }

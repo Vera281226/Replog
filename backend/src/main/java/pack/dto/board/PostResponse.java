@@ -1,15 +1,19 @@
 package pack.dto.board;
 
-import lombok.*;
-
 import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PostDto {
+public class PostResponse {
     private Integer postNo;
     private String id;
     private String nickname;

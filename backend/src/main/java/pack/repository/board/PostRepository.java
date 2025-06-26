@@ -1,4 +1,4 @@
-package pack.repository.board;
+package pack.repository.board; 
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,9 +1,18 @@
 package pack.model.board;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "post_likes")
@@ -22,10 +31,13 @@ public class PostLike {
     @Id
     private Integer postNo; // posts.post_no
 
+    @Column(name = "liked_at")
     private LocalDateTime likedAt;
 
     @PrePersist
     protected void onCreate() {
-        this.likedAt = LocalDateTime.now();
+        if (likedAt == null) {
+            this.likedAt = LocalDateTime.now();
+        }
     }
 }
