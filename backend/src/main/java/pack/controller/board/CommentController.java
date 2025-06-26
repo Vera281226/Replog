@@ -2,7 +2,9 @@ package pack.controller.board;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import pack.dto.board.CommentDto;
+
+import pack.dto.board.CommentRequest;
+import pack.dto.board.CommentResponse;
 import pack.service.board.CommentService;
 
 import java.util.List;
@@ -15,22 +17,22 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/post/{postNo}")
-    public List<CommentDto> getCommentsByPost(@PathVariable("postNo") Integer postNo) {
+    public List<CommentResponse> getCommentsByPost(@PathVariable("postNo") Integer postNo) {
         return commentService.getCommentsByPostNo(postNo);
     }
 
     @GetMapping("/{commentNo}")
-    public CommentDto getComment(@PathVariable("commentNo") Integer commentNo) {
+    public CommentResponse getComment(@PathVariable("commentNo") Integer commentNo) {
         return commentService.getCommentById(commentNo);
     }
 
     @PostMapping
-    public CommentDto createComment(@RequestBody CommentDto dto) {
+    public CommentResponse createComment(@RequestBody CommentRequest dto) {
         return commentService.createComment(dto);
     }
 
     @PutMapping("/{commentNo}")
-    public CommentDto updateComment(@PathVariable("commentNo") Integer commentNo, @RequestBody CommentDto dto) {
+    public CommentResponse updateComment(@PathVariable("commentNo") Integer commentNo, @RequestBody CommentRequest dto) {
         return commentService.updateComment(commentNo, dto);
     }
 
