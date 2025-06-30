@@ -20,7 +20,7 @@ import lombok.Setter;
 public class Theater {
 
     @Id
-    private Integer id;
+    private Integer theaterId;
 
     @Column(nullable = false, length = 50)
     private String name;

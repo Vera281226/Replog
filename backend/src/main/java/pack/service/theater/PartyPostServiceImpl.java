@@ -37,9 +37,10 @@ public class PartyPostServiceImpl implements PartyPostService {
     }
 
     @Override
-    public List<PartyResponse> getFilteredPartyPosts(List<Integer> theaterIds, String start, String end) {
+    public List<PartyResponse> getFilteredPartyPosts(List<Integer> theaterIds, String start, String end, String movie) {
         LocalDateTime now = LocalDateTime.now();
         boolean hasDateFilter = start != null && !start.isBlank() && end != null && !end.isBlank();
+        boolean hasMovieFilter = movie != null && !movie.isBlank();
 
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
@@ -51,26 +52,35 @@ public class PartyPostServiceImpl implements PartyPostService {
         List<PartyPost> posts;
 
         if (theaterIds == null || theaterIds.isEmpty()) {
-            if (hasDateFilter) {
-                posts = partyPostRepository
-                        .findByIsHiddenFalseAndPartyDeadlineBetweenAndPartyDeadlineAfter(
-                                startDateTime, endDateTime, now);
+            if (hasDateFilter && hasMovieFilter) {
+                posts = partyPostRepository.findByPartyDeadlineBetweenAndPartyDeadlineAfterAndMovieContainingIgnoreCase(
+                        startDateTime, endDateTime, now, movie);
+            } else if (hasDateFilter) {
+                posts = partyPostRepository.findByPartyDeadlineBetweenAndPartyDeadlineAfter(
+                        startDateTime, endDateTime, now);
+            } else if (hasMovieFilter) {
+                posts = partyPostRepository.findByPartyDeadlineAfterAndMovieContainingIgnoreCase(
+                        now, movie);
             } else {
-                posts = partyPostRepository
-                        .findByIsHiddenFalseAndPartyDeadlineAfter(now);
+                posts = partyPostRepository.findByPartyDeadlineAfter(now);
             }
         } else {
-            if (hasDateFilter) {
-                posts = partyPostRepository
-                        .findByTheaterIdInAndIsHiddenFalseAndPartyDeadlineBetweenAndPartyDeadlineAfter(
-                                theaterIds, startDateTime, endDateTime, now);
+            if (hasDateFilter && hasMovieFilter) {
+                posts = partyPostRepository.findByTheaterIdInAndPartyDeadlineBetweenAndPartyDeadlineAfterAndMovieContainingIgnoreCase(
+                        theaterIds, startDateTime, endDateTime, now, movie);
+            } else if (hasDateFilter) {
+                posts = partyPostRepository.findByTheaterIdInAndPartyDeadlineBetweenAndPartyDeadlineAfter(
+                        theaterIds, startDateTime, endDateTime, now);
+            } else if (hasMovieFilter) {
+                posts = partyPostRepository.findByTheaterIdInAndPartyDeadlineAfterAndMovieContainingIgnoreCase(
+                        theaterIds, now, movie);
             } else {
-                posts = partyPostRepository
-                        .findByTheaterIdInAndIsHiddenFalseAndPartyDeadlineAfter(theaterIds, now);
+                posts = partyPostRepository.findByTheaterIdInAndPartyDeadlineAfter(theaterIds, now);
             }
         }
 
         return posts.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt())) // 최신 등록순 정렬
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -99,7 +109,8 @@ public class PartyPostServiceImpl implements PartyPostService {
 
     @Override
     public Map<Integer, Long> countPartyPostsByTheater() {
-        List<Object[]> results = partyPostRepository.countPostsGroupedByTheater();
+        LocalDateTime now = LocalDateTime.now();
+        List<Object[]> results = partyPostRepository.countPostsGroupedByTheater(now);
         return results.stream().collect(Collectors.toMap(
             r -> (Integer) r[0],
             r -> (Long) r[1]
@@ -136,7 +147,7 @@ public class PartyPostServiceImpl implements PartyPostService {
                 .orElse("알 수 없음");
 
         return PartyResponse.builder()
-                .id(post.getId())
+        		.memberId(post.getMemberId())
                 .partyPostNo(post.getPartyPostNo())
                 .nickname(post.getNickname())
                 .movie(post.getMovie())
@@ -144,11 +155,9 @@ public class PartyPostServiceImpl implements PartyPostService {
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
                 .partyDeadline(post.getPartyDeadline())
-                .isTerminated(post.getIsTerminated())
-                .isHidden(post.getIsHidden())
                 .views(post.getViews())
                 .theaterId(post.getTheaterId())
-                .theaterName(theaterName)  // ✅ 추가
+                .theaterName(theaterName)
                 .partyLimit(post.getPartyLimit())
                 .gender(post.getGender())
                 .ageGroupsMask(post.getAgeGroupsMask())
@@ -158,15 +167,13 @@ public class PartyPostServiceImpl implements PartyPostService {
 
     private PartyPost toEntity(PartyPostRequest dto) {
         return PartyPost.builder()
-                .id(dto.getId())
+        		.memberId(dto.getMemberId())
                 .nickname(dto.getNickname())
                 .movie(dto.getMovie())
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .partyDeadline(dto.getPartyDeadline())
                 .createdAt(LocalDateTime.now())
-                .isTerminated(false)
-                .isHidden(false)
                 .views(0)
                 .theaterId(dto.getTheaterId())
                 .partyLimit(dto.getPartyLimit())

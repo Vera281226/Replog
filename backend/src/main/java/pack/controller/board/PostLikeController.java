@@ -16,15 +16,17 @@ import pack.service.board.PostLikeService;
 public class PostLikeController {
 
     private final PostLikeService postLikeService;
+
     // 좋아요 토글
     @PostMapping("/{postNo}/like")
-    public String toggleLike(@PathVariable("postNo") Integer postNo, @RequestParam("id") String id) {
-        boolean liked = postLikeService.likePost(id, postNo);
+    public String toggleLike(@PathVariable("postNo") Integer postNo, @RequestParam("memberId") String memberId) {
+        boolean liked = postLikeService.likePost(memberId, postNo);
         return liked ? "liked" : "unliked";
     }
+
     // 좋아요 확인
     @GetMapping("/{postNo}/like")
-    public boolean checkLiked(@PathVariable("postNo") Integer postNo, @RequestParam("id") String id) {
-        return postLikeService.isPostLiked(id, postNo);
+    public boolean checkLiked(@PathVariable("postNo") Integer postNo, @RequestParam("memberId") String memberId) {
+        return postLikeService.isPostLiked(memberId, postNo);
     }
 }

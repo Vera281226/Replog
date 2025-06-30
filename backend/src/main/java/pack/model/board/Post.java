@@ -31,7 +31,7 @@ public class Post {
     private Integer postNo;
 
     @Column(nullable = false, length = 20)
-    private String id; // member ID
+    private String memberId;
 
     @Column(nullable = false, length = 20)
     private String nickname;
@@ -50,9 +50,6 @@ public class Post {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
-
-    @Column(nullable = false)
-    private Boolean isHidden = false;
 
     private Integer views = 0;
     

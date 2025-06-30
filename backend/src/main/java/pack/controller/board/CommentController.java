@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,8 +26,9 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/post/{postNo}")
-    public List<CommentResponse> getCommentsByPost(@PathVariable("postNo") Integer postNo) {
-        return commentService.getCommentsByPostNo(postNo);
+    public List<CommentResponse> getCommentsByPost(@PathVariable("postNo") Integer postNo,
+                                                   @RequestParam(value = "memberId", required = false) String memberId) {
+        return commentService.getCommentsByPostNo(postNo, memberId);
     }
 
     @GetMapping("/{commentNo}")

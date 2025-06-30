@@ -29,7 +29,7 @@ public class PartyPost {
     private Integer partyPostNo;
 
     @Column(length = 20)
-    private String id;
+    private String memberId;
 
     @Column(nullable = false, length = 20)
     private String nickname;
@@ -48,12 +48,6 @@ public class PartyPost {
 
     @Column(name = "party_deadline", nullable = false)
     private LocalDateTime partyDeadline;
-
-    @Column(name = "is_terminated")
-    private Boolean isTerminated = false;
-
-    @Column(name = "is_hidden")
-    private Boolean isHidden = false;
 
     private Integer views;
 

@@ -29,8 +29,8 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer commentNo;
 
-    @Column(nullable = false, length = 20)
-    private String id; // FK - member.id
+    @Column(name = "member_id", nullable = false, length = 20)
+    private String memberId;
 
     @Column(nullable = false, length = 20)
     private String nickname;
@@ -47,24 +47,9 @@ public class Comment {
 
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false)
-    private Boolean isHidden = false;
-
-    @Column(nullable = false)
-    private Integer likes = 0;
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
     
-    public void increaseLikes() {
-        this.likes = this.likes + 1;
-    }
-
-    public void decreaseLikes() {
-        if (this.likes > 0) {
-            this.likes = this.likes - 1;
-        }
-    }
 }
