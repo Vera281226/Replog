@@ -15,14 +15,13 @@ import lombok.Setter;
 @Builder
 public class PostResponse {
     private Integer postNo;
-    private String id;
+    private String memberId;
     private String nickname;
     private String category;
     private String title;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Boolean isHidden;
     private Integer views;
     private Integer likes;
 }

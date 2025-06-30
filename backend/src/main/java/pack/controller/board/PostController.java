@@ -17,8 +17,6 @@ import pack.dto.board.PostRequest;
 import pack.dto.board.PostResponse;
 import pack.service.board.PostService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor

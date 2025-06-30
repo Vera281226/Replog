@@ -26,7 +26,7 @@ public class PostLike {
 
     @Id
     @Column(length = 20)
-    private String id; // member.id
+    private String memberId; // member.id
 
     @Id
     private Integer postNo; // posts.post_no

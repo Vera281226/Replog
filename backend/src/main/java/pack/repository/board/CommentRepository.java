@@ -6,5 +6,5 @@ import pack.model.board.Comment;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
-    List<Comment> findByPostNoAndIsHiddenFalseOrderByCreatedAtAsc(Integer postNo);
+	List<Comment> findByPostNoOrderByCreatedAtAsc(Integer postNo);
 }

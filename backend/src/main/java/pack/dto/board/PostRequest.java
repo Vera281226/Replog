@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class PostRequest {
-    private String id;
+    private String memberId;
     private String nickname;
     private String category;
     private String title;

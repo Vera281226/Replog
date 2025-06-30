@@ -15,12 +15,12 @@ import lombok.Setter;
 @Builder
 public class CommentResponse {
     private Integer commentNo;
-    private String id;
+    private String memberId;
     private String nickname;
     private Integer postNo;
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Boolean isHidden;
-    private Integer likes;
+    private Long likes;
+    private Boolean isLiked;
 }
