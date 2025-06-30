@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class PartyResponse {
-	private String id;
+	private String memberId;
     private Integer partyPostNo;
     private String nickname;
     private String movie;
@@ -22,8 +22,6 @@ public class PartyResponse {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime partyDeadline;
-    private Boolean isTerminated;
-    private Boolean isHidden;
     private Integer views;
     private Integer theaterId;
     private Integer partyLimit;

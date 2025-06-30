@@ -32,14 +32,15 @@ public class PartyPostController {
         return ResponseEntity.ok(partyPostService.getPartyPostByNo(partyPostNo));
     }
     
-    // 날짜 필터 + 해당 영화관(다중선택가능) 모집글 조회
+    // 날짜 필터 + 영화명 검색 + 해당 영화관(다중선택가능) 모집글 조회
     @GetMapping("/theaters")
     public ResponseEntity<List<PartyResponse>> getFilteredPostsByTheaters(
             @RequestParam(value = "ids", required = false) List<Integer> ids,
             @RequestParam(value = "start", required = false) String start,
-            @RequestParam(value = "end", required = false) String end
+            @RequestParam(value = "end", required = false) String end,
+            @RequestParam(value = "movie", required = false) String movie
     ) {
-        return ResponseEntity.ok(partyPostService.getFilteredPartyPosts(ids, start, end));
+        return ResponseEntity.ok(partyPostService.getFilteredPartyPosts(ids, start, end, movie));
     }
     
     // 모집글 작성

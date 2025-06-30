@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class TheaterResponse {
-    private Integer id;
+    private Integer theaterId;
     private String name;
     private String address;
     private Double latitude;
