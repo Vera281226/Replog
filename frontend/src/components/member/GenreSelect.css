@@ -1,0 +1,26 @@
+/* src/components/member/GenreSelect.css */
+.genre-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.genre-btn {
+  padding: 6px 12px;
+  border: 1px solid #888;
+  border-radius: 20px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all .15s;
+}
+.genre-btn.selected {
+  background: #2684ff;
+  border-color: #2684ff;
+  color: #fff;
+}
+.counter {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #666;
+}

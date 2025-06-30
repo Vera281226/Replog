@@ -1,0 +1,9 @@
+/* MyPage.css */
+.mypage { max-width:460px; margin:40px auto; text-align:center; }
+.profile-img { width:120px; height:120px; border-radius:50%; object-fit:cover; }
+.intro { color:#555; margin:8px 0 4px; }
+.count { font-size:.9rem; color:#666; }
+.btn.edit { display:inline-block; margin:12px 0 24px; padding:8px 24px;
+            border:1px solid #000; background:#fff; }
+.link-box { display:flex; flex-direction:column; gap:12px; }
+.link-box a { color:#000; text-decoration:none; }

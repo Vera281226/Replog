@@ -3,12 +3,13 @@ package pack.dto.member;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import pack.model.member.Genre;
 
 @Getter
 @Setter
@@ -16,7 +17,9 @@ import pack.model.member.Genre;
 @AllArgsConstructor
 @Builder
 public class SignUpRequest{
+	@JsonProperty("id")
 	public String memberId;
+	@JsonProperty("password")
 	public String pwd;
 	public String name;
 	public String nickname;
@@ -26,5 +29,5 @@ public class SignUpRequest{
 	public LocalDate birthdate;
 	public String gender;
 	
-	private List<Genre> genres;
+	private List<Integer> genres;
 }
