@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pack.ProjectBackendApplication;
 import pack.dto.member.SignUpRequest;
-
+import pack.dto.member.UserInfoResponse;
 import pack.model.member.Member;
 import pack.repository.member.MemberRepository;
 
@@ -86,6 +86,35 @@ public class MemberServiceImpl implements MemberService {
 		memberRepository.save(member);
 		
 		return true;
+	}
+	
+	@Override
+	public UserInfoResponse authenticateUser(String memberId, String password) {
+	    boolean isValid = validateLogin(memberId, password);
+	    if (!isValid) {
+	        throw new RuntimeException("인증 실패");
+	    }
+	    
+	    Member member = memberRepository.findById(memberId)
+	        .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+	    
+	    return UserInfoResponse.builder()
+	        .memberId(member.getMemberId())
+	        .nickname(member.getNickname())
+	        .email(member.getEmail())
+	        .build();
+	}
+
+	@Override
+	public UserInfoResponse getUserInfo(String memberId) {
+	    Member member = memberRepository.findById(memberId)
+	        .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+	    
+	    return UserInfoResponse.builder()
+	        .memberId(member.getMemberId())
+	        .nickname(member.getNickname())
+	        .email(member.getEmail())
+	        .build();
 	}
 }
 	
