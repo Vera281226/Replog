@@ -1,6 +1,8 @@
 package pack.index.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -12,6 +14,8 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor // 모든 필드 생성자
+@NoArgsConstructor  // 기본 생성자
 public class IndexHotReviewResponse {
 
     /** 리뷰 ID */

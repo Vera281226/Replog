@@ -15,17 +15,16 @@ import java.util.Map;
 
 /**
  * IndexService 클래스
- * - index 관련 기능(홈화면용 데이터)을 처리하는 비즈니스 로직 클래스
- * - TMDB API 또는 DB로부터 데이터를 받아와 가공 후 DTO 리스트로 반환
+ * - index.html에서 사용하는 데이터(현재 상영작, 핫 리뷰)를 처리하는 서비스 클래스
  */
 @Service
 @RequiredArgsConstructor
 public class IndexService {
 
-    /** RestTemplate 의존성 주입 (TMDB API 호출용) */
+    /** TMDB API 호출용 RestTemplate */
     private final RestTemplate restTemplate;
 
-    // /** Repository 의존성 주입 (DB 리뷰 조회용) */
+    // /** 리뷰 조회용 Repository */
     // private final IndexReviewRepository indexReviewRepository;
 
     /** TMDB API 키 (application.properties 또는 .yml에서 주입) */
@@ -33,7 +32,10 @@ public class IndexService {
     private String apiKey;
 
     /**
-     * 현재 상영 중 영화 리스트를 TMDB API로부터 가져와서 가공 후 반환
+     * 현재 상영 중 영화 목록 조회
+     * - TMDB의 now_playing 엔드포인트 호출
+     * - 한국 기준 최신 상영작 목록 반환
+     *
      * @return List<IndexNowPlayingResponse>
      */
     public List<IndexNowPlayingResponse> getNowPlayingMovies() {
@@ -60,10 +62,15 @@ public class IndexService {
 
         return list;
     }
+
     /*
-    // 지금 뜨는 리뷰 리스트를 DB에서 조회 후 응답 DTO로 가공
+    // 지금 뜨는 리뷰 목록 조회
+    // - DB 기반 JPQL 쿼리를 통해 review, member, contents JOIN 조회
     public List<IndexHotReviewResponse> getHotReviews() {
-        return indexReviewRepository.findHotReviews();
+        return indexReviewRepository.findHotReviews()
+                .stream()
+                .limit(10)
+                .toList();
     }
     */
 }

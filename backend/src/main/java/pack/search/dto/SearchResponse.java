@@ -14,19 +14,19 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class SearchResponse {  // ✅ 반드시 class로 유지
+public class SearchResponse {
 
     private Integer contentId;       // 콘텐츠 고유 ID
     private String title;            // 콘텐츠 제목
     private String overview;         // 줄거리(개요)
     private String posterPath;       // 포스터 이미지 경로
-    private LocalDate releaseDate;      // ✅ 반드시 String (DATE 매핑 오류 방지)
-    private Float rating;           // 평점
-    private String mediaType;        // 콘텐츠 유형 (movie 또는 tv)
+    private LocalDate releaseDate;   // 개봉일자 or 첫 방영일 (LocalDate 타입)
+    private Float rating;            // TMDB 평균 평점
+    private String mediaType;        // 콘텐츠 유형 ('movie' or 'tv')
 
     /**
-     * Native Query 매핑용 생성자
-     * - 쿼리 컬럼 순서와 타입 100% 일치해야 함
+     * JPQL 생성자 방식 DTO 매핑용 생성자
+     * - 쿼리에서 new 키워드로 이 생성자를 직접 호출함
      */
     public SearchResponse(Integer contentId, String title, String overview,
                           String posterPath, LocalDate releaseDate,

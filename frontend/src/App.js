@@ -1,10 +1,3 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { ErrorBoundary } from './error/components/ErrorBoundary';
-import { ErrorModal } from './error/components/ErrorModal';
-import { closeModal } from './error/redux/errorSlice';
-
 import ContentDetail from './components/ContentDetail';
 import ReviewList from './components/Review/ReviewList';
 import ReviewPopup from './components/Review/ReviewPopup'; 
