@@ -5,7 +5,7 @@ import axios from 'axios';
 import MovieCard from './MovieCard'; // 공통 카드 컴포넌트 import
 
 // ✅ TMDB API 키
-const API_KEY = '16a0ea8699fa78781abae853600c2b61';
+const API_KEY = '';
 
 const ContentsDisney = () => {
   const [movies, setMovies] = useState([]);
