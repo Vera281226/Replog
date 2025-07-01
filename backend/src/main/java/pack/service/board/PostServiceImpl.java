@@ -14,7 +14,6 @@ import pack.repository.board.PostRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -24,16 +23,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-
-    // 전체 조회
-    @Override
-    public List<PostResponse> getAllPosts() {
-        return postRepository.findAll().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
-
-    // 단순조회(조회수 증가X)
+    
     @Override
     public PostResponse getPostById(Integer postNo) {
         Post post = postRepository.findById(postNo)
@@ -41,7 +31,6 @@ public class PostServiceImpl implements PostService {
         return toDto(post);
     }
 
-    // 글쓰기
     @Override
     public PostResponse createPost(PostRequest dto) {
         validatePostRequest(dto);
@@ -49,7 +38,6 @@ public class PostServiceImpl implements PostService {
         return toDto(postRepository.save(post));
     }
 
-    // 수정
     @Override
     public PostResponse updatePost(Integer postNo, PostRequest dto) {
         Post post = postRepository.findById(postNo)
@@ -64,7 +52,6 @@ public class PostServiceImpl implements PostService {
         return toDto(postRepository.save(post));
     }
 
-    // 삭제
     @Override
     public void deletePost(Integer postNo) {
         if (!postRepository.existsById(postNo)) {
@@ -73,7 +60,6 @@ public class PostServiceImpl implements PostService {
         postRepository.deleteById(postNo);
     }
 
-    // 조회 + 조회수 증가
     @Override
     public PostResponse getPostAndIncreaseViews(Integer postNo) {
         Post post = postRepository.findById(postNo)
@@ -82,8 +68,12 @@ public class PostServiceImpl implements PostService {
         Post updated = postRepository.save(post);
         return toDto(updated);
     }
+    
+    @Override
+    public int countPostsByMemberId(String memberId) {
+        return postRepository.countByMemberId(memberId);
+    }
 
-    // 정렬 + 페이징 + 검색
     @Override
     public Page<PostResponse> getFilteredPosts(int page, String sortBy, String direction, String category, String searchType, String searchKeyword) {
         if (!List.of("createdAt", "views", "likes").contains(sortBy)) {
@@ -128,28 +118,26 @@ public class PostServiceImpl implements PostService {
     private PostResponse toDto(Post post) {
         return PostResponse.builder()
                 .postNo(post.getPostNo())
-                .id(post.getId())
+                .memberId(post.getMemberId()) // 수정됨
                 .nickname(post.getNickname())
                 .category(post.getCategory())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
-                .isHidden(post.getIsHidden())
                 .views(post.getViews())
                 .likes(post.getLikes())
                 .build();
     }
 
-    // DTO -> Entity 변환 (등록 시)
+    // DTO -> Entity 변환
     private Post toEntity(PostRequest dto) {
         return Post.builder()
-                .id(dto.getId())
+                .memberId(dto.getMemberId()) // 수정됨
                 .nickname(dto.getNickname())
                 .category(dto.getCategory())
                 .title(dto.getTitle())
                 .content(dto.getContent())
-                .isHidden(false)
                 .views(0)
                 .likes(0)
                 .build();
@@ -157,7 +145,7 @@ public class PostServiceImpl implements PostService {
 
     // 유효성 검사
     private void validatePostRequest(PostRequest dto) {
-        if (dto.getId() == null || dto.getId().isBlank()) {
+        if (dto.getMemberId() == null || dto.getMemberId().isBlank()) { // 수정됨
             throw new ResponseStatusException(BAD_REQUEST, "작성자 ID는 필수입니다.");
         }
         if (dto.getTitle() == null || dto.getTitle().isBlank()) {

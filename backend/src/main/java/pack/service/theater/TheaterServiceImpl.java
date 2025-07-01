@@ -45,7 +45,7 @@ public class TheaterServiceImpl implements TheaterService {
 
     private TheaterResponse toDto(Theater theater) {
         return TheaterResponse.builder()
-                .id(theater.getId())
+        		.theaterId(theater.getTheaterId())
                 .name(theater.getName())
                 .address(theater.getAddress())
                 .latitude(theater.getLatitude())

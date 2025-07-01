@@ -23,8 +23,8 @@ import lombok.Setter;
 public class CommentLike {
 
     @Id
-    @Column(name = "id", nullable = false, length = 20)
-    private String id;
+    @Column(name = "member_id", nullable = false, length = 20)
+    private String memberId;
 
     @Id
     @Column(name = "comment_no", nullable = false)

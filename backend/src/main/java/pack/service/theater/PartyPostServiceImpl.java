@@ -1,14 +1,26 @@
-package pack.service.theater;
+	package pack.service.theater;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import jakarta.transaction.Transactional;
 import pack.dto.theater.PartyResponse;
+import pack.dto.chat.ChatRoomRequest;
 import pack.dto.theater.PartyPostRequest;
+import pack.model.chat.ChatMessage;
+import pack.model.chat.ChatParticipant;
+import pack.model.chat.ChatRoom;
+import pack.model.chat.ChatRoom.RoomType;
 import pack.model.theater.PartyPost;
+import pack.repository.chat.ChatMessageRepository;
+import pack.repository.chat.ChatParticipantRepository;
+import pack.repository.chat.ChatRoomRepository;
+import pack.repository.member.MemberRepository;
 import pack.repository.theater.PartyPostRepository;
 import pack.repository.theater.TheaterRepository;
+import pack.service.chat.ChatService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,7 +33,11 @@ import java.util.stream.Collectors;
 public class PartyPostServiceImpl implements PartyPostService {
 
     private final PartyPostRepository partyPostRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final TheaterRepository theaterRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ChatParticipantRepository chatParticipantRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public PartyResponse getPartyPostByNo(Integer partyPostNo) {
@@ -37,9 +53,10 @@ public class PartyPostServiceImpl implements PartyPostService {
     }
 
     @Override
-    public List<PartyResponse> getFilteredPartyPosts(List<Integer> theaterIds, String start, String end) {
+    public List<PartyResponse> getFilteredPartyPosts(List<Integer> theaterIds, String start, String end, String movie) {
         LocalDateTime now = LocalDateTime.now();
         boolean hasDateFilter = start != null && !start.isBlank() && end != null && !end.isBlank();
+        boolean hasMovieFilter = movie != null && !movie.isBlank();
 
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
@@ -51,55 +68,142 @@ public class PartyPostServiceImpl implements PartyPostService {
         List<PartyPost> posts;
 
         if (theaterIds == null || theaterIds.isEmpty()) {
-            if (hasDateFilter) {
-                posts = partyPostRepository
-                        .findByIsHiddenFalseAndPartyDeadlineBetweenAndPartyDeadlineAfter(
-                                startDateTime, endDateTime, now);
+            if (hasDateFilter && hasMovieFilter) {
+                posts = partyPostRepository.findByPartyDeadlineBetweenAndPartyDeadlineAfterAndMovieContainingIgnoreCase(
+                        startDateTime, endDateTime, now, movie);
+            } else if (hasDateFilter) {
+                posts = partyPostRepository.findByPartyDeadlineBetweenAndPartyDeadlineAfter(
+                        startDateTime, endDateTime, now);
+            } else if (hasMovieFilter) {
+                posts = partyPostRepository.findByPartyDeadlineAfterAndMovieContainingIgnoreCase(
+                        now, movie);
             } else {
-                posts = partyPostRepository
-                        .findByIsHiddenFalseAndPartyDeadlineAfter(now);
+                posts = partyPostRepository.findByPartyDeadlineAfter(now);
             }
         } else {
-            if (hasDateFilter) {
-                posts = partyPostRepository
-                        .findByTheaterIdInAndIsHiddenFalseAndPartyDeadlineBetweenAndPartyDeadlineAfter(
-                                theaterIds, startDateTime, endDateTime, now);
+            if (hasDateFilter && hasMovieFilter) {
+                posts = partyPostRepository.findByTheaterIdInAndPartyDeadlineBetweenAndPartyDeadlineAfterAndMovieContainingIgnoreCase(
+                        theaterIds, startDateTime, endDateTime, now, movie);
+            } else if (hasDateFilter) {
+                posts = partyPostRepository.findByTheaterIdInAndPartyDeadlineBetweenAndPartyDeadlineAfter(
+                        theaterIds, startDateTime, endDateTime, now);
+            } else if (hasMovieFilter) {
+                posts = partyPostRepository.findByTheaterIdInAndPartyDeadlineAfterAndMovieContainingIgnoreCase(
+                        theaterIds, now, movie);
             } else {
-                posts = partyPostRepository
-                        .findByTheaterIdInAndIsHiddenFalseAndPartyDeadlineAfter(theaterIds, now);
+                posts = partyPostRepository.findByTheaterIdInAndPartyDeadlineAfter(theaterIds, now);
             }
         }
 
         return posts.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt())) // 최신 등록순 정렬
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void createPartyPost(PartyPostRequest dto) {
-        if (dto.getTitle() == null || dto.getTitle().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "제목은 필수입니다.");
-        }
-        if (dto.getContent() == null || dto.getContent().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "내용은 필수입니다.");
-        }
-        if (dto.getMovie() == null || dto.getMovie().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "영화 제목은 필수입니다.");
-        }
-        if (dto.getPartyDeadline() == null || dto.getPartyDeadline().isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "마감일은 현재보다 이후여야 합니다.");
-        }
-        if (dto.getTheaterId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "영화관 ID는 필수입니다.");
-        }
-
+    @Transactional
+    public PartyResponse createPartyPost(PartyPostRequest dto) {
+        // ✅ 입력값 검증 강화
+        validatePartyPostRequest(dto);
+        validateMemberExists(dto.getMemberId()); // 추가 검증
+        
+        // 모집글 저장
         PartyPost post = toEntity(dto);
-        partyPostRepository.save(post);
+        PartyPost savedPost = partyPostRepository.save(post);
+        
+        // ✅ 채팅방 생성 및 작성자 자동 참가
+        ChatRoom chatRoom = createPartyCharRoom(savedPost);
+        addCreatorToPartyRoom(chatRoom.getChatRoomId(), dto.getMemberId());
+        
+        return toDto(savedPost);
+    }
+    
+    private void addCreatorToPartyRoom(Integer chatRoomId, String memberId) {
+        try {
+            // ChatParticipant를 직접 생성하여 추가
+            ChatParticipant participant = ChatParticipant.builder()
+                .chatRoomId(chatRoomId)
+                .memberId(memberId)
+                .joinedAt(LocalDateTime.now())
+                .build();
+            
+            chatParticipantRepository.save(participant);
+            
+            // ✅ 환영 메시지 추가
+            addWelcomeMessage(chatRoomId);
+            
+        } catch (Exception e) {
+            // 실패해도 모집글 생성은 계속 진행
+        }
+    }
+    
+    private void addWelcomeMessage(Integer chatRoomId) {
+        try {
+            ChatMessage welcomeMessage = ChatMessage.builder()
+                .chatRoomId(chatRoomId)
+                .senderId("SYSTEM")
+                .messageText("🎬 모집글 채팅방이 생성되었습니다! 파티 멤버들과 대화를 나눠보세요.")
+                .sentAt(LocalDateTime.now())
+                .build();
+            
+            chatMessageRepository.save(welcomeMessage);
+            
+        } catch (Exception e) {
+
+        }
     }
 
+	private void validateMemberExists(String memberId) {
+        if (memberId == null || memberId.trim().isEmpty()) {
+            throw new IllegalArgumentException("사용자 ID는 필수입니다.");
+        }
+        
+        // member 테이블에 해당 ID가 존재하는지 확인
+        // MemberRepository가 있다면 사용, 없다면 직접 쿼리
+        try {
+             memberRepository.findById(memberId)
+                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        } catch (Exception e) {
+            throw new IllegalArgumentException("사용자 정보를 확인할 수 없습니다.");
+        }
+    }
+
+	private void validatePartyPostRequest(PartyPostRequest dto) {
+        if (dto.getTitle() == null || dto.getTitle().isBlank()) {
+            throw new IllegalArgumentException("제목은 필수입니다.");
+        }
+        if (dto.getContent() == null || dto.getContent().isBlank()) {
+            throw new IllegalArgumentException("내용은 필수입니다.");
+        }
+        if (dto.getMovie() == null || dto.getMovie().isBlank()) {
+            throw new IllegalArgumentException("영화 제목은 필수입니다.");
+        }
+        if (dto.getPartyDeadline() == null || dto.getPartyDeadline().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("마감일은 현재보다 이후여야 합니다.");
+        }
+        if (dto.getTheaterId() == null) {
+            throw new IllegalArgumentException("영화관 ID는 필수입니다.");
+        }
+    }
+    
+	private ChatRoom createPartyCharRoom(PartyPost post) {
+	    ChatRoom chatRoom = ChatRoom.builder()
+	        .partyPostNo(post.getPartyPostNo())
+	        .roomName(post.getMovie() + " 모집 채팅방")  // 이름 개선
+	        .roomType(ChatRoom.RoomType.PARTY)
+	        .isActive(true)
+	        .build();
+	    
+	    ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
+	    
+	    return savedRoom;
+	}
     @Override
     public Map<Integer, Long> countPartyPostsByTheater() {
-        List<Object[]> results = partyPostRepository.countPostsGroupedByTheater();
+        LocalDateTime now = LocalDateTime.now();
+        List<Object[]> results = partyPostRepository.countPostsGroupedByTheater(now);
         return results.stream().collect(Collectors.toMap(
             r -> (Integer) r[0],
             r -> (Long) r[1]
@@ -135,8 +239,12 @@ public class PartyPostServiceImpl implements PartyPostService {
                 .map(t -> t.getName())
                 .orElse("알 수 없음");
 
+        Integer chatRoomId = chatRoomRepository.findByPartyPostNo(post.getPartyPostNo())
+                .map(ChatRoom::getChatRoomId)
+                .orElse(null); // 존재하지 않을 수도 있으므로 null 처리
+
         return PartyResponse.builder()
-                .id(post.getId())
+                .memberId(post.getMemberId())
                 .partyPostNo(post.getPartyPostNo())
                 .nickname(post.getNickname())
                 .movie(post.getMovie())
@@ -144,29 +252,26 @@ public class PartyPostServiceImpl implements PartyPostService {
                 .content(post.getContent())
                 .createdAt(post.getCreatedAt())
                 .partyDeadline(post.getPartyDeadline())
-                .isTerminated(post.getIsTerminated())
-                .isHidden(post.getIsHidden())
                 .views(post.getViews())
                 .theaterId(post.getTheaterId())
-                .theaterName(theaterName)  // ✅ 추가
+                .theaterName(theaterName)
                 .partyLimit(post.getPartyLimit())
                 .gender(post.getGender())
                 .ageGroupsMask(post.getAgeGroupsMask())
+                .chatRoomId(chatRoomId) // ✅ 추가됨
                 .build();
     }
 
 
     private PartyPost toEntity(PartyPostRequest dto) {
         return PartyPost.builder()
-                .id(dto.getId())
+        		.memberId(dto.getMemberId())
                 .nickname(dto.getNickname())
                 .movie(dto.getMovie())
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .partyDeadline(dto.getPartyDeadline())
                 .createdAt(LocalDateTime.now())
-                .isTerminated(false)
-                .isHidden(false)
                 .views(0)
                 .theaterId(dto.getTheaterId())
                 .partyLimit(dto.getPartyLimit())

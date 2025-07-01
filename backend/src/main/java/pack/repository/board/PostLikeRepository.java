@@ -5,6 +5,6 @@ import pack.model.board.PostLike;
 import pack.model.board.PostLikeId;
 
 public interface PostLikeRepository extends JpaRepository<PostLike, PostLikeId> {
-    boolean existsByIdAndPostNo(String id, Integer postNo);
-    void deleteByIdAndPostNo(String id, Integer postNo);
+    boolean existsByMemberIdAndPostNo(String memberId, Integer postNo);
+    void deleteByMemberIdAndPostNo(String memberId, Integer postNo);
 }

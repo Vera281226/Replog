@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class CommentRequest {
-    private String id;          // 작성자 ID
+    private String memberId;    // 작성자 ID
     private String nickname;    // 작성자 닉네임
     private Integer postNo;     // 대상 게시글 번호
     private String content;     // 댓글 내용

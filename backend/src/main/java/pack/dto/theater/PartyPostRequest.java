@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class PartyPostRequest {
-    private String id;
+    private String memberId;
     private String nickname;
     private String movie;
     private String title;

@@ -15,4 +15,3 @@ public class GenreRequest {
     private String memberId;
     private String name;
 }
-

@@ -8,8 +8,8 @@ import java.util.Map;
 
 public interface PartyPostService {
 	PartyResponse getPartyPostByNo(Integer partyPostNo);
-    List<PartyResponse> getFilteredPartyPosts(List<Integer> theaterIds, String start, String end);
-    void createPartyPost(PartyPostRequest dto);
+	List<PartyResponse> getFilteredPartyPosts(List<Integer> theaterIds, String start, String end, String movie);
+    PartyResponse createPartyPost(PartyPostRequest dto);
     Map<Integer, Long> countPartyPostsByTheater();
     
     PartyResponse updatePartyPost(Integer partyPostNo, PartyPostRequest dto);

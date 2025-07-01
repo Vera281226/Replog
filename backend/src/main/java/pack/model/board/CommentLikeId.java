@@ -14,6 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class CommentLikeId implements Serializable {
-    private String id;
+    private String memberId;
     private Integer commentNo;
 }

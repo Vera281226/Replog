@@ -17,8 +17,6 @@ import pack.dto.board.PostRequest;
 import pack.dto.board.PostResponse;
 import pack.service.board.PostService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -61,5 +59,11 @@ public class PostController {
             @RequestParam(name = "searchKeyword", required = false) String searchKeyword
     ) {
         return postService.getFilteredPosts(page, sortBy, direction, category, searchType, searchKeyword);
+    }
+    
+    // 내가 쓴 게시글 수
+    @GetMapping("/count")
+    public int getMyPostCount(@RequestParam("memberId") String memberId) {
+        return postService.countPostsByMemberId(memberId);
     }
 }
