@@ -1,6 +1,7 @@
 package pack.service.member;
 
 import pack.dto.member.SignUpRequest;
+import pack.dto.member.UserInfoResponse;
 
 public interface MemberService {
 	boolean emailExists(String email); // 이메일 중복 확인
@@ -9,4 +10,6 @@ public interface MemberService {
     boolean validateLogin(String memberId, String password); // 로그인 검증
     boolean withdraw(String memberId, String password); // 탈퇴 처리
     //void updatePassword(String email, String newPassword); // 비밀번호 재설정용 메서드
+	UserInfoResponse authenticateUser(String memberId, String password);
+	UserInfoResponse getUserInfo(String memberId);
 }
