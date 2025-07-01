@@ -102,4 +102,9 @@ public class CommentServiceImpl implements CommentService {
         }
         commentRepository.deleteById(commentNo);
     }
+    
+    @Override
+    public int countCommentsByMemberId(String memberId) {
+        return commentRepository.countByMemberId(memberId);
+    }
 }

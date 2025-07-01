@@ -50,4 +50,10 @@ public class CommentController {
     public void deleteComment(@PathVariable("commentNo") Integer commentNo) {
         commentService.deleteComment(commentNo);
     }
+    
+    // 내가 쓴 댓글 수 조회
+    @GetMapping("/count")
+    public int getMyCommentCount(@RequestParam("memberId") String memberId) {
+        return commentService.countCommentsByMemberId(memberId);
+    }
 }

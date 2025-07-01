@@ -20,4 +20,6 @@ public interface PostRepository extends JpaRepository<Post, Integer>, PagingAndS
     Page<Post> findByTitleContaining(String title, Pageable pageable);
     Page<Post> findByContentContaining(String content, Pageable pageable);
     Page<Post> findByNicknameContaining(String nickname, Pageable pageable);
+    
+    int countByMemberId(String memberId);
 }

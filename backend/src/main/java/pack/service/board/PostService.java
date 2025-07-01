@@ -11,5 +11,6 @@ public interface PostService {
     PostResponse updatePost(Integer postNo, PostRequest dto);
     void deletePost(Integer postNo);
     PostResponse getPostAndIncreaseViews(Integer postNo);
+    public int countPostsByMemberId(String memberId);
     Page<PostResponse> getFilteredPosts(int page, String sortBy, String direction, String category, String searchType, String searchKeyword);
 }
