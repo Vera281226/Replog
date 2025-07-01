@@ -1,0 +1,214 @@
+/* --------------------------------------------
+ * 전체 페이지 래퍼: 항상 최소 화면 크기 유지
+ * -------------------------------------------- */
+.search-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;       /* 전체 화면 높이 확보 */
+    background-color: #fff;
+}
+
+/* --------------------------------------------
+ * 메인 콘텐츠 영역
+ * -------------------------------------------- */
+.search-page-container {
+    flex: 1;                  /* Footer를 아래로 밀어냄 */
+    padding: 20px 40px;
+}
+
+/* --------------------------------------------
+ * 검색창 (SearchBar) 공통 스타일
+ * -------------------------------------------- */
+.search-bar-wrapper {
+    position: relative;
+}
+
+.search-bar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 40px 0 20px;
+}
+
+.search-input {
+    width: 300px;
+    height: 36px;
+    padding: 0 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.search-button {
+    padding: 8px 12px;
+    font-size: 16px;
+    background-color: #222;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* --------------------------------------------
+ * 자동완성 + 최근 검색어 리스트
+ * -------------------------------------------- */
+.suggestion-list {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    margin-top: 4px;
+    padding: 0;
+    list-style: none;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.suggestion-label {
+    font-weight: bold;
+    font-size: 13px;
+    padding: 6px 12px;
+    background-color: #f8f8f8;
+    color: #666;
+    border-bottom: 1px solid #eee;
+}
+
+.suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.suggestion-item:hover {
+    background-color: #f0f0f0;
+}
+
+.delete-btn {
+    font-size: 14px;
+    color: #888;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* --------------------------------------------
+ * 로딩 중 또는 결과 없음 안내 메시지
+ * -------------------------------------------- */
+.search-loading,
+.search-no-result {
+    text-align: center;
+    font-size: 18px;
+    padding: 60px 20px;
+    color: gray;
+}
+
+/* --------------------------------------------
+ * 검색 결과 제목 (ex: "무빙" 검색 결과)
+ * -------------------------------------------- */
+.search-title {
+    font-size: 24px;
+    margin: 30px 0 20px;
+    text-align: center;
+}
+
+/* --------------------------------------------
+ * 대표 포스터 섹션 (SearchResultPoster)
+ * -------------------------------------------- */
+.poster-section {
+    margin: 40px 0;
+}
+
+.section-title {
+    font-size: 20px;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.poster-slider {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+}
+
+.poster-card {
+    min-width: 140px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.poster-image {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.poster-info {
+    margin-top: 6px;
+}
+
+.poster-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.poster-meta {
+    font-size: 12px;
+    color: #666;
+}
+
+/* --------------------------------------------
+ * 콘텐츠 리스트 섹션 (SearchResultList)
+ * -------------------------------------------- */
+.result-list-section {
+    margin-top: 50px;
+}
+
+.content-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.content-card {
+    display: flex;
+    width: 100%;
+    max-width: 500px;
+    gap: 12px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 16px;
+}
+
+.content-poster {
+    width: 100px;
+    border-radius: 6px;
+}
+
+.content-info {
+    flex: 1;
+}
+
+.content-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 0 4px;
+}
+
+.content-sub {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.content-overview {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.4;
+}

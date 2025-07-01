@@ -1,6 +1,8 @@
 package pack.index.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -9,10 +11,12 @@ import lombok.Setter;
  * - TMDB에서 가져온 영화 데이터 중 필요한 필드만 선별하여 정의
  * - 클라이언트에 응답할 JSON 형식 데이터로 자동 변환됨 (REST API 응답용)
  *
- * ✅ TMDB API 연동 기반 (내부 DB 연동 아님)
+ *  TMDB API 연동 기반 (내부 DB 연동 아님)
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class IndexNowPlayingResponse {
 
     /**

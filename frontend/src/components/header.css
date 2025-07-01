@@ -1,0 +1,72 @@
+/* src/components/header.css */
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ccc;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.logo a {
+  font-size: 1.5em;
+  font-weight: bold;
+  text-decoration: none;
+  color: #333;
+}
+
+nav {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  margin-left: 40px;
+}
+
+.left-menu,
+.right-menu {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  position: relative;
+}
+
+/* 툴팁 */
+.add-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.add-tooltip .tooltip-text {
+  display: none;
+  width: 260px;
+  background-color: #fff;
+  color: #333;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size: 0.9em;
+  white-space: pre-wrap;
+}
+
+.add-tooltip:hover .tooltip-text {
+  display: block;
+}
+
+.add-tooltip a {
+  font-size: 1.5em;
+  color: #007bff;
+}
