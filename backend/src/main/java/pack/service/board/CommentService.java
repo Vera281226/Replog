@@ -11,4 +11,5 @@ public interface CommentService {
     CommentResponse createComment(CommentRequest dto);
     CommentResponse updateComment(Integer commentNo, CommentRequest dto);
     void deleteComment(Integer commentNo);
+    int countCommentsByMemberId(String memberId);
 }

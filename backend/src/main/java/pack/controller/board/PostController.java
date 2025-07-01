@@ -60,4 +60,10 @@ public class PostController {
     ) {
         return postService.getFilteredPosts(page, sortBy, direction, category, searchType, searchKeyword);
     }
+    
+    // 내가 쓴 게시글 수
+    @GetMapping("/count")
+    public int getMyPostCount(@RequestParam("memberId") String memberId) {
+        return postService.countPostsByMemberId(memberId);
+    }
 }

@@ -68,6 +68,11 @@ public class PostServiceImpl implements PostService {
         Post updated = postRepository.save(post);
         return toDto(updated);
     }
+    
+    @Override
+    public int countPostsByMemberId(String memberId) {
+        return postRepository.countByMemberId(memberId);
+    }
 
     @Override
     public Page<PostResponse> getFilteredPosts(int page, String sortBy, String direction, String category, String searchType, String searchKeyword) {
