@@ -29,4 +29,7 @@ public class PartyResponse {
     private Integer ageGroupsMask;
     
     private String theaterName;
+    
+    // 채팅방 연동용
+    private Integer chatRoomId;
 }

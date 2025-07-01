@@ -1,0 +1,17 @@
+
+/* ProfileEdit.css */
+.profile-edit { max-width:520px; margin:40px auto; }
+.img-box { position:relative; display:inline-block; margin-bottom:16px; }
+.preview { width:120px; height:120px; border-radius:50%; object-fit:cover; }
+.img-box .btn.small { position:absolute; bottom:0; left:50%; transform:translateX(-50%); }
+.field { margin-bottom:20px; }
+.field label { display:block; margin-bottom:6px; font-weight:600; }
+.field input, .field textarea { width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; }
+.field textarea { height:100px; resize:none; }
+.count { text-align:right; font-size:.8rem; color:#888; }
+.btn.small { padding:4px 10px; font-size:.8rem; border:1px solid #888; background:#fff; }
+.btn-area { display:flex; gap:8px; }
+.btn { padding:8px 20px; border:1px solid #000; background:#fff; cursor:pointer; }
+.btn.primary { background:#2684ff; color:#fff; border:none; }
+.err-msg { color:#d63031; margin-bottom:12px; }
+.dup-msg { font-size:.8rem; margin-top:4px; }

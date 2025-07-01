@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -25,6 +26,7 @@ import lombok.Setter;
 public class Member {
 
     @Id
+    @Column(name = "member_id", length = 20)
     private String memberId;
 
     private String pwd;
