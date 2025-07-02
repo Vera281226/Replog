@@ -5,7 +5,7 @@ import axios from 'axios';
 import MovieCard from './MovieCard'; // 공통 카드 컴포넌트 import
 
 // ✅ 실제 TMDB API 키 사용
-const API_KEY = '16a0ea8699fa78781abae853600c2b61';
+const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
 const ContentsNetflix = () => {
   const [movies, setMovies] = useState([]);
