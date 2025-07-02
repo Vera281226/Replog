@@ -5,7 +5,7 @@ import axios from 'axios';
 import MovieCard from './MovieCard';
 
 // ✅ 실제 TMDB API 키
-const API_KEY = '16a0ea8699fa78781abae853600c2b61';
+const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
 const UpcomingSection = () => {
   const [movies, setMovies] = useState([]);

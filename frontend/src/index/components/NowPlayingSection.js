@@ -8,8 +8,8 @@ import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
-/* TMDB API 키 상수 */
-const API_KEY = '16a0ea8699fa78781abae853600c2b61';
+/* TMDB API 키 */
+const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
 const NowPlayingSection = () => {
   const [movies, setMovies] = useState([]);

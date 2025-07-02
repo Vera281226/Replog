@@ -3,7 +3,7 @@ import axios from 'axios';
 import TrailerCard from './TrailerCard'; // ✅ 예고편 카드 컴포넌트 import
 
 // ✅ TMDB API 키
-const API_KEY = '16a0ea8699fa78781abae853600c2b61';
+const API_KEY = process.env.REACT_APP_TMDB_API_KEY;
 
 /**
  * ✅ TrailerSection 컴포넌트
