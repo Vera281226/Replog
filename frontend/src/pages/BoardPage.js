@@ -1,3 +1,4 @@
+// src/pages/BoardPage.js
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";

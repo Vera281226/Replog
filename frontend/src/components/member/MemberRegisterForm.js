@@ -5,20 +5,14 @@ import InputWarning from '../../error/components/InputWarning';
 import AddressModal from './AddressModal';
 import GenreSelect from './GenreSelect';
 import { validate } from './validation';
+import './css/MemberRegisterForm.css';  // CSS 경로 확인
 
 const MemberRegisterForm = () => {
   /* ---------- 상태 ---------- */
   const [formData, setFormData] = useState({
-    id: '',
-    password: '',
-    name: '',
-    nickname: '',
-    email: '',
-    phone: '',
-    address: '',
-    birthdate: '',
-    gender: '',
-    genres: [] // [{value, label}] 형식
+    id: '', password: '', name: '', nickname: '',
+    email: '', phone: '', address: '', birthdate: '',
+    gender: '', genres: []
   });
   const [errors, setErrors] = useState({});
   const [msg, setMsg] = useState('');
@@ -44,8 +38,6 @@ const MemberRegisterForm = () => {
   /* ---------- 제출 ---------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    /* 필드별 검증 */
     const newErrors = {};
     Object.keys(formData).forEach(key => {
       newErrors[key] =
@@ -54,41 +46,33 @@ const MemberRegisterForm = () => {
           : validate[key](formData[key]);
     });
     setErrors(newErrors);
-
     if (Object.values(newErrors).some(v => v)) return;
 
-    /* 서버에 보낼 payload */
     const payload = {
       ...formData,
-      genres: formData.genres.map(g => g.value) // 숫자 ID 배열
+      genres: formData.genres.map(g => g.value)
     };
 
     try {
-      const res = await axios.post('/api/member/signup', payload, {
-        withCredentials: true
-      });
-      setMsg(res.data); // "회원가입이 완료되었습니다."
+      const res = await axios.post('/api/member/signup', payload, { withCredentials: true });
+      setMsg(res.data);
     } catch (err) {
       setMsg(err.response?.data || '회원가입 실패');
     }
   };
 
-  /* ---------- 렌더링 ---------- */
   return (
-    <>
+    <div className="member-register-form">
       <h2>회원가입</h2>
-      {msg && <p>{msg}</p>}
+      {msg && <p className="msg">{msg}</p>}
 
       <form onSubmit={handleSubmit}>
         {/* 아이디 */}
         <div>
           <label htmlFor="id">아이디</label>
           <input
-            id="id"
-            name="id"
-            value={formData.id}
-            onChange={handleChange}
-            placeholder="아이디"
+            id="id" name="id" value={formData.id}
+            onChange={handleChange} placeholder="아이디"
           />
           {errors.id && <InputWarning message={errors.id} />}
         </div>
@@ -97,11 +81,8 @@ const MemberRegisterForm = () => {
         <div>
           <label htmlFor="password">비밀번호</label>
           <input
-            id="password"
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
+            id="password" type="password" name="password"
+            value={formData.password} onChange={handleChange}
             placeholder="비밀번호"
           />
           {errors.password && <InputWarning message={errors.password} />}
@@ -111,11 +92,8 @@ const MemberRegisterForm = () => {
         <div>
           <label htmlFor="name">이름</label>
           <input
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="이름"
+            id="name" name="name" value={formData.name}
+            onChange={handleChange} placeholder="이름"
           />
           {errors.name && <InputWarning message={errors.name} />}
         </div>
@@ -124,11 +102,8 @@ const MemberRegisterForm = () => {
         <div>
           <label htmlFor="nickname">닉네임</label>
           <input
-            id="nickname"
-            name="nickname"
-            value={formData.nickname}
-            onChange={handleChange}
-            placeholder="닉네임"
+            id="nickname" name="nickname" value={formData.nickname}
+            onChange={handleChange} placeholder="닉네임"
           />
           {errors.nickname && <InputWarning message={errors.nickname} />}
         </div>
@@ -137,11 +112,8 @@ const MemberRegisterForm = () => {
         <div>
           <label htmlFor="email">이메일</label>
           <input
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="example@mail.com"
+            id="email" name="email" value={formData.email}
+            onChange={handleChange} placeholder="example@mail.com"
           />
           {errors.email && <InputWarning message={errors.email} />}
         </div>
@@ -150,11 +122,8 @@ const MemberRegisterForm = () => {
         <div>
           <label htmlFor="phone">휴대폰</label>
           <input
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="010-1234-5678"
+            id="phone" name="phone" value={formData.phone}
+            onChange={handleChange} placeholder="010-1234-5678"
           />
           {errors.phone && <InputWarning message={errors.phone} />}
         </div>
@@ -163,11 +132,8 @@ const MemberRegisterForm = () => {
         <div>
           <label htmlFor="address">주소</label>
           <input
-            id="address"
-            name="address"
-            value={formData.address}
-            readOnly
-            onClick={() => setAddressModalOpen(true)}
+            id="address" name="address" value={formData.address}
+            readOnly onClick={() => setAddressModalOpen(true)}
             placeholder="주소 검색"
           />
           {errors.address && <InputWarning message={errors.address} />}
@@ -177,11 +143,8 @@ const MemberRegisterForm = () => {
         <div>
           <label htmlFor="birthdate">생년월일</label>
           <input
-            id="birthdate"
-            name="birthdate"
-            type="date"
-            value={formData.birthdate}
-            onChange={handleChange}
+            id="birthdate" name="birthdate" type="date"
+            value={formData.birthdate} onChange={handleChange}
           />
           {errors.birthdate && <InputWarning message={errors.birthdate} />}
         </div>
@@ -191,23 +154,15 @@ const MemberRegisterForm = () => {
           <span>성별</span>
           <label>
             <input
-              type="radio"
-              name="gender"
-              value="남"
-              checked={formData.gender === '남'}
-              onChange={handleChange}
-            />
-            남
+              type="radio" name="gender" value="남"
+              checked={formData.gender === '남'} onChange={handleChange}
+            /> 남
           </label>
           <label>
             <input
-              type="radio"
-              name="gender"
-              value="여"
-              checked={formData.gender === '여'}
-              onChange={handleChange}
-            />
-            여
+              type="radio" name="gender" value="여"
+              checked={formData.gender === '여'} onChange={handleChange}
+            /> 여
           </label>
           {errors.gender && <InputWarning message={errors.gender} />}
         </div>
@@ -226,7 +181,6 @@ const MemberRegisterForm = () => {
         <button type="submit">가입하기</button>
       </form>
 
-      {/* 주소 검색 모달 */}
       <AddressModal
         isOpen={isAddressModalOpen}
         onClose={() => setAddressModalOpen(false)}
@@ -234,7 +188,7 @@ const MemberRegisterForm = () => {
           setFormData(prev => ({ ...prev, address: addr }))
         }
       />
-    </>
+    </div>
   );
 };
 

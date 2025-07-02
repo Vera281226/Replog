@@ -1,4 +1,6 @@
+// src/contents/components/ContentsCard.js
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 /**
  * ContentsCard 컴포넌트
@@ -30,6 +32,10 @@ function ContentsCard({ content }) {
     const mediaTypeKorean = mediaType === 'movie' ? '영화' : 'TV 시리즈';
 
     return (
+        <Link
+    to={`/contents/${content.contentId}/reviews`}
+    style={{ textDecoration: 'none', color: 'inherit' }}
+  >
         <div className="contents-card">
             {/* ✅ 포스터 + 플랫폼 로고 오버레이 */}
             <div className="poster-wrapper">
@@ -63,6 +69,7 @@ function ContentsCard({ content }) {
                 </div>
             </div>
         </div>
+        </Link>
     );
 }
 

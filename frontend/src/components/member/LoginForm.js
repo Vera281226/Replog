@@ -1,93 +1,98 @@
 // src/components/member/LoginForm.js
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-// import './css/LoginForm.css';
+import './css/LoginForm.css';
 
 const LoginForm = () => {
   const navigate = useNavigate();
-
-  /* 상태 */
   const [formData, setFormData] = useState({ memberId: '', pwd: '' });
-  const [errors,   setErrors]   = useState({});
-  const [showPwd,  setShowPwd]  = useState(false);
-  const [msg,      setMsg]      = useState('');
+  const [errors, setErrors] = useState({});
+  const [showPwd, setShowPwd] = useState(false);
+  const [msg, setMsg] = useState('');
 
-  /* 입력 변경 */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));   // 에러 초기화
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
+    setMsg('');
   };
 
-  /* 로그인 */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const newErrors = {};
-    if (!formData.memberId.trim()) newErrors.memberId = '아이디를 입력하세요';
-    if (!formData.pwd.trim())      newErrors.pwd      = '비밀번호를 입력하세요';
-    if (Object.keys(newErrors).length) { setErrors(newErrors); return; }
+    if (!formData.memberId.trim()) newErrors.memberId = '아이디를 입력해주세요.';
+    if (!formData.pwd.trim())      newErrors.pwd      = '비밀번호를 입력해주세요.';
+    if (Object.keys(newErrors).length) {
+      setErrors(newErrors);
+      return;
+    }
 
     try {
-      const { data } = await axios.post('/api/auth/login', formData, { withCredentials: true });
-      setMsg(data);              // "로그인 성공"
-      navigate('/mypage', { replace: true });
-    } catch (err) {
-      setMsg(err.response?.data || '로그인 실패');
+      const result = await fetch('/api/auth/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      }).then(res => res.json());
+
+      if (result.success) {
+        navigate('/mypage', { replace: true });
+      } else {
+        setMsg(result.message || '로그인에 실패했습니다.');
+      }
+    } catch {
+      setMsg('서버에 연결할 수 없습니다.');
     }
   };
 
   return (
-    <div className="login-wrapper">
-      <h2>로그인</h2>
+    <div className="login-container">
+      <form className="login-box" onSubmit={handleSubmit}>
+        <h2>로그인</h2>
 
-      <form onSubmit={handleSubmit} className="login-form">
-        {/* 아이디 */}
-        <div className="field">
+        <div className="input-group">
           <label htmlFor="memberId">아이디</label>
           <input
             id="memberId"
             name="memberId"
             value={formData.memberId}
             onChange={handleChange}
-            autoComplete="username"
+            placeholder="아이디를 입력하세요"
           />
-          {errors.memberId && <p className="error">{errors.memberId}</p>}
+          {errors.memberId && <span className="error">{errors.memberId}</span>}
         </div>
 
-        {/* 비밀번호 + 보기/숨김 토글 */}
-        <div className="field">
+        <div className="input-group">
           <label htmlFor="pwd">비밀번호</label>
-          <div className="pwd-box">
+          <div className="pwd-wrapper">
             <input
               id="pwd"
               name="pwd"
               type={showPwd ? 'text' : 'password'}
               value={formData.pwd}
               onChange={handleChange}
-              autoComplete="current-password"
+              placeholder="비밀번호를 입력하세요"
             />
-            <button
-              type="button"
-              className="toggle"
-              onClick={() => setShowPwd((prev) => !prev)}
+            <button 
+              type="button" 
+              className="toggle-btn" 
+              onClick={() => setShowPwd(prev => !prev)}
             >
-              {showPwd ? '숨김' : '보기'}
+              {showPwd ? '숨기기' : '보기'}
             </button>
           </div>
-          {errors.pwd && <p className="error">{errors.pwd}</p>}
+          {errors.pwd && <span className="error">{errors.pwd}</span>}
         </div>
 
-        {/* 서버 메시지 */}
-        {msg && <p className="msg">{msg}</p>}
+        {msg && <div className="server-msg">{msg}</div>}
 
-        <button type="submit" className="primary">로그인</button>
+        <button type="submit" className="login-btn">로그인</button>
+
+        <div className="link-group">
+          <Link to="/signup">회원가입</Link>
+        </div>
       </form>
-
-      <nav className="links">
-        <Link to="/signup">회원가입</Link>
-      </nav>
     </div>
   );
 };

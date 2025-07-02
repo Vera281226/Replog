@@ -1,8 +1,10 @@
+// src/pages/PostDetailPage.js
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import PostContent from "../components/PostContent";
 import CommentSection from "../components/CommentSection";
+import ReportButton from "../components/common/ReportButton";
 
 export default function PostDetailPage() {
   const { postNo } = useParams();
@@ -98,7 +100,14 @@ export default function PostDetailPage() {
           {message}
         </div>
       )}
-
+<div style={{ textAlign: "right", marginBottom: "12px" }}>
+        <ReportButton
+          targetType="POST"
+          targetId={String(post.postNo)}
+          buttonStyle="text"
+          buttonText="🚨 신고"
+        />
+      </div>
       {/* 카테고리 버튼 UI */}
       <div
         style={{
