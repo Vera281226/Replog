@@ -1,7 +1,7 @@
 // src/pages/mypage/MyPageMain.js
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from 'api/axios';
 import './MyPage.css';
 
 export default function MyPageMain() {
@@ -11,7 +11,7 @@ export default function MyPageMain() {
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    axios.get('/api/member/mypage', { withCredentials:true })
+    api.get('/member/mypage', { withCredentials:true })
       .then(r => setData(r.data))
       .catch(e => {
         if (e.response?.status === 401) nav('/login');
