@@ -1,6 +1,7 @@
 package pack.service.member;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pack.ProjectBackendApplication;
 import pack.dto.member.SignUpRequest;
@@ -18,7 +19,7 @@ public class MemberServiceImpl implements MemberService {
     private final ProjectBackendApplication projectBackendApplication;
 
     private final MemberRepository memberRepository;
-    //private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void signUp(SignUpRequest request) {
@@ -31,20 +32,20 @@ public class MemberServiceImpl implements MemberService {
         }
     	//.pwd(passwordEncoder.encode(request.getPwd())) 비밀번호 encode
 
-        Member member = Member.builder()
-                .memberId(request.getMemberId())
-                .pwd(request.getPwd()) 
-                .name(request.getName())
-                .nickname(request.getNickname())
-                .email(request.getEmail())
-                .phone(request.getPhone())
-                .address(request.getAddress())
-                .birthdate(request.getBirthdate())
-                .gender(request.getGender())
-                .role("ROLE_USER")
-                .createdAt(LocalDateTime.now())
-                .isDeleted(false)
-                .build();
+		Member member = Member.builder()
+				.memberId(request.getMemberId())
+				.pwd(passwordEncoder.encode(request.getPwd()))
+				.name(request.getName())
+				.nickname(request.getNickname())
+				.email(request.getEmail())
+				.phone(request.getPhone())
+				.address(request.getAddress())
+				.birthdate(request.getBirthdate())
+				.gender(request.getGender())
+				.role("ROLE_USER")
+				.createdAt(LocalDateTime.now())
+				.isDeleted(false)
+				.build();
 
         memberRepository.save(member);
     }
@@ -66,7 +67,7 @@ public class MemberServiceImpl implements MemberService {
         Optional<Member> optional = memberRepository.findById(memberId);
         if (optional.isPresent()) {
             Member member = optional.get();
-            return password.equals(member.getPwd());
+			return passwordEncoder.matches(password, member.getPwd());
         }
         return false;
     }
@@ -75,10 +76,10 @@ public class MemberServiceImpl implements MemberService {
 	public boolean withdraw(String memberId, String password) {
 		Member member = memberRepository.findById(memberId)
 				.orElseThrow(() -> new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
-		
-		
-		if(!member.getPwd().equals(password)) {
-			return false;
+
+
+		if (!passwordEncoder.matches(password, member.getPwd())) {
+			throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 		}
 		
 		member.setIsDeleted(true);

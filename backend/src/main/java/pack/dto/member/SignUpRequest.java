@@ -17,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class SignUpRequest{
-	@JsonProperty("id")
+	@JsonProperty("memberId")
 	public String memberId;
 	@JsonProperty("password")
 	public String pwd;
