@@ -54,8 +54,8 @@ export const register = createAsyncThunk(
       const response = await axios.post(
         '/member/signup',
         {
-          id: formData.id,
-          password: formData.password,
+          memberId: formData.id,
+          pwd: formData.password,
           name: formData.name,
           nickname: formData.nickname,
           email: formData.email,
@@ -86,7 +86,7 @@ export const logout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await axios.post(
-        '/api/auth/logout',
+        '/auth/logout',
         {},
         { withCredentials: true, timeout: 5000 }
       );
