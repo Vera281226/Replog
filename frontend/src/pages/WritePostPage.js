@@ -1,6 +1,4 @@
-// src/pages/WritePostPage.js
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -9,8 +7,14 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import TiptapToolbar from "../components/TiptapToolbar";
-import { selectCurrentUser } from "../error/redux/authSlice";
-import "./WritePostPage.css"; // 버튼 스타일 등 통합 CSS
+import {
+  selectCurrentUser,
+  selectIsAuthenticated,
+} from "../error/redux/authSlice";
+import BannedWordFilterModal, {
+  checkBannedWords,
+} from "../components/BannedWordFilterModal";
+import "./css/WritePostPage.css";
 
 export default function WritePostPage() {
   const navigate = useNavigate();
@@ -18,10 +22,9 @@ export default function WritePostPage() {
   const queryParams = new URLSearchParams(location.search);
   const queryCategory = queryParams.get("category");
 
-  // Redux에서 현재 사용자 정보 조회
   const currentUser = useSelector(selectCurrentUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  // Tiptap 에디터 초기화
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -31,7 +34,6 @@ export default function WritePostPage() {
     content: "",
   });
 
-  // 폼 상태
   const [form, setForm] = useState({
     memberId: "",
     nickname: "",
@@ -39,24 +41,31 @@ export default function WritePostPage() {
     title: "",
   });
 
-  // 로그인 정보가 바뀔 때마다 memberId, nickname 초기화
+  const [bannedModalOpen, setBannedModalOpen] = useState(false);
+  const [bannedWordsMatched, setBannedWordsMatched] = useState([]);
+
   useEffect(() => {
+    if (!isAuthenticated) {
+      alert("로그인이 필요한 기능입니다.");
+      navigate("/login");
+      return;
+    }
+
     setForm((prev) => ({
       ...prev,
-      memberId: currentUser?.memberId || "testUser1",
-      nickname: currentUser?.nickname || "테스트유저",
+      memberId: currentUser?.memberId || "",
+      nickname: currentUser?.nickname || "",
     }));
-  }, [currentUser]);
+  }, [currentUser, isAuthenticated, navigate]);
 
-  // 입력 핸들러
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!form.category) {
       alert("카테고리를 선택해주세요.");
       return;
@@ -65,7 +74,17 @@ export default function WritePostPage() {
       alert("제목을 입력해주세요.");
       return;
     }
+
     const contentHtml = editor?.getHTML() || "";
+    const fullText = `${form.title} ${editor?.getText() || ""}`;
+    const { hasBanned, matchedWords } = checkBannedWords(fullText);
+
+    if (hasBanned) {
+      setBannedWordsMatched(matchedWords);
+      setBannedModalOpen(true);
+      return;
+    }
+
     try {
       await axios.post(
         "/api/posts",
@@ -90,6 +109,16 @@ export default function WritePostPage() {
       <div className="write-post-container">
         <h2 className="write-post-title">글쓰기</h2>
         <form className="write-post-form" onSubmit={handleSubmit}>
+          {/* 닉네임 표시 (읽기 전용) */}
+          <input
+            type="text"
+            name="nickname"
+            value={form.nickname}
+            readOnly
+            className="write-post-input"
+            placeholder="닉네임"
+          />
+
           <select
             name="category"
             value={form.category}
@@ -117,7 +146,10 @@ export default function WritePostPage() {
           />
 
           <TiptapToolbar editor={editor} />
-          <div className="editor-wrapper">
+          <div
+            className="editor-wrapper"
+            onClick={() => editor?.commands.focus()}
+          >
             <EditorContent editor={editor} />
           </div>
 
@@ -135,6 +167,12 @@ export default function WritePostPage() {
           </div>
         </form>
       </div>
+
+      <BannedWordFilterModal
+        isOpen={bannedModalOpen}
+        matchedWords={bannedWordsMatched}
+        onClose={() => setBannedModalOpen(false)}
+      />
     </div>
   );
 }

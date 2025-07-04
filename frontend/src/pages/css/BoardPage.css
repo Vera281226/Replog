@@ -1,0 +1,127 @@
+.board-page { 
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.board-controls {
+  position: relative;
+  height: 48px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.board-sort select,
+.board-search select,
+.board-search input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 6px;
+}
+
+.board-search button {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.board-search button:hover {
+  background-color: #0056b3;
+}
+
+.board-categories {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.category-button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-button.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.board-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.board-table th,
+.board-table td {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.board-table th {
+  background-color: #f5f5f5;
+}
+
+.board-table td a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.board-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pagination {
+  display: flex;
+  gap: 6px;
+}
+
+.pagination button {
+  padding: 6px 10px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  color: #000;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background-color: #000;
+  color: #fff;
+}
+
+.pagination button:disabled {
+  background-color: #eee;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.write-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.write-button:hover {
+  background-color: #0056b3;
+}

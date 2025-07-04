@@ -1,27 +1,43 @@
-// src/pages/PostDetailPage.js
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react"; 
 import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectCurrentUser, selectIsAuthenticated } from "../error/redux/authSlice";
 import axios from "axios";
 import PostContent from "../components/PostContent";
 import CommentSection from "../components/CommentSection";
 import ReportButton from "../components/common/ReportButton";
+import { ErrorModal } from "../error/components/ErrorModal";
+import "./css/PostDetailPage.css";
 
 export default function PostDetailPage() {
   const { postNo } = useParams();
   const navigate = useNavigate();
+
+  const currentUser = useSelector(selectCurrentUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const userId = currentUser?.memberId || null;
+  const nickname = currentUser?.nickname || "";
+
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [liked, setLiked] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("success");
   const [showConfirm, setShowConfirm] = useState(false);
-  const userId = "user01";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [postRes, commentsRes, likedRes] = await Promise.all([
-          axios.get(`/api/posts/${postNo}`),
+        const postRes = await axios.get(`/api/posts/${postNo}`);
+
+        if (!isAuthenticated) {
+          setPost(postRes.data);
+          setComments([]);
+          setLiked(false);
+          return;
+        }
+
+        const [commentsRes, likedRes] = await Promise.all([
           axios.get(`/api/comments/post/${postNo}`, {
             params: { memberId: userId },
           }),
@@ -41,8 +57,8 @@ export default function PostDetailPage() {
       }
     };
 
-    fetchData();
-  }, [postNo, navigate]);
+    if (postNo) fetchData();
+  }, [postNo, userId, isAuthenticated, navigate]);
 
   const showMessage = (msg, type = "success") => {
     setMessage(msg);
@@ -51,6 +67,11 @@ export default function PostDetailPage() {
   };
 
   const toggleLike = async () => {
+    if (!isAuthenticated) {
+      showMessage("로그인이 필요합니다.", "error");
+      return;
+    }
+
     try {
       const res = await axios.post(`/api/posts/${postNo}/like`, null, {
         params: { memberId: userId },
@@ -80,144 +101,68 @@ export default function PostDetailPage() {
   if (!post) return <div>로딩 중...</div>;
 
   const categoryList = ["ALL", "자유게시판", "스포", "공지사항", "개봉예정작"];
+  const isAuthor = userId === post.memberId;
 
   return (
-    <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+    <div className="post-detail-page">
       {message && (
-        <div
-          style={{
-            marginBottom: "20px",
-            padding: "12px",
-            backgroundColor: messageType === "success" ? "#d4edda" : "#f8d7da",
-            color: messageType === "success" ? "#155724" : "#721c24",
-            border: `1px solid ${
-              messageType === "success" ? "#c3e6cb" : "#f5c6cb"
-            }`,
-            borderRadius: "4px",
-            textAlign: "center",
-          }}
-        >
-          {message}
-        </div>
+        <div className={`message-box ${messageType}`}>{message}</div>
       )}
-<div style={{ textAlign: "right", marginBottom: "12px" }}>
-        <ReportButton
-          targetType="POST"
-          targetId={String(post.postNo)}
-          buttonStyle="text"
-          buttonText="🚨 신고"
-        />
-      </div>
-      {/* 카테고리 버튼 UI */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-          marginBottom: "20px",
-        }}
-      >
+
+      <div className="category-buttons">
         {categoryList.map((cat) => (
           <button
             key={cat}
             onClick={() => navigate(`/boards?category=${encodeURIComponent(cat)}`)}
-            style={{
-              padding: "6px 12px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              backgroundColor: post.category === cat || (cat === "ALL" && post.category === "ALL")
-                ? "#007bff"
-                : "#fff",
-              color: post.category === cat || (cat === "ALL" && post.category === "ALL")
-                ? "#fff"
-                : "#000",
-              cursor: "pointer",
-            }}
+            className={`category-button ${
+              post.category === cat || (cat === "ALL" && post.category === "ALL")
+                ? "active"
+                : ""
+            }`}
           >
             {cat === "ALL" ? "전체" : cat}
           </button>
         ))}
       </div>
 
+      {isAuthenticated && (
+        <div className="report-button-wrapper">
+          <ReportButton
+            targetType="POST"
+            targetId={String(post.postNo)}
+            buttonStyle="text"
+            buttonText="🚨 신고"
+          />
+        </div>
+      )}
+
       <PostContent
         post={post}
-        userId={userId}
         liked={liked}
         toggleLike={toggleLike}
         onEdit={() => navigate(`/posts/edit/${post.postNo}`, { state: { post } })}
         onDelete={() => setShowConfirm(true)}
+        isAuthor={isAuthor}
+        isAuthenticated={isAuthenticated}
       />
 
       <CommentSection
         postNo={postNo}
         userId={userId}
+        nickname={nickname}
         comments={comments}
         setComments={setComments}
         showMessage={showMessage}
+        isAuthenticated={isAuthenticated}
       />
 
-      {showConfirm && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "20px",
-              borderRadius: "8px",
-              textAlign: "center",
-              boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-            }}
-          >
-            <p style={{ marginBottom: "20px" }}>정말 삭제하시겠습니까?</p>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "20px",
-              }}
-            >
-              <button
-                onClick={confirmDelete}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#dc3545",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                예
-              </button>
-              <button
-                onClick={() => setShowConfirm(false)}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#6c757d",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                아니오
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ErrorModal
+        isOpen={showConfirm}
+        title="게시글 삭제 확인"
+        message="정말 삭제하시겠습니까?"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 }

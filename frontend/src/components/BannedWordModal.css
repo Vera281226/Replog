@@ -1,0 +1,93 @@
+/* ───────────────────────── 오버레이 ───────────────────────── */
+.banned-modal__overlay { 
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1400;
+}
+
+/* ───────────────────────── 모달 본체 ───────────────────────── */
+.banned-modal {
+  background: #fff;
+  width: 33.333vw;
+  max-width: 420px;
+  min-width: 280px;
+  max-height: 80vh;
+
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─────────────── 반응형 ─────────────── */
+@media (max-width: 991.98px) {
+  .banned-modal {
+    width: 60vw;
+  }
+}
+@media (max-width: 767.98px) {
+  .banned-modal {
+    width: 88vw;
+  }
+}
+
+/* ───────────────────────── header ───────────────────────── */
+.banned-modal__header {
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid #e9ecef;
+}
+.banned-modal__header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+/* ───────────────────────── body ───────────────────────── */
+.banned-modal__body {
+  flex: 1 1 auto;
+  padding: 20px 24px;
+  overflow-y: auto;
+  text-align: left;
+}
+.banned-modal__body p {
+  margin-bottom: 12px;
+  color: #212529;
+}
+.banned-modal__body ul {
+  padding-left: 1.2rem;
+  margin: 0;
+}
+.banned-modal__body li {
+  color: #b91c1c;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ───────────────────────── footer ───────────────────────── */
+.banned-modal__footer {
+  padding: 14px 24px 18px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: center;
+}
+
+/* ───────────────────────── buttons ───────────────────────── */
+.banned-modal__btn {
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  background: #3b82f6;
+  color: #fff;
+}
+.banned-modal__btn:hover {
+  background: #2563eb;
+}

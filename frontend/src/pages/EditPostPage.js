@@ -1,24 +1,29 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react"; 
+import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import TiptapToolbar from "../components/TiptapToolbar";
+import BannedWordFilterModal, { checkBannedWords } from "../components/BannedWordFilterModal";
+import {
+  selectCurrentUser,
+  selectIsAuthenticated,
+} from "../error/redux/authSlice";
+import "./css/EditPostPage.css";
 
 export default function EditPostPage() {
+  const { postNo } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const post = location.state?.post;
-  const postNo = post?.postNo;
+  const currentUser = useSelector(selectCurrentUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  const [form, setForm] = useState({
-    memberId: post?.memberId || "",
-    nickname: post?.nickname || "",
-    category: post?.category || "",
-    title: post?.title || "",
-  });
+  const [form, setForm] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [bannedModalOpen, setBannedModalOpen] = useState(false);
+  const [bannedWordsMatched, setBannedWordsMatched] = useState([]);
 
   const editor = useEditor({
     extensions: [
@@ -26,8 +31,45 @@ export default function EditPostPage() {
       Underline,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
-    content: post?.content || "",
+    content: "",
   });
+
+  useEffect(() => {
+    if (!postNo) {
+      alert("잘못된 접근입니다.");
+      navigate("/boards");
+      return;
+    }
+
+    const fetchPost = async () => {
+      try {
+        const res = await axios.get(`/api/posts/${postNo}`);
+        const post = res.data;
+
+        if (!isAuthenticated || currentUser?.memberId !== post.memberId) {
+          alert("수정 권한이 없습니다.");
+          navigate(`/boards/${postNo}`);
+          return;
+        }
+
+        setForm({
+          nickname: post.nickname,
+          category: post.category,
+          title: post.title,
+        });
+
+        editor?.commands.setContent(post.content);
+      } catch (err) {
+        console.error(err);
+        alert("게시글을 불러오지 못했습니다.");
+        navigate("/boards");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [postNo, currentUser, isAuthenticated, navigate, editor]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -35,66 +77,57 @@ export default function EditPostPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.category) {
-      alert("카테고리를 선택해주세요.");
+
+    if (!form.category || !form.title.trim()) {
+      alert("카테고리와 제목을 모두 입력해주세요.");
       return;
     }
+
+    const contentHtml = editor?.getHTML() || "";
+    const fullText = `${form.title} ${editor?.getText() || ""}`;
+    const { hasBanned, matchedWords } = checkBannedWords(fullText);
+
+    if (hasBanned) {
+      setBannedWordsMatched(matchedWords);
+      setBannedModalOpen(true);
+      return;
+    }
+
     try {
       await axios.put(`/api/posts/${postNo}`, {
         ...form,
-        content: editor?.getHTML() || "",
+        content: contentHtml,
+        memberId: currentUser?.memberId,
       });
       navigate(`/boards/${postNo}`);
     } catch (err) {
+      console.error(err);
       alert("글 수정에 실패했습니다.");
     }
   };
 
-  useEffect(() => {
-    if (!postNo) {
-      alert("잘못된 접근입니다.");
-      navigate("/boards");
-    }
-  }, [postNo, navigate]);
+  if (loading || !form) return <div>로딩 중...</div>;
 
   return (
-    <div style={{ padding: "40px 20px", maxWidth: "800px", margin: "0 auto" }}>
-      <div
-        style={{
-          backgroundColor: "#ffffff",
-          borderRadius: "12px",
-          padding: "30px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-        }}
-      >
-        <h2 style={{ marginBottom: "24px", fontSize: "24px", fontWeight: "bold", color: "#333" }}>글 수정</h2>
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          <input
-            type="text"
-            name="memberId"
-            placeholder="아이디"
-            value={form.memberId}
-            onChange={handleChange}
-            required
-            disabled
-            style={inputStyle}
-          />
+    <div className="edit-post-wrapper">
+      <div className="edit-post-container">
+        <h2 className="edit-post-title">글 수정</h2>
+
+        <form className="edit-post-form" onSubmit={handleSubmit}>
           <input
             type="text"
             name="nickname"
-            placeholder="닉네임"
             value={form.nickname}
-            onChange={handleChange}
-            required
             disabled
-            style={inputStyle}
+            className="edit-post-input"
           />
+
           <select
             name="category"
             value={form.category}
             onChange={handleChange}
             required
-            style={inputStyle}
+            className="edit-post-select"
           >
             <option value="" disabled hidden>카테고리를 선택하세요</option>
             <option value="자유게시판">자유게시판</option>
@@ -102,85 +135,42 @@ export default function EditPostPage() {
             <option value="공지사항">공지사항</option>
             <option value="개봉예정작">개봉예정작</option>
           </select>
+
           <input
             type="text"
             name="title"
-            placeholder="제목"
             value={form.title}
             onChange={handleChange}
             required
-            style={inputStyle}
+            className="edit-post-input"
           />
 
           <TiptapToolbar editor={editor} />
-          <div
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "12px",
-              minHeight: "250px",
-              backgroundColor: "#fafafa",
-            }}
-          >
+
+          <div className="edit-post-editor">
             <EditorContent editor={editor} />
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", gap: "12px" }}>
-            <button
-              type="submit"
-              style={submitButtonStyle}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#218838"}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#28a745"}
-            >
+          <div className="edit-post-buttons">
+            <button type="submit" className="edit-post-submit">
               수정 완료
             </button>
-
             <button
               type="button"
               onClick={() => navigate(`/boards/${postNo}`)}
-              style={cancelButtonStyle}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#5a6268"}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#6c757d"}
+              className="edit-post-cancel"
             >
               취소
             </button>
           </div>
         </form>
       </div>
+
+      <BannedWordFilterModal
+        isOpen={bannedModalOpen}
+        matchedWords={bannedWordsMatched}
+        onClose={() => setBannedModalOpen(false)}
+      />
     </div>
   );
 }
-
-const inputStyle = {
-  padding: "10px 14px",
-  border: "1px solid #ccc",
-  borderRadius: "6px",
-  fontSize: "15px",
-  outline: "none",
-  backgroundColor: "#fff",
-  transition: "border-color 0.2s ease-in-out",
-};
-
-const submitButtonStyle = {
-  flex: 1,
-  padding: "12px",
-  backgroundColor: "#28a745",
-  color: "white",
-  border: "none",
-  borderRadius: "6px",
-  fontWeight: "bold",
-  cursor: "pointer",
-  transition: "background-color 0.2s ease-in-out",
-};
-
-const cancelButtonStyle = {
-  flex: 1,
-  padding: "12px",
-  backgroundColor: "#6c757d",
-  color: "white",
-  border: "none",
-  borderRadius: "6px",
-  fontWeight: "bold",
-  cursor: "pointer",
-  transition: "background-color 0.2s ease-in-out",
-};
