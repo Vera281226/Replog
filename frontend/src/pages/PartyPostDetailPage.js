@@ -1,3 +1,4 @@
+// src/pages/PartyPostDetailPage.js
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -62,7 +63,35 @@ const PartyPostDetailPage = () => {
   dangerouslySetInnerHTML={{ __html: post.content }}
 />
         </div>
-
+<button
+  onClick={async () => {
+    try {
+      await axios.post(
+        `/api/chat/rooms/${post.partyPostNo}/join`,
+        {},
+        { withCredentials: true }
+      );
+      alert("채팅방에 참가되었습니다!");
+      // 채팅방으로 이동하려면, 방 ID가 post.partyPostNo와 다르다면
+      // 서버가 반환한 ChatRoomResponse의 roomId를 이용해 라우팅하세요.
+      // 예: navigate(`/chat/${roomId}`);
+    } catch (err) {
+      console.error(err);
+      alert("채팅방 참가에 실패했습니다.");
+    }
+  }}
+  style={{
+    padding: "8px 16px",
+    backgroundColor: "#28a745",
+    color: "#fff",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    marginBottom: "16px"
+  }}
+>
+  참가하기
+</button>
         <div style={{ textAlign: "right" }}>
           <button onClick={() => navigate(-1)} style={styles.backButton}>
             ← 목록으로 돌아가기

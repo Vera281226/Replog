@@ -1,4 +1,3 @@
-// src/main/java/pack/config/AsyncConfig.java
 package pack.config;
 
 import org.springframework.context.annotation.Bean;
@@ -8,12 +7,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-@Configuration
 @EnableAsync
+@Configuration
 public class AsyncConfig {
 
     @Bean(name = "aiExecutor")
-    public Executor aiExecutor() {
+    Executor aiExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(5);

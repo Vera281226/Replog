@@ -1,7 +1,10 @@
-// src/main/java/pack/model/chat/ChatParticipantId.java
 package pack.model.chat;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -10,7 +13,8 @@ import java.util.Objects;
 @Getter
 @Setter
 public class ChatParticipantId implements Serializable {
-    private Integer chatRoomId;
+	private static final long serialVersionUID = 1L;
+	private Integer chatRoomId;
     private String memberId;
     
     @Override

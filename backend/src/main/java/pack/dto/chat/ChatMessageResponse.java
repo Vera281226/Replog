@@ -1,7 +1,7 @@
-package pack.response.chat;
+package pack.dto.chat;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
