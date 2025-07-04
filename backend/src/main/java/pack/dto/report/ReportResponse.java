@@ -1,20 +1,23 @@
-package pack.response.report;
+package pack.dto.report;
 
-import pack.entity.report.Report;
-import pack.entity.report.Report.TargetType;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+
+import java.time.LocalDateTime;
+
+import pack.model.report.Report;
+import pack.model.report.Report.TargetType;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ReportResponse {
+	
     private Integer reportId;
     private String reporterNickname;
     private TargetType targetType;
@@ -27,11 +30,11 @@ public class ReportResponse {
     private String processorNickname;
     
     // 신고 대상 원본 콘텐츠 정보 추가
-    private String targetContent;      // 신고된 콘텐츠 내용
-    private String targetTitle;        // 게시글/파티 제목 (해당하는 경우)
-    private String targetAuthor;       // 원본 작성자 닉네임
-    private LocalDateTime targetCreatedAt;  // 원본 콘텐츠 작성일
-    private Integer targetRating;      // 리뷰 평점 (리뷰인 경우)
+    private String targetContent;
+    private String targetTitle;
+    private String targetAuthor;
+    private LocalDateTime targetCreatedAt;
+    private Integer targetRating;
 
     public static ReportResponse fromEntity(Report report) {
         return ReportResponse.builder()

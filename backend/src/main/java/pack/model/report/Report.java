@@ -1,4 +1,4 @@
-package pack.entity.report;
+package pack.model.report;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -11,21 +11,23 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
-import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
-import pack.model.member.Member;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+
+import pack.model.member.Member;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reports")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Report {
     
     @Id
