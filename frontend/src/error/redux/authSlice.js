@@ -1,14 +1,14 @@
 // src/store/slices/authSlice.js
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios from 'api/axios';
 
 // 비동기 액션: 현재 사용자 정보 가져오기
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/api/auth/current-user', {
+      const response = await axios.get('/auth/current-user', {
         withCredentials: true,
         timeout: 10000
       });
@@ -29,8 +29,10 @@ export const login = createAsyncThunk(
   async ({ memberId, password }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        '/api/auth/login',
-        { memberId, pwd: password },
+        '/auth/login',
+        { memberId, 
+          password, 
+        },
         { withCredentials: true, timeout: 10000 }
       );
       if (response.data.success) {
@@ -50,7 +52,7 @@ export const register = createAsyncThunk(
   async (formData, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.post(
-        '/api/member/signup',
+        '/member/signup',
         {
           id: formData.id,
           password: formData.password,

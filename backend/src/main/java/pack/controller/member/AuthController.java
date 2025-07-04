@@ -34,7 +34,7 @@ public class AuthController {
 
             // 기존 세션 저장
             HttpSession session = httpRequest.getSession(true);
-            session.setAttribute("loginUser", userInfo);
+            session.setAttribute("loginMember", userInfo.getMemberId());
 
             // Spring Security 인증 정보 수동 등록 (중요)
             UsernamePasswordAuthenticationToken authToken =
@@ -43,6 +43,7 @@ public class AuthController {
                             List.of(new SimpleGrantedAuthority("ROLE_USER")));
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
             return ResponseEntity.ok(ApiResponse.success(userInfo));
         } catch (Exception e) {
