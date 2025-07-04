@@ -5,6 +5,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pack.dto.common.ApiResponse;
 import pack.dto.member.LoginRequest;
@@ -12,30 +15,38 @@ import pack.dto.member.UserInfoResponse;
 import pack.service.member.MemberService;
 import pack.util.SessionUtil;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     
     private final MemberService memberService;
-    
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserInfoResponse>> login(
-            @RequestBody LoginRequest request, 
+            @RequestBody LoginRequest request,
             HttpServletRequest httpRequest) {
-        
+
         try {
             UserInfoResponse userInfo = memberService.authenticateUser(request.getMemberId(), request.getPwd());
-            
+
+            // 기존 세션 저장
             HttpSession session = httpRequest.getSession(true);
-            session.setAttribute("loginMember", request.getMemberId());
-            
-            return ResponseEntity.ok(
-                ApiResponse.success("로그인 성공", userInfo)
-            );
+            session.setAttribute("loginUser", userInfo);
+
+            // Spring Security 인증 정보 수동 등록 (중요)
+            UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                            userInfo.getMemberId(), null,
+                            List.of(new SimpleGrantedAuthority("ROLE_USER")));
+
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            return ResponseEntity.ok(ApiResponse.success(userInfo));
         } catch (Exception e) {
-            return ResponseEntity.status(401)
-                .body(ApiResponse.error("아이디 또는 비밀번호가 올바르지 않습니다.", "LOGIN_FAILED"));
+            return ResponseEntity.status(401).body(ApiResponse.error("로그인 실패: " + e.getMessage()));
         }
     }
     
