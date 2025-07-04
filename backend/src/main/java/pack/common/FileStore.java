@@ -1,16 +1,16 @@
-// src/main/java/pack/common/FileStore.java
 package pack.common;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
+import java.nio.file.Files;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
+
+import java.util.UUID;
 
 @Component
 public class FileStore {
@@ -25,6 +25,7 @@ public class FileStore {
      *  브라우저에서 접근할 수 있는 URL(/uploads/profile/uuid.png) 반환
      */
     public String saveProfileImage(MultipartFile file) {
+    	
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("빈 파일입니다.");
         }
