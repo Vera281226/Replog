@@ -1,0 +1,61 @@
+/* ────────────── 오버레이 ────────────── */
+.info-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1400;
+}
+
+/* ────────────── 모달 본체 ────────────── */
+.info-modal {
+  background: #fff;
+  width: 33.333vw;
+  max-width: 420px;
+  min-width: 280px;
+  max-height: 80vh;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 타입별 헤더 색상 */
+.info-modal--info .info-modal__header h2 { color: #0d6efd; }
+.info-modal--error .info-modal__header h2 { color: #dc3545; }
+.info-modal--warning .info-modal__header h2 { color: #fd7e14; }
+.info-modal--success .info-modal__header h2 { color: #198754; }
+
+/* 반응형 */
+@media (max-width: 991.98px) {
+  .info-modal { width: 60vw; }
+}
+@media (max-width: 767.98px) {
+  .info-modal { width: 88vw; }
+}
+
+/* header, body, footer, 버튼 등 기존 스타일 동일하게 사용 */
+.info-modal__header { padding: 18px 24px 14px; border-bottom: 1px solid #e9ecef; }
+.info-modal__header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+
+.info-modal__body { flex: 1 1 auto; padding: 20px 24px; overflow-y: auto; }
+.info-modal__body p { margin: 0; line-height: 1.6; color: #212529; }
+
+.info-modal__footer { padding: 14px 24px 18px; border-top: 1px solid #e9ecef; display: flex; justify-content: flex-end; gap: 12px; }
+
+.info-modal__btn { border: none; border-radius: 4px; font-size: 0.875rem; padding: 8px 20px; cursor: pointer; transition: background 0.2s; }
+.info-modal__btn--primary { background: #0d6efd; color: #fff; }
+.info-modal__btn--primary:hover { background: #0b5ed7; }
+.info-modal__btn--sub { background: #f1f3f5; color: #495057; }
+.info-modal__btn--sub:hover { background: #e9ecef; }
+
+/* 타입별 버튼 색상도 필요시 추가 */
+.info-modal--error .info-modal__btn--primary { background: #dc3545; }
+.info-modal--error .info-modal__btn--primary:hover { background: #c82333; }
+.info-modal--warning .info-modal__btn--primary { background: #fd7e14; }
+.info-modal--warning .info-modal__btn--primary:hover { background: #e8590c; }
+.info-modal--success .info-modal__btn--primary { background: #198754; }
+.info-modal--success .info-modal__btn--primary:hover { background: #157347; }

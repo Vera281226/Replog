@@ -1,0 +1,206 @@
+package pack.service.chat;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pack.dto.chat.ChatRoomResponse;
+import pack.dto.chat.ChatMessageResponse;
+import pack.model.chat.ChatMessage;
+import pack.model.chat.ChatParticipant;
+import pack.model.chat.ChatRoom;
+import pack.repository.chat.ChatMessageRepository;
+import pack.repository.chat.ChatParticipantRepository;
+import pack.repository.chat.ChatRoomRepository;
+import pack.repository.member.MemberRepository;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
+public class AiChatServiceImpl implements AiChatService {
+
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatParticipantRepository chatParticipantRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final MemberRepository memberRepository;
+    private final SimpMessageSendingOperations messagingTemplate;
+    private final ChatClient chatClient;
+    private final ConcurrentHashMap<String, CompletableFuture<ChatRoomResponse>> aiRoomCreationMap = new ConcurrentHashMap<>();
+
+    @Override
+    @Transactional
+    public ChatRoomResponse getOrCreateAiChatRoom(String memberId) {
+        return aiRoomCreationMap.computeIfAbsent(memberId, key ->
+                CompletableFuture.supplyAsync(() -> createAiRoomInternal(memberId))
+        ).join();
+    }
+
+    private ChatRoomResponse createAiRoomInternal(String memberId) {
+        try {
+            Optional<ChatRoom> existingRoom = chatRoomRepository
+                    .findByRoomTypeAndMemberId(ChatRoom.RoomType.AI, memberId);
+
+            if (existingRoom.isPresent()) {
+                return buildChatRoomResponse(existingRoom.get());
+            }
+
+            ChatRoom aiRoom = ChatRoom.builder()
+                    .roomName("AI 어시스턴트")
+                    .roomType(ChatRoom.RoomType.AI)
+                    .isActive(true)
+                    .build();
+            ChatRoom savedRoom = chatRoomRepository.save(aiRoom);
+
+            ChatParticipant participant = ChatParticipant.builder()
+                    .chatRoomId(savedRoom.getChatRoomId())
+                    .memberId(memberId)
+                    .joinedAt(LocalDateTime.now())
+                    .build();
+            chatParticipantRepository.save(participant);
+
+            createAiWelcomeMessageAsync(savedRoom.getChatRoomId());
+
+            return buildChatRoomResponse(savedRoom);
+        } finally {
+            aiRoomCreationMap.remove(memberId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public ChatMessageResponse sendAiMessage(String userMessage, String memberId) {
+        ChatRoomResponse aiRoom = getOrCreateAiChatRoom(memberId);
+        ChatMessageResponse userMessageResponse = saveAndBroadcastUserMessage(aiRoom, userMessage, memberId);
+        processAiResponseAsync(aiRoom, userMessage);
+        return userMessageResponse;
+    }
+
+    private ChatRoomResponse buildChatRoomResponse(ChatRoom chatRoom) {
+        long participantCount = chatParticipantRepository.countByChatRoomId(chatRoom.getChatRoomId());
+        return ChatRoomResponse.builder()
+                .chatRoomId(chatRoom.getChatRoomId())
+                .roomName(chatRoom.getRoomName())
+                .roomType(chatRoom.getRoomType())
+                .createdAt(chatRoom.getCreatedAt())
+                .isActive(chatRoom.getIsActive())
+                .participantCount(participantCount)
+                .build();
+    }
+
+    private ChatMessageResponse saveAndBroadcastUserMessage(ChatRoomResponse aiRoom, String userMessage, String memberId) {
+        ChatMessage userChatMessage = chatMessageRepository.save(ChatMessage.builder()
+                .chatRoomId(aiRoom.getChatRoomId())
+                .senderId(memberId)
+                .messageText(userMessage)
+                .build());
+
+        String userNickname = memberRepository.findById(memberId)
+                .map(m -> m.getNickname())
+                .orElse(memberId);
+
+        ChatMessageResponse userMessageResponse = ChatMessageResponse.builder()
+                .chatMessagesId(userChatMessage.getChatMessagesId())
+                .chatRoomId(userChatMessage.getChatRoomId())
+                .senderId(memberId)
+                .senderNickname(userNickname)
+                .messageText(userChatMessage.getMessageText())
+                .sentAt(userChatMessage.getSentAt())
+                .build();
+
+        messagingTemplate.convertAndSend(
+                "/topic/chat/room/" + aiRoom.getChatRoomId(),
+                userMessageResponse
+        );
+        return userMessageResponse;
+    }
+
+    @Async("aiExecutor")
+    public void processAiResponseAsync(ChatRoomResponse aiRoom, String userMessage) {
+        try {
+            String aiResponse = generateAiResponse(userMessage);
+
+            ChatMessage aiMessage = chatMessageRepository.save(ChatMessage.builder()
+                    .chatRoomId(aiRoom.getChatRoomId())
+                    .senderId("AI_ASSISTANT")
+                    .messageText(aiResponse != null ? aiResponse : "AI 응답 생성 실패")
+                    .sentAt(LocalDateTime.now())
+                    .build());
+
+            ChatMessageResponse aiMessageResponse = ChatMessageResponse.builder()
+                    .chatMessagesId(aiMessage.getChatMessagesId())
+                    .chatRoomId(aiMessage.getChatRoomId())
+                    .senderId("AI_ASSISTANT")
+                    .senderNickname("AI 어시스턴트")
+                    .messageText(aiResponse != null ? aiResponse : "AI 응답 생성 실패")
+                    .sentAt(aiMessage.getSentAt())
+                    .build();
+
+            messagingTemplate.convertAndSend(
+                    "/topic/chat/room/" + aiRoom.getChatRoomId(),
+                    aiMessageResponse
+            );
+
+        } catch (Exception e) {
+            log.error("AI 응답 처리 실패", e);
+
+            ChatMessage errorMessage = chatMessageRepository.save(ChatMessage.builder()
+                    .chatRoomId(aiRoom.getChatRoomId())
+                    .senderId("SYSTEM")
+                    .messageText("AI 서비스에 일시적인 문제가 발생했습니다.")
+                    .sentAt(LocalDateTime.now())
+                    .build());
+
+            ChatMessageResponse errorResponse = ChatMessageResponse.builder()
+                    .chatMessagesId(errorMessage.getChatMessagesId())
+                    .chatRoomId(errorMessage.getChatRoomId())
+                    .senderId("SYSTEM")
+                    .senderNickname("시스템")
+                    .messageText("AI 서비스에 일시적인 문제가 발생했습니다.")
+                    .sentAt(errorMessage.getSentAt())
+                    .build();
+
+            messagingTemplate.convertAndSend(
+                    "/topic/chat/room/" + aiRoom.getChatRoomId(),
+                    errorResponse
+            );
+        }
+    }
+
+    private String generateAiResponse(String userMessage) {
+        try {
+            String koreanPrompt = String.format(
+                    "당신은 친근하고 도움이 되는 한국어 AI 어시스턴트입니다. " +
+                            "사용자의 질문에 반드시 한국어로만 응답해주세요. " +
+                            "답변은 자연스럽고 이해하기 쉽게, 200자 이내로 간결하게 작성해주세요.\n\n" +
+                            "사용자 질문: \"%s\"\n\n" +
+                            "한국어 응답:",
+                    userMessage
+            );
+            return chatClient.prompt()
+                    .user(koreanPrompt)
+                    .call()
+                    .content();
+        } catch (Exception e) {
+            log.error("AI 응답 생성 실패", e);
+            return "죄송합니다. 현재 AI 서비스에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요.";
+        }
+    }
+
+    @Async
+    public void createAiWelcomeMessageAsync(Integer roomId) {
+        chatMessageRepository.save(ChatMessage.builder()
+                .chatRoomId(roomId)
+                .senderId("AI_ASSISTANT")
+                .messageText("안녕하세요! AI 어시스턴트입니다. 무엇을 도와드릴까요?")
+                .build());
+    }
+}

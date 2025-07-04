@@ -1,6 +1,6 @@
 // src/components/chat/ChatToggle.js
 import React, { useState, useCallback } from 'react';
-import ChatApp from './ChatApp'; // ✅ ChatBox 대신 ChatApp 사용
+import ChatApp from './ChatApp';
 import './css/ChatToggle.css'
 
 const ChatToggle = ({ currentUser }) => {

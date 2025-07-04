@@ -1,8 +1,20 @@
-// src/main/java/pack/model/chat/ChatMessage.java
 package pack.model.chat;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import pack.model.member.Member;
 import java.time.LocalDateTime;
 
@@ -10,9 +22,9 @@ import java.time.LocalDateTime;
 @Table(name = "chat_messages")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ChatMessage {
     
     @Id
@@ -33,7 +45,6 @@ public class ChatMessage {
     @Builder.Default
     private LocalDateTime sentAt = LocalDateTime.now();
     
-    // ✅ JPA 관계 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id", insertable = false, updatable = false)
     private ChatRoom chatRoom;

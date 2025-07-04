@@ -1,5 +1,5 @@
 // src/components/chat/ChatApp.js
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ChatRoomList from './ChatRoomList';
 import ChatMessageArea from './ChatMessageArea';
 import chatApiService from '../services/chatApi';
@@ -11,7 +11,7 @@ const ChatApp = ({ currentUser, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(true);
 
-  // ✅ 채팅방 목록 로드
+  // 채팅방 목록 로드
   const loadChatRooms = useCallback(async () => {
     if (!currentUser?.memberId) return;
 
@@ -20,7 +20,7 @@ const ChatApp = ({ currentUser, onClose }) => {
       const rooms = await chatApiService.getChatRooms();
       setChatRooms(rooms || []);
       
-      // AI 채팅방이 없으면 생성
+      // AI 채팅방이 없으면 생성  
       const hasAiRoom = rooms.some(room => room.roomType === 'AI');
       if (!hasAiRoom) {
         await chatApiService.createAiRoom();
@@ -35,7 +35,7 @@ const ChatApp = ({ currentUser, onClose }) => {
     }
   }, [currentUser?.memberId]);
 
-  // ✅ 특정 채팅방 선택
+  // 특정 채팅방 선택
   const selectChatRoom = useCallback(async (room) => {
     if (!room || selectedRoom?.chatRoomId === room.chatRoomId) return;
 
@@ -52,7 +52,7 @@ const ChatApp = ({ currentUser, onClose }) => {
     }
   }, [selectedRoom?.chatRoomId]);
 
-  // ✅ 메시지 전송
+  // 메시지 전송
   const sendMessage = useCallback(async (messageText) => {
     if (!selectedRoom || !messageText.trim()) return;
 
@@ -81,12 +81,12 @@ const ChatApp = ({ currentUser, onClose }) => {
     }
   }, [selectedRoom]);
 
-  // ✅ 컴포넌트 마운트 시 초기화
+  // 컴포넌트 마운트 시 초기화
   useEffect(() => {
     loadChatRooms();
   }, [loadChatRooms]);
 
-  // ✅ 로그인 검증
+  // 사용자 로그인 검증
   if (!currentUser?.memberId) {
     return (
       <div style={styles.container}>
@@ -145,7 +145,7 @@ const ChatApp = ({ currentUser, onClose }) => {
   );
 };
 
-// ✅ 스타일 정의
+// 스타일 정의
 const styles = {
   container: {
     position: 'fixed',

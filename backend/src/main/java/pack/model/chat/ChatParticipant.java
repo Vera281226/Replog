@@ -1,8 +1,19 @@
-// src/main/java/pack/model/chat/ChatParticipant.java
 package pack.model.chat;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import pack.model.member.Member;
 import java.time.LocalDateTime;
 

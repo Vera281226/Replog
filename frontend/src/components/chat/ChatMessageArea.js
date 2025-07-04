@@ -7,14 +7,14 @@ const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, l
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // ✅ 메시지 목록 끝으로 스크롤 (아래로)
+  // 메시지 목록 끝으로 스크롤 (아래로)
   const scrollToBottom = useCallback(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, []);
 
-  // ✅ 메시지 전송
+  // 메시지 전송
   const handleSendMessage = useCallback(async () => {
     if (!inputValue.trim() || sending || !selectedRoom) return;
 
@@ -32,7 +32,7 @@ const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, l
     }
   }, [inputValue, sending, selectedRoom, onSendMessage]);
 
-  // ✅ Enter 키 처리
+  // Enter 키 처리
   const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -40,12 +40,12 @@ const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, l
     }
   }, [handleSendMessage]);
 
-  // ✅ 메시지 변경 시 스크롤 (새 메시지가 아래로 추가됨)
+  // 메시지 변경 시 스크롤 (새 메시지가 아래로 추가됨)
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  // ✅ 발신자 표시명
+  // 발신자 표시명
   const getSenderDisplayName = (message) => {
     if (message.senderId === 'AI_ASSISTANT') return '🤖 AI 어시스턴트';
     if (message.senderId === 'SYSTEM') return '🔧 시스템';

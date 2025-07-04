@@ -1,5 +1,4 @@
 // src/services/chatApi.js
-
 import axios from 'axios';
 
 const api = axios.create({
@@ -63,7 +62,7 @@ const chatApiService = {
     });
   },
 
-  // 메시지 조회 (첫 페이지만 캐시)
+  // 메시지 조회
   async getMessages(roomId, page = 0, size = 50) {
     const key = `msgs_${roomId}_${page}_${size}`;
     if (page === 0) {
