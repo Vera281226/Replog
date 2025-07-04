@@ -33,7 +33,9 @@ const LoginForm = () => {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          memberId: formData.memberId,
+        password: formData.pwd})
       }).then(res => res.json());
 
       if (result.success) {
