@@ -1,0 +1,51 @@
+/* src/components/common/LoginRequiredModal.css */
+.login-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+}
+
+.login-modal {
+  background: #fff;
+  width: 90%;
+  max-width: 360px;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.login-modal__body h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1f2937;
+}
+
+.login-modal__body p {
+  font-size: 1rem;
+  color: #374151;
+  margin-bottom: 20px;
+}
+
+.login-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.login-modal__btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.login-modal__btn:hover {
+  background-color: #1d4ed8;
+}
