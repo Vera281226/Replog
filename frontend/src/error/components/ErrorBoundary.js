@@ -1,37 +1,42 @@
-
-import React from 'react';
-import { ErrorModal } from './ErrorModal';
-import { filterProcess } from '../utils/filterProcess'
-import { flushSync } from 'react-dom';
+import React from "react";
+import { ErrorModal } from "./ErrorModal";
+import { filterProcess } from "../utils/filterProcess";
+import { flushSync } from "react-dom";
 
 export class ErrorBoundary extends React.Component {
-  state = { hasError: false, errorMsg: '' };
+  state = { hasError: false, errorMsg: "" };
 
   componentDidMount() {
-    window.addEventListener('navigate-home', this.handleNavigate);
+    window.addEventListener("navigate-home", this.handleNavigate);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('navigate-home', this.handleNavigate);
+    window.removeEventListener("navigate-home", this.handleNavigate);
   }
 
   static getDerivedStateFromError() {
-    return { hasError: true, errorMsg: '' };
+    return { hasError: true, errorMsg: "" };
   }
 
   componentDidCatch(error, info) {
-    const rawMsg = error.message || (info.componentStack || '').trim();
+    let rawMsg = error.message || (info.componentStack || "").trim();
+
+    // 객체면 JSON.stringify로 변환
+    if (typeof rawMsg === "object") {
+      rawMsg = JSON.stringify(rawMsg);
+    }
+
     const safeMsg = filterProcess(rawMsg);
     this.setState({ errorMsg: safeMsg });
   }
 
   handleAction = () => {
-    window.dispatchEvent(new Event('navigate-home'));
+    window.dispatchEvent(new Event("navigate-home"));
   };
 
   handleNavigate = () => {
-    flushSync(() => this.setState({ hasError: false, errorMsg: '' }));
-    this.props.history?.replace?.('/');
+    flushSync(() => this.setState({ hasError: false, errorMsg: "" }));
+    this.props.history?.replace?.("/");
   };
 
   render() {
@@ -40,7 +45,11 @@ export class ErrorBoundary extends React.Component {
         <ErrorModal
           isOpen
           title="오류가 발생했습니다"
-          message={this.state.errorMsg}
+          message={
+            typeof this.state.errorMsg === "object"
+              ? JSON.stringify(this.state.errorMsg)
+              : this.state.errorMsg
+          }
           onConfirm={this.handleAction}
           onCancel={this.handleAction}
         />
