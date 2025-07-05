@@ -21,23 +21,19 @@ const Header = ({ currentUser, onLogout }) => {
       <div className="logo">
         <Link to="/"><strong>Replog</strong></Link>
       </div>
-
       <nav>
         <div className="left-menu">
           <Link to="/contents">콘텐츠</Link>
           <Link to="/boards">게시판</Link>
           <Link to="/theaters">시네마 메이트</Link>
         </div>
-
         <div className="right-menu">
-          {/* ✅ 콘텐츠 요청 버튼 (＋) */}
-         <ReportButton
-          targetType="CONTENT_REQUEST"
-           targetId="general"
-          buttonStyle="icon"
+          <ReportButton
+            targetType="CONTENT_REQUEST"
+            targetId="general"
+            buttonStyle="icon"
             isRequest={true}
-         />
-
+          />
           {isLoggedIn ? (
             <>
               <Link to="/mypage" className="header-icon" title="마이페이지">👤</Link>

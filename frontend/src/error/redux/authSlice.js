@@ -3,7 +3,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'api/axios';
 
-// 비동기 액션: 현재 사용자 정보 가져오기
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (_, { rejectWithValue }) => {
@@ -23,19 +22,17 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
-// 비동기 액션: 로그인
 export const login = createAsyncThunk(
   'auth/login',
-  async ({ memberId, password }, { rejectWithValue }) => {
+  async ({ memberId, password }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.post(
         '/auth/login',
-        { memberId, 
-          password, 
-        },
+        { memberId, password },
         { withCredentials: true, timeout: 10000 }
       );
       if (response.data.success) {
+        await dispatch(fetchCurrentUser()).unwrap();
         return response.data.data;
       } else {
         return rejectWithValue(response.data.message || '로그인 실패');
@@ -46,41 +43,6 @@ export const login = createAsyncThunk(
   }
 );
 
-// 비동기 액션: 회원가입
-export const register = createAsyncThunk(
-  'auth/register',
-  async (formData, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await axios.post(
-        '/member/signup',
-        {
-          memberId: formData.id,
-          pwd: formData.password,
-          name: formData.name,
-          nickname: formData.nickname,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          birthdate: formData.birthdate,
-          gender: formData.gender,
-          genres: formData.genres.map(g => g.value)
-        },
-        { withCredentials: true, timeout: 10000 }
-      );
-      if (response.data.success) {
-        // 가입 후 자동 로그인 상태 동기화를 위해 사용자 정보 재조회
-        await dispatch(fetchCurrentUser()).unwrap();
-        return response.data.message || '회원가입이 완료되었습니다.';
-      } else {
-        return rejectWithValue(response.data.message || '회원가입 실패');
-      }
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message);
-    }
-  }
-);
-
-// 비동기 액션: 로그아웃
 export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
@@ -100,27 +62,23 @@ export const logout = createAsyncThunk(
 const initialState = {
   currentUser: null,
   isAuthenticated: false,
-  loading: false,
-  error: null,
-  registerMessage: ''  // 회원가입 성공/실패 메시지 저장
+  loading: true, // ⭐️ 최초엔 true!
+  error: null
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    // 수동 상태 초기화
     clearAuth(state) {
       state.currentUser = null;
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
-      state.registerMessage = '';
     }
   },
   extraReducers: (builder) => {
     builder
-      // fetchCurrentUser
       .addCase(fetchCurrentUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -130,12 +88,11 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.loading = false;
       })
-      .addCase(fetchCurrentUser.rejected, (state, action) => {
+      .addCase(fetchCurrentUser.rejected, (state) => {
+        state.currentUser = null;
+        state.isAuthenticated = false;
         state.loading = false;
-        state.error = action.payload;
       })
-
-      // login
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -149,24 +106,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
-      // register
-      .addCase(register.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.registerMessage = '';
-      })
-      .addCase(register.fulfilled, (state, action) => {
-        state.loading = false;
-        state.registerMessage = action.payload;  // 성공 메시지
-      })
-      .addCase(register.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-        state.registerMessage = '';
-      })
-
-      // logout
       .addCase(logout.fulfilled, (state) => {
         state.currentUser = null;
         state.isAuthenticated = false;
@@ -179,11 +118,9 @@ const authSlice = createSlice({
 
 export const { clearAuth } = authSlice.actions;
 
-// 셀렉터
 export const selectCurrentUser      = (state) => state.auth.currentUser;
 export const selectIsAuthenticated  = (state) => state.auth.isAuthenticated;
 export const selectAuthLoading      = (state) => state.auth.loading;
 export const selectAuthError        = (state) => state.auth.error;
-export const selectRegisterMessage  = (state) => state.auth.registerMessage;
 
 export default authSlice.reducer;

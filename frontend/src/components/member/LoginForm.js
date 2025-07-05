@@ -2,11 +2,14 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login, fetchCurrentUser } from '../../error/redux/authSlice';
 import './css/LoginForm.css';
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ memberId: '', pwd: '' });
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState({ memberId: '', password: '' });
   const [errors, setErrors] = useState({});
   const [showPwd, setShowPwd] = useState(false);
   const [msg, setMsg] = useState('');
@@ -22,26 +25,19 @@ const LoginForm = () => {
     e.preventDefault();
     const newErrors = {};
     if (!formData.memberId.trim()) newErrors.memberId = '아이디를 입력해주세요.';
-    if (!formData.pwd.trim())      newErrors.pwd      = '비밀번호를 입력해주세요.';
+    if (!formData.password.trim()) newErrors.password = '비밀번호를 입력해주세요.';
     if (Object.keys(newErrors).length) {
       setErrors(newErrors);
       return;
     }
 
     try {
-      const result = await fetch('/api/auth/login', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          memberId: formData.memberId,
-        password: formData.pwd})
-      }).then(res => res.json());
-
-      if (result.success) {
-        navigate('/mypage', { replace: true });
+      const resultAction = await dispatch(login(formData));
+      if (login.fulfilled.match(resultAction)) {
+        await dispatch(fetchCurrentUser());
+        navigate('/', { replace: true }); // 메인으로 이동
       } else {
-        setMsg(result.message || '로그인에 실패했습니다.');
+        setMsg(resultAction.payload || '로그인에 실패했습니다.');
       }
     } catch {
       setMsg('서버에 연결할 수 없습니다.');
@@ -66,13 +62,13 @@ const LoginForm = () => {
         </div>
 
         <div className="input-group">
-          <label htmlFor="pwd">비밀번호</label>
+          <label htmlFor="password">비밀번호</label>
           <div className="pwd-wrapper">
             <input
-              id="pwd"
-              name="pwd"
+              id="password"
+              name="password"
               type={showPwd ? 'text' : 'password'}
-              value={formData.pwd}
+              value={formData.password}
               onChange={handleChange}
               placeholder="비밀번호를 입력하세요"
             />
@@ -84,7 +80,7 @@ const LoginForm = () => {
               {showPwd ? '숨기기' : '보기'}
             </button>
           </div>
-          {errors.pwd && <span className="error">{errors.pwd}</span>}
+          {errors.password && <span className="error">{errors.password}</span>}
         </div>
 
         {msg && <div className="server-msg">{msg}</div>}

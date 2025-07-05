@@ -1,6 +1,6 @@
 // src/components/member/validation.js
 export const validate = {
-  id: (v) =>
+  memberId: (v) =>
     !/^[a-zA-Z0-9_]{4,20}$/.test(v)
       ? '아이디는 4~20자의 영문, 숫자, 밑줄(_)만 사용 가능합니다.'
       : '',
@@ -26,7 +26,6 @@ export const validate = {
   gender: (v) => (!['남', '여'].includes(v) ? '성별을 선택해주세요.' : ''),
   /* --- 새로 추가된 장르 검증 --- */
   genres: (arr) => {
-    if (!arr || arr.length === 0) return '관심 장르를 1개 이상 선택하세요.';
     if (arr.length > 5) return '관심 장르는 최대 5개까지 선택 가능합니다.';
     return '';
   }

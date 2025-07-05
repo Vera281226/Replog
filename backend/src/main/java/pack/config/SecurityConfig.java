@@ -27,20 +27,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 연결
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 쿠키로 전달
-                        .ignoringRequestMatchers("/api/auth/login") // 로그인 URL에서는 CSRF 보호 비활성화
+                        .ignoringRequestMatchers("/","/api/**") // 로그인 URL에서는 CSRF 보호 비활성화
                 )
                 .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(
+//                                "/api/reviews/**" // 리뷰 관련 API
+//                        ).authenticated()  // 인증된 사용자만 접근 가능
                         .requestMatchers(
-                                "/api/reviews/**" // 리뷰 관련 API
-                        ).authenticated()  // 인증된 사용자만 접근 가능
+                                "/api/import/all",
+                                "/api/auth/login",
+                                "/api/member/signup"
+                            ).permitAll()
                         .anyRequest().permitAll() // 그 외의 모든 요청은 인증 필요 없음 (공용 페이지)
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // 세션 설정
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)) // 세션 설정
                 .formLogin(form -> form.disable()) // 폼 로그인 비활성화
                 .httpBasic(basic -> {}); // HTTP Basic 인증 비활성화
 
@@ -48,13 +53,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     // CORS 설정 추가
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // 쿠키 전달 허용
         config.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트 주소
@@ -67,7 +72,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+    AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
 

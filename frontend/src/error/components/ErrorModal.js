@@ -17,7 +17,11 @@ export function ErrorModal({ isOpen, title, message, onConfirm, onCancel }) {
         <h2>{title}</h2>
       </div>
       <div className="error-modal__body">
-        <p>{message}</p>
+        <p>
+    {typeof message === 'object'
+      ? JSON.stringify(message, null, 2)
+      : message}
+  </p>
       </div>
       <div className="error-modal__footer">
         <button className="error-modal__btn error-modal__btn--primary" onClick={onConfirm}>
