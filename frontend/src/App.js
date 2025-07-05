@@ -38,7 +38,7 @@ export default function RootRouter() {
             <Route path="/boards"    element={<BoardPage />} />
             <Route path="/boards/:postNo" element={<PostDetailPage />} />
             <Route path="/boards/write"    element={<WritePostPage/>} />
-            <Route path="/mate"      element={<TheaterPage />} />
+            <Route path="/theaters"      element={<TheaterPage />} />
             <Route path="/theaters/:partyPostNo" element={<PartyPostDetailPage />} />
             <Route path="/login"      element={<LoginForm />} />
             <Route path="/signup"     element={<MemberRegisterForm/>}/>

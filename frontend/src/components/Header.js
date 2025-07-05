@@ -26,7 +26,7 @@ const Header = ({ currentUser, onLogout }) => {
         <div className="left-menu">
           <Link to="/contents">콘텐츠</Link>
           <Link to="/boards">게시판</Link>
-          <Link to="/mate">시네마 메이트</Link>
+          <Link to="/theaters">시네마 메이트</Link>
         </div>
 
         <div className="right-menu">
