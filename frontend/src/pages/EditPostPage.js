@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"; 
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import axios from "../error/api/interceptor";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -43,7 +43,7 @@ export default function EditPostPage() {
 
     const fetchPost = async () => {
       try {
-        const res = await axios.get(`/api/posts/${postNo}`);
+        const res = await axios.get(`/posts/${postNo}`);
         const post = res.data;
 
         if (!isAuthenticated || currentUser?.memberId !== post.memberId) {
@@ -94,7 +94,7 @@ export default function EditPostPage() {
     }
 
     try {
-      await axios.put(`/api/posts/${postNo}`, {
+      await axios.put(`/posts/${postNo}`, {
         ...form,
         content: contentHtml,
         memberId: currentUser?.memberId,

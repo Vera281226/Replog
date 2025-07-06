@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../error/api/interceptor";
 import TheaterMap from "../components/TheaterMap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import WritePartyModal from "../components/WritePartyModal";
@@ -47,7 +47,7 @@ const TheaterPage = () => {
     const fetchPosts = async () => {
       const query = new URLSearchParams(location.search).toString();
       try {
-        const res = await axios.get(`/api/partyposts/theaters?${query}`);
+        const res = await axios.get(`/partyposts/theaters?${query}`);
         setPartyPosts(res.data);
       } catch (err) {
         console.error("뒤로가기 후 모집글 다시 불러오기 실패", err);
@@ -59,13 +59,13 @@ const TheaterPage = () => {
   }, [location.search]);
 
   useEffect(() => {
-    axios.get("/api/theaters")
+    axios.get("/theaters")
       .then((res) => {
         setTheaters(res.data);
         setFilteredTheaters(res.data);
       });
 
-    axios.get("/api/partyposts/theaters/count")
+    axios.get("/partyposts/theaters/count")
       .then((res) => setPostCounts(res.data))
       .catch((err) => console.error("모집글 개수 불러오기 실패", err));
   }, []);
@@ -75,7 +75,7 @@ const TheaterPage = () => {
       setFilteredTheaters(theaters);
     } else {
       const query = selectedIds.join(",");
-      axios.get(`/api/theaters?ids=${query}`)
+      axios.get(`/theaters?ids=${query}`)
         .then((res) => setFilteredTheaters(res.data))
         .catch((err) => console.error("선택 영화관 조회 실패", err));
     }
@@ -208,7 +208,7 @@ const TheaterPage = () => {
         onClose={() => setIsModalOpen(false)}
         onSubmitSuccess={() => {
           const params = new URLSearchParams(location.search);
-          axios.get(`/api/partyposts/theaters?${params.toString()}`)
+          axios.get(`/partyposts/theaters?${params.toString()}`)
             .then((res) => setPartyPosts(res.data))
             .catch((err) => console.error("모집글 다시 불러오기 실패", err));
         }}

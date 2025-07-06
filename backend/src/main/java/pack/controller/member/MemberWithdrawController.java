@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import pack.dto.member.MemberWithdrawRequest;
 import pack.service.member.MemberService;
+import pack.util.AuthUtil;
 
 @RestController
 @RequestMapping("/api/member")
@@ -17,7 +18,7 @@ public class MemberWithdrawController {
 
     @PostMapping("/withdraw")
     public ResponseEntity<String> withdraw(@RequestBody MemberWithdrawRequest request, HttpSession session) {
-        String memberId = (String) session.getAttribute("loginMember");
+        String memberId = AuthUtil.getCurrentMemberId();
 
         if (memberId == null) {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");

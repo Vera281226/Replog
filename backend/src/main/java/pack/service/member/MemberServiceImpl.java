@@ -16,8 +16,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
-    private final ProjectBackendApplication projectBackendApplication;
-
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 

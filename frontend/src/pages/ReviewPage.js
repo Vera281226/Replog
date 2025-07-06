@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+import axios from '../error/api/interceptor';
 import './ReviewPage.css'; 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -22,15 +22,12 @@ export default function ReviewPage() {
   const [error, setError] = useState('');
   const [isModalOpen, setModalOpen] = useState(false);
 
-  // 세션 사용자 정보 로드
-  useEffect(() => { dispatch(fetchCurrentUser()); }, [dispatch]);
-
   // 콘텐츠 상세 조회
   useEffect(() => {
     async function fetchDetail() {
       try {
         setLoading(true);
-        const res = await axios.get(`/api/contents/${contentId}`);
+        const res = await axios.get(`/contents/${contentId}`);
         setContent(res.data);
       } catch (e) {
         console.error(e);

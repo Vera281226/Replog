@@ -1,6 +1,6 @@
 // src/components/member/MemberRegisterForm.js
 import React, { useState } from "react";
-import axios from "axios";
+import axios from "../../error/api/interceptor";
 import { useNavigate } from "react-router-dom";
 import InputWarning from "../../error/components/InputWarning";
 import AddressModal from "./AddressModal";
@@ -88,7 +88,7 @@ const MemberRegisterForm = () => {
     };
 
     try {
-      const res = await axios.post("/api/member/signup", payload, {
+      const res = await axios.post("/member/signup", payload, {
         withCredentials: true,
       });
       // 회원가입 성공

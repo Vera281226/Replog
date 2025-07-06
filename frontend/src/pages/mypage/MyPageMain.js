@@ -1,7 +1,7 @@
 // src/pages/mypage/MyPageMain.js
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from 'api/axios';
+import api from '../../error/api/interceptor';
 import './MyPage.css';
 
 export default function MyPageMain() {
@@ -11,7 +11,7 @@ export default function MyPageMain() {
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    api.get('/member/mypage', { withCredentials:true })
+    api.get('/member/mypage', { withCredentials: true })
       .then(r => setData(r.data))
       .catch(e => {
         if (e.response?.status === 401) nav('/login');
@@ -22,6 +22,7 @@ export default function MyPageMain() {
 
   if (loading) return <p className="mypage">로딩 중…</p>;
   if (err)     return <p className="mypage error">{err}</p>;
+  if (!data)   return <p className="mypage error">마이페이지 데이터가 없습니다.</p>;
 
   return (
     <section className="mypage">
@@ -31,10 +32,10 @@ export default function MyPageMain() {
         alt="프로필"
         className="profile-img"
       />
-      <h2>{data.nickname}</h2>
+      <h2>{data.nickname || '닉네임 없음'}</h2>
       <p className="intro">{data.introduction || '소개글이 없습니다.'}</p>
       <p className="count">
-        게시글 {data.reviewCount} | 댓글 {data.commentCount}
+        게시글 {data.reviewCount ?? 0} | 댓글 {data.commentCount ?? 0}
       </p>
 
       {/* ② 프로필 수정 버튼 */}

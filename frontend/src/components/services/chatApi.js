@@ -1,23 +1,5 @@
 // src/services/chatApi.js
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: '/api/chat',
-  withCredentials: true,
-  timeout: 10000,
-});
-
-// 응답 인터셉터: 데이터만 반환, 401 처리
-api.interceptors.response.use(
-  res => res.data,
-  err => {
-    if (err.response?.status === 401) {
-      alert('로그인이 필요합니다.');
-      window.location.href = '/login';
-    }
-    return Promise.reject(err);
-  }
-);
+import api from '../../error/api/interceptor'; // 공통 인터셉터 적용된 인스턴스 사용
 
 // 중복 요청 방지 및 간단 캐시
 const inFlight = new Map();
@@ -48,17 +30,17 @@ const chatApiService = {
     const cached = getCached(key);
     if (cached) return cached;
 
-    const rooms = await dedupe(key, () => api.get('/rooms'));
-    setCached(key, rooms);
-    return rooms;
+    const rooms = await dedupe(key, () => api.get('/chat/rooms'));
+    setCached(key, rooms.data || rooms); // 인터셉터에서 data만 반환한다면 rooms로, 아니면 rooms.data로
+    return rooms.data || rooms;
   },
 
   // AI 채팅방 생성/조회
   async createAiRoom() {
     return dedupe('aiRoom', async () => {
-      const room = await api.post('/rooms/ai');
+      const room = await api.post('/chat/rooms/ai');
       cache.delete('chatRooms');
-      return room;
+      return room.data || room;
     });
   },
 
@@ -71,17 +53,17 @@ const chatApiService = {
     }
 
     const msgs = await dedupe(key, () =>
-      api.get(`/rooms/${roomId}/messages`, { params: { page, size } })
+      api.get(`/chat/rooms/${roomId}/messages`, { params: { page, size } })
     );
-    if (page === 0) setCached(key, msgs);
-    return msgs;
+    if (page === 0) setCached(key, msgs.data || msgs);
+    return msgs.data || msgs;
   },
 
   // AI 메시지 전송
   async sendAiMessage(message) {
     if (!message.trim()) throw new Error('메시지를 입력하세요.');
     await api.post(
-      '/ai',
+      '/chat/ai',
       `message=${encodeURIComponent(message.trim())}`,
       { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 30000 }
     );
@@ -92,7 +74,7 @@ const chatApiService = {
   // 일반 메시지 전송
   async sendMessage(roomId, text) {
     if (!roomId || !text.trim()) throw new Error('필수 값 누락');
-    await api.post('/messages', { chatRoomId: roomId, messageText: text.trim() });
+    await api.post('/chat/messages', { chatRoomId: roomId, messageText: text.trim() });
     // 해당 채팅방 메시지 캐시 무효화
     cache.forEach((_, k) => {
       if (k.startsWith(`msgs_${roomId}_`)) cache.delete(k);

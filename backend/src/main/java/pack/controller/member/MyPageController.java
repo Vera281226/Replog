@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import pack.dto.member.MyPageDto;
 import pack.service.member.MyPageService;
+import pack.util.AuthUtil;
 
 @RestController
 @RequestMapping("/api/member/mypage")
@@ -20,7 +21,7 @@ public class MyPageController {
 	@GetMapping
     public ResponseEntity<MyPageDto> getMyPageInfo(HttpSession session) {
         // 세션에서 로그인한 사용자 ID 가져오기
-        String memberId = (String) session.getAttribute("loginMember");
+        String memberId = AuthUtil.getCurrentMemberId();
 
         // 로그인 안 되어 있으면 401 Unauthorized
         if (memberId == null) {

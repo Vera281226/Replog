@@ -1,6 +1,6 @@
 // src/components/common/ReportModal.js
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios from '../../error/api/interceptor';
 
 const ReportModal = ({ isOpen, onClose, targetType, targetId, isRequest = false }) => {
   const [formData, setFormData] = useState({
@@ -61,7 +61,7 @@ const ReportModal = ({ isOpen, onClose, targetType, targetId, isRequest = false 
         description: formData.description.trim() || null
       };
 
-      await axios.post('/api/reports', payload, {
+      await axios.post('/reports', payload, {
         withCredentials: true,
         timeout: 8000
       });

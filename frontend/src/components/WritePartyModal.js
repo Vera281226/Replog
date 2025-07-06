@@ -1,5 +1,5 @@
   import { useState, useEffect } from "react";
-  import axios from "axios";
+  import axios from "../error/api/interceptor";
   import { useEditor, EditorContent } from "@tiptap/react";
   import StarterKit from "@tiptap/starter-kit";
   import Underline from "@tiptap/extension-underline";
@@ -50,7 +50,7 @@
     useEffect(() => {
       if (!isOpen) return;
 
-      axios.get("/api/theaters")
+      axios.get("/theaters")
         .then((res) => {
           setTheaters(res.data);
           setFilteredTheaters(res.data);
@@ -93,7 +93,7 @@
         content: editor?.getHTML() || "",
       };
 
-      axios.post("/api/partyposts", updatedForm, { withCredentials: true })
+      axios.post("/partyposts", updatedForm, { withCredentials: true })
         .then(() => {
           onClose();
           if (onSubmitSuccess) onSubmitSuccess();

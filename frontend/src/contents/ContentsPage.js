@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-// ✅ 공통 레이아웃 컴포넌트
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import FabButton from '../components/FabButton';
-
 // ✅ 콘텐츠 전용 컴포넌트
 import ContentsFilterBox from './components/ContentsFilterBox';
 import ContentsGrid from './components/ContentsGrid';
@@ -72,7 +67,6 @@ function ContentsPage() {
 
     return (
         <>
-            <Header />
 
             <main className="contents-page">
                 {/* ✅ 안내 메시지 영역 (검색창 자리 대체) */}
@@ -117,8 +111,6 @@ function ContentsPage() {
                 </div>
             </main>
 
-            <Footer />
-            <FabButton />
         </>
     );
 }

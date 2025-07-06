@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react"; 
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../error/redux/authSlice";
-import axios from "axios";
+import axios from "../error/api/interceptor";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import LoginRequiredModal from "../components/LoginRequiredModel";
 import "./css/BoardPage.css";
@@ -43,7 +43,7 @@ export default function BoardPage() {
           searchKeyword: lastSearchParams.searchKeyword
         })
       };
-      const res = await axios.get("/api/posts/filter", { params });
+      const res = await axios.get("/posts/filter", { params });
       setPosts(res.data.content);
       setTotalPages(res.data.totalPages);
     } catch (err) {

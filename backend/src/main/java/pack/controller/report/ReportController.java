@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import pack.dto.report.ReportRequest;
 import pack.dto.report.ReportResponse;
 import pack.service.report.ReportService;
+import pack.util.AuthUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,18 +28,18 @@ public class ReportController {
 
     @PostMapping
     public ResponseEntity<ReportResponse> createReport(
-        @RequestBody ReportRequest request,
-        @SessionAttribute(name = "loginMember") String reporterId
+        @RequestBody ReportRequest request
     ) {
+    	String reporterId = AuthUtil.getCurrentMemberId();
         return ResponseEntity.ok(reportService.createReport(reporterId, request));
     }
 
     @GetMapping("/my")
     public ResponseEntity<Page<ReportResponse>> getMyReports(
         @RequestParam(name = "page", defaultValue = "0") int page,
-        @RequestParam(name = "size", defaultValue = "10") int size,
-        @SessionAttribute(name = "loginMember") String reporterId
+        @RequestParam(name = "size", defaultValue = "10") int size
     ) {
+    	String reporterId = AuthUtil.getCurrentMemberId();
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(reportService.getMyReports(reporterId, pageable));
     }

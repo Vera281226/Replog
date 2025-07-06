@@ -1,6 +1,6 @@
 // src/components/Review/ReviewList.jsx
 import { useEffect, useState, useCallback } from 'react';
-import api from '../../api/axios';
+import api from '../../error/api/interceptor';
 import ReviewItem from './ReviewItem';
 import './ReviewList.css';
 

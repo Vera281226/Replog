@@ -1,18 +1,16 @@
 // src/store/slices/authSlice.js
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'api/axios';
+import api from '../api/interceptor';
+import qs from 'qs';
 
+// 현재 사용자 정보 조회
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('/auth/current-user', {
-        withCredentials: true,
-        timeout: 10000
-      });
+      const response = await api.get('/auth/current-user', { withCredentials: true, timeout: 10000 });
       if (response.data.success) {
-        return response.data.data;
+        return response.data.data; // { memberId, nickname, ... }
       } else {
         return rejectWithValue(response.data.message || '인증 정보 로드 실패');
       }
@@ -22,14 +20,19 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
+// 로그인
 export const login = createAsyncThunk(
   'auth/login',
   async ({ memberId, password }, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios.post(
+      const response = await api.post(
         '/auth/login',
-        { memberId, password },
-        { withCredentials: true, timeout: 10000 }
+        qs.stringify({ memberId, password }),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          withCredentials: true,
+          timeout: 10000
+        }
       );
       if (response.data.success) {
         await dispatch(fetchCurrentUser()).unwrap();
@@ -43,15 +46,12 @@ export const login = createAsyncThunk(
   }
 );
 
+// 로그아웃
 export const logout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await axios.post(
-        '/auth/logout',
-        {},
-        { withCredentials: true, timeout: 5000 }
-      );
+      await api.post('/auth/logout', {}, { withCredentials: true, timeout: 5000 });
       return;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -62,8 +62,8 @@ export const logout = createAsyncThunk(
 const initialState = {
   currentUser: null,
   isAuthenticated: false,
-  loading: true, // ⭐️ 최초엔 true!
-  error: null
+  loading: true,
+  error: null,
 };
 
 const authSlice = createSlice({
@@ -75,7 +75,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -113,14 +113,12 @@ const authSlice = createSlice({
       .addCase(logout.rejected, (state, action) => {
         state.error = action.payload;
       });
-  }
+  },
 });
 
 export const { clearAuth } = authSlice.actions;
-
-export const selectCurrentUser      = (state) => state.auth.currentUser;
-export const selectIsAuthenticated  = (state) => state.auth.isAuthenticated;
-export const selectAuthLoading      = (state) => state.auth.loading;
-export const selectAuthError        = (state) => state.auth.error;
-
+export const selectCurrentUser = (state) => state.auth.currentUser;
+export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
+export const selectAuthLoading = (state) => state.auth.loading;
+export const selectAuthError = (state) => state.auth.error;
 export default authSlice.reducer;

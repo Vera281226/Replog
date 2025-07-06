@@ -1,9 +1,8 @@
 // src/components/member/LoginForm.js
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { login, fetchCurrentUser } from '../../error/redux/authSlice';
+import { fetchCurrentUser, login } from '../../error/redux/authSlice';
 import './css/LoginForm.css';
 
 const LoginForm = () => {
@@ -34,9 +33,11 @@ const LoginForm = () => {
     try {
       const resultAction = await dispatch(login(formData));
       if (login.fulfilled.match(resultAction)) {
-        await dispatch(fetchCurrentUser());
-        navigate('/', { replace: true }); // 메인으로 이동
-      } else {
+  setTimeout(() => {
+    dispatch(fetchCurrentUser());
+    navigate('/', { replace: true });
+  }, 150);
+} else {
         setMsg(resultAction.payload || '로그인에 실패했습니다.');
       }
     } catch {
@@ -48,7 +49,6 @@ const LoginForm = () => {
     <div className="login-container">
       <form className="login-box" onSubmit={handleSubmit}>
         <h2>로그인</h2>
-
         <div className="input-group">
           <label htmlFor="memberId">아이디</label>
           <input
@@ -60,7 +60,6 @@ const LoginForm = () => {
           />
           {errors.memberId && <span className="error">{errors.memberId}</span>}
         </div>
-
         <div className="input-group">
           <label htmlFor="password">비밀번호</label>
           <div className="pwd-wrapper">
@@ -82,11 +81,8 @@ const LoginForm = () => {
           </div>
           {errors.password && <span className="error">{errors.password}</span>}
         </div>
-
         {msg && <div className="server-msg">{msg}</div>}
-
         <button type="submit" className="login-btn">로그인</button>
-
         <div className="link-group">
           <Link to="/signup">회원가입</Link>
         </div>

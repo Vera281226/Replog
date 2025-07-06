@@ -1,21 +1,14 @@
-// AuthController.java
 package pack.controller.member;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pack.dto.common.ApiResponse;
-import pack.dto.member.LoginRequest;
 import pack.dto.member.UserInfoResponse;
+import pack.service.member.CustomUserDetails;
 import pack.service.member.MemberService;
-import pack.util.SessionUtil;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,54 +17,27 @@ public class AuthController {
     
     private final MemberService memberService;
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<UserInfoResponse>> login(
-            @RequestBody LoginRequest request,
-            HttpServletRequest httpRequest) {
-
-        try {
-            UserInfoResponse userInfo = memberService.authenticateUser(request.getMemberId(), request.getPwd());
-
-            // 기존 세션 저장
-            HttpSession session = httpRequest.getSession(true);
-            session.setAttribute("loginMember", userInfo.getMemberId());
-
-            // Spring Security 인증 정보 수동 등록 (중요)
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(
-                            userInfo.getMemberId(), null,
-                            List.of(new SimpleGrantedAuthority("ROLE_USER")));
-
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-
-            return ResponseEntity.ok(ApiResponse.success(userInfo));
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(ApiResponse.error("로그인 실패: " + e.getMessage()));
-        }
-    }
-    
     @GetMapping("/current-user")
-    public ResponseEntity<ApiResponse<UserInfoResponse>> getCurrentUser(HttpSession session) {
-        String memberId = SessionUtil.getLoginMemberId(session);
-        
-        if (memberId == null) {
+    public ResponseEntity<ApiResponse<UserInfoResponse>> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
             return ResponseEntity.status(401)
-                .body(ApiResponse.error("로그인이 필요합니다.", "AUTH_REQUIRED"));
+                    .body(ApiResponse.error("로그인이 필요합니다.", "AUTH_REQUIRED"));
         }
-        
-        try {
-            UserInfoResponse userInfo = memberService.getUserInfo(memberId);
-            return ResponseEntity.ok(ApiResponse.success(userInfo));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("사용자 정보 조회 실패", "USER_INFO_ERROR"));
-        }
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
+        String memberId = user.getMemberId();
+        String nickname = user.getNickname();
+        UserInfoResponse userInfo = memberService.getUserInfo(memberId);
+        return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
+
     
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
-        request.getSession().invalidate();
-        return ResponseEntity.ok(ApiResponse.success("로그아웃 되었습니다.", null));
+    // 로그아웃 엔드포인트는 SecurityConfig에서 자동 처리하므로 삭제(필요시 안내만)
+    
+    @GetMapping("/session-expired")
+    public ResponseEntity<ApiResponse<Void>> sessionExpired() {
+        return ResponseEntity.status(401)
+            .body(ApiResponse.error("세션이 만료되었습니다. 다시 로그인하세요.", "SESSION_EXPIRED"));
     }
 }

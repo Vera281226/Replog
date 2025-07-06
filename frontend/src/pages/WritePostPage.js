@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"; 
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import axios from "../error/api/interceptor";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -87,7 +87,7 @@ export default function WritePostPage() {
 
     try {
       await axios.post(
-        "/api/posts",
+        "/posts",
         {
           memberId: form.memberId,
           nickname: form.nickname,

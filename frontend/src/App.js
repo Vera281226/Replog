@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Provider, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
-import store from './error/redux/store';
 import { ErrorBoundary } from './error/components/ErrorBoundary';
 import { ErrorModal } from './error/components/ErrorModal';
 import { closeModal } from './error/redux/errorSlice';

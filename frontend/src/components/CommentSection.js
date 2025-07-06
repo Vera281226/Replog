@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axios from "../error/api/interceptor";
 import { ErrorModal } from "../error/components/ErrorModal";
 import BannedWordFilterModal, { checkBannedWords } from "../components/BannedWordFilterModal";
 
@@ -35,7 +35,7 @@ export default function CommentSection({
     }
 
     try {
-      const res = await axios.post("/api/comments", {
+      const res = await axios.post("/comments", {
         memberId: userId,
         nickname,
         postNo: parseInt(postNo),
@@ -50,7 +50,7 @@ export default function CommentSection({
 
   const handleDeleteComment = async () => {
     try {
-      await axios.delete(`/api/comments/${commentToDelete}`);
+      await axios.delete(`/comments/${commentToDelete}`);
       setComments((prev) => prev.filter((c) => c.commentNo !== commentToDelete));
     } catch {
       showMessage("댓글 삭제에 실패했습니다.", "error");
@@ -68,7 +68,7 @@ export default function CommentSection({
     }
 
     try {
-      const res = await axios.put(`/api/comments/${commentNo}`, {
+      const res = await axios.put(`/comments/${commentNo}`, {
         memberId: userId,
         nickname,
         postNo: parseInt(postNo),
@@ -89,7 +89,7 @@ export default function CommentSection({
 
   const toggleCommentLike = async (commentNo) => {
     try {
-      const res = await axios.post(`/api/comments/${commentNo}/like`, null, {
+      const res = await axios.post(`/comments/${commentNo}/like`, null, {
         params: { memberId: userId },
       });
       const isLiked = res.data === "liked";
