@@ -9,8 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pack.dto.chat.ChatMessageRequest;
 import pack.dto.chat.ChatMessageResponse;
 import pack.model.chat.ChatMessage;
+import pack.model.chat.ChatRoom;
+import pack.model.member.Member;
 import pack.repository.chat.ChatMessageRepository;
 import pack.repository.chat.ChatParticipantRepository;
+import pack.repository.chat.ChatRoomRepository;
 import pack.repository.member.MemberRepository;
 
 import java.time.LocalDateTime;
@@ -23,6 +26,7 @@ public class ChatMessageServiceImpl implements ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatParticipantRepository chatParticipantRepository;
     private final MemberRepository memberRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Override
     @Transactional
@@ -30,22 +34,24 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         if (!chatParticipantRepository.existsByChatRoomIdAndMemberId(request.getChatRoomId(), senderId)) {
             throw new IllegalStateException("채팅방에 참가하지 않은 사용자입니다");
         }
-        String senderNickname = memberRepository.findById(senderId)
-                .map(m -> m.getNickname())
-                .orElse(senderId);
+
+        ChatRoom chatRoom = chatRoomRepository.findById(request.getChatRoomId())
+            .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+        Member sender = memberRepository.findById(senderId)
+            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         ChatMessage savedMessage = chatMessageRepository.save(
-                ChatMessage.builder()
-                        .chatRoomId(request.getChatRoomId())
-                        .senderId(senderId)
-                        .messageText(request.getMessageText())
-                        .build()
+            ChatMessage.builder()
+                .chatRoom(chatRoom)
+                .sender(sender)
+                .messageText(request.getMessageText())
+                .build()
         );
         return ChatMessageResponse.builder()
                 .chatMessagesId(savedMessage.getChatMessagesId())
-                .chatRoomId(savedMessage.getChatRoomId())
-                .senderId(savedMessage.getSenderId())
-                .senderNickname(senderNickname)
+                .chatRoomId(savedMessage.getChatRoom().getChatRoomId())
+                .senderId(savedMessage.getSender().getMemberId())
+                .senderNickname(savedMessage.getSender().getNickname())
                 .messageText(savedMessage.getMessageText())
                 .sentAt(savedMessage.getSentAt())
                 .build();
@@ -59,19 +65,19 @@ public class ChatMessageServiceImpl implements ChatMessageService {
         if (pageable == null) {
             pageable = PageRequest.of(0, 50);
         }
-        Page<ChatMessage> messagePage = chatMessageRepository.findByChatRoomIdOrderBySentAtAsc(roomId, pageable);
+        Page<ChatMessage> messagePage = chatMessageRepository.findByChatRoom_ChatRoomIdOrderBySentAtAsc(roomId, pageable);
         return messagePage.map(message -> ChatMessageResponse.builder()
-                .chatMessagesId(message.getChatMessagesId())
-                .chatRoomId(message.getChatRoomId())
-                .senderId(message.getSenderId() != null ? message.getSenderId() : "SYSTEM")
-                .senderNickname(getSenderDisplayName(message))
-                .messageText(message.getMessageText() != null ? message.getMessageText() : "")
-                .sentAt(message.getSentAt() != null ? message.getSentAt() : LocalDateTime.now())
-                .build());
+        	    .chatMessagesId(message.getChatMessagesId())
+        	    .chatRoomId(message.getChatRoom().getChatRoomId())
+        	    .senderId(message.getSender().getMemberId() != null ? message.getSender().getMemberId() : "SYSTEM")
+        	    .senderNickname(getSenderDisplayName(message))
+        	    .messageText(message.getMessageText() != null ? message.getMessageText() : "")
+        	    .sentAt(message.getSentAt() != null ? message.getSentAt() : LocalDateTime.now())
+        	    .build());
     }
 
     private String getSenderDisplayName(ChatMessage message) {
-        String senderId = message.getSenderId();
+        String senderId = message.getSender().getMemberId();
         if (senderId == null || senderId.trim().isEmpty()) {
             return "알 수 없는 사용자";
         }

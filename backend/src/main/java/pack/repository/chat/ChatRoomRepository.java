@@ -16,7 +16,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Integer> {
     
     Optional<ChatRoom> findByChatRoomIdAndIsActiveTrue(Integer chatRoomId);
     
-    Optional<ChatRoom> findByPartyPostNo(Integer partyPostNo);
+    Optional<ChatRoom> findByPartyPost_PartyPostNo(Integer partyPostNo);
     
     @Query("SELECT DISTINCT cr FROM ChatRoom cr " +
            "JOIN cr.participants cp " +

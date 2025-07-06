@@ -9,7 +9,8 @@ const PartyPostDetailPage = () => {
   const [post, setPost] = useState(null);
 
   useEffect(() => {
-    axios.get(`/api/partyposts/${partyPostNo}`)
+    axios
+      .get(`/api/partyposts/${partyPostNo}`)
       .then((res) => setPost(res.data))
       .catch((err) => {
         console.error("상세글 조회 실패", err);
@@ -18,7 +19,8 @@ const PartyPostDetailPage = () => {
       });
   }, [partyPostNo, navigate]);
 
-  if (!post) return <p style={{ textAlign: "center", marginTop: "50px" }}>로딩 중...</p>;
+  if (!post)
+    return <p style={{ textAlign: "center", marginTop: "50px" }}>로딩 중...</p>;
 
   return (
     <div style={styles.container}>
@@ -26,9 +28,16 @@ const PartyPostDetailPage = () => {
         <h2 style={styles.title}>{post.title}</h2>
 
         <div style={styles.meta}>
-          <div><strong>👤 작성자:</strong> {post.nickname}</div>
-          <div><strong>🕒 작성일:</strong> {new Date(post.createdAt).toLocaleString()}</div>
-          <div><strong>👁️ 조회수:</strong> {post.views}</div>
+          <div>
+            <strong>👤 작성자:</strong> {post.nickname}
+          </div>
+          <div>
+            <strong>🕒 작성일:</strong>{" "}
+            {new Date(post.createdAt).toLocaleString()}
+          </div>
+          <div>
+            <strong>👁️ 조회수:</strong> {post.views}
+          </div>
         </div>
 
         <table style={styles.table}>
@@ -39,7 +48,9 @@ const PartyPostDetailPage = () => {
             </tr>
             <tr>
               <th style={styles.th}>📅 모집 마감일</th>
-              <td style={styles.td}>{new Date(post.partyDeadline).toLocaleString()}</td>
+              <td style={styles.td}>
+                {new Date(post.partyDeadline).toLocaleString()}
+              </td>
             </tr>
             <tr>
               <th style={styles.th}>👥 모집 인원</th>
@@ -59,39 +70,44 @@ const PartyPostDetailPage = () => {
         <div style={styles.content}>
           <h4 style={{ marginBottom: "10px" }}>📝 본문 내용</h4>
           <div
-  style={styles.text}
-  dangerouslySetInnerHTML={{ __html: post.content }}
-/>
+            style={styles.text}
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
         </div>
-<button
-  onClick={async () => {
-    try {
-      await axios.post(
-        `/api/chat/rooms/${post.partyPostNo}/join`,
-        {},
-        { withCredentials: true }
-      );
-      alert("채팅방에 참가되었습니다!");
-      // 채팅방으로 이동하려면, 방 ID가 post.partyPostNo와 다르다면
-      // 서버가 반환한 ChatRoomResponse의 roomId를 이용해 라우팅하세요.
-      // 예: navigate(`/chat/${roomId}`);
-    } catch (err) {
-      console.error(err);
-      alert("채팅방 참가에 실패했습니다.");
-    }
-  }}
-  style={{
-    padding: "8px 16px",
-    backgroundColor: "#28a745",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    marginBottom: "16px"
-  }}
->
-  참가하기
-</button>
+        <button
+          onClick={async () => {
+            try {
+              const res = await axios.get(
+                `/api/chat/rooms/party-post/${post.partyPostNo}`
+              );
+              const { chatRoomId } = res.data;
+              await axios.post(
+                `/api/chat/rooms/${chatRoomId}/join`,
+                {},
+                { withCredentials: true }
+              );
+              alert("채팅방에 참가되었습니다!");
+              // navigate(`/chat/${chatRoomId}`);
+            } catch (err) {
+              if (err.response && err.response.status === 409) {
+                alert("이미 채팅방에 참가한 사용자입니다.");
+              } else {
+                alert("채팅방 참가에 실패했습니다.");
+              }
+            }
+          }}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#28a745",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            marginBottom: "16px",
+          }}
+        >
+          참가하기
+        </button>
         <div style={{ textAlign: "right" }}>
           <button onClick={() => navigate(-1)} style={styles.backButton}>
             ← 목록으로 돌아가기

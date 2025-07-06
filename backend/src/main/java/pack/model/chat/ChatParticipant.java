@@ -42,8 +42,7 @@ public class ChatParticipant {
     @Column(name = "last_read_message_id")
     private Integer lastReadMessageId;
     
-    // ✅ JPA 관계 매핑
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "chat_room_id", insertable = false, updatable = false)
     private ChatRoom chatRoom;
     

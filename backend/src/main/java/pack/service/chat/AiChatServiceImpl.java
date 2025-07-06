@@ -12,6 +12,7 @@ import pack.dto.chat.ChatMessageResponse;
 import pack.model.chat.ChatMessage;
 import pack.model.chat.ChatParticipant;
 import pack.model.chat.ChatRoom;
+import pack.model.member.Member;
 import pack.repository.chat.ChatMessageRepository;
 import pack.repository.chat.ChatParticipantRepository;
 import pack.repository.chat.ChatRoomRepository;
@@ -97,20 +98,23 @@ public class AiChatServiceImpl implements AiChatService {
     }
 
     private ChatMessageResponse saveAndBroadcastUserMessage(ChatRoomResponse aiRoom, String userMessage, String memberId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(aiRoom.getChatRoomId())
+                .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+        Member user = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("사용자 계정이 존재하지 않습니다."));
+
         ChatMessage userChatMessage = chatMessageRepository.save(ChatMessage.builder()
-                .chatRoomId(aiRoom.getChatRoomId())
-                .senderId(memberId)
+                .chatRoom(chatRoom)
+                .sender(user)
                 .messageText(userMessage)
                 .build());
 
-        String userNickname = memberRepository.findById(memberId)
-                .map(m -> m.getNickname())
-                .orElse(memberId);
+        String userNickname = user.getNickname();
 
         ChatMessageResponse userMessageResponse = ChatMessageResponse.builder()
                 .chatMessagesId(userChatMessage.getChatMessagesId())
-                .chatRoomId(userChatMessage.getChatRoomId())
-                .senderId(memberId)
+                .chatRoomId(userChatMessage.getChatRoom().getChatRoomId())
+                .senderId(user.getMemberId())
                 .senderNickname(userNickname)
                 .messageText(userChatMessage.getMessageText())
                 .sentAt(userChatMessage.getSentAt())
@@ -128,17 +132,22 @@ public class AiChatServiceImpl implements AiChatService {
         try {
             String aiResponse = generateAiResponse(userMessage);
 
+            ChatRoom chatRoom = chatRoomRepository.findById(aiRoom.getChatRoomId())
+                    .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+            Member aiMember = memberRepository.findById("AI_ASSISTANT")
+                    .orElseThrow(() -> new RuntimeException("AI 어시스턴트 계정이 존재하지 않습니다."));
+
             ChatMessage aiMessage = chatMessageRepository.save(ChatMessage.builder()
-                    .chatRoomId(aiRoom.getChatRoomId())
-                    .senderId("AI_ASSISTANT")
+                    .chatRoom(chatRoom)
+                    .sender(aiMember)
                     .messageText(aiResponse != null ? aiResponse : "AI 응답 생성 실패")
                     .sentAt(LocalDateTime.now())
                     .build());
 
             ChatMessageResponse aiMessageResponse = ChatMessageResponse.builder()
                     .chatMessagesId(aiMessage.getChatMessagesId())
-                    .chatRoomId(aiMessage.getChatRoomId())
-                    .senderId("AI_ASSISTANT")
+                    .chatRoomId(aiMessage.getChatRoom().getChatRoomId())
+                    .senderId(aiMember.getMemberId())
                     .senderNickname("AI 어시스턴트")
                     .messageText(aiResponse != null ? aiResponse : "AI 응답 생성 실패")
                     .sentAt(aiMessage.getSentAt())
@@ -152,17 +161,22 @@ public class AiChatServiceImpl implements AiChatService {
         } catch (Exception e) {
             log.error("AI 응답 처리 실패", e);
 
+            ChatRoom chatRoom = chatRoomRepository.findById(aiRoom.getChatRoomId())
+                    .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+            Member systemMember = memberRepository.findById("SYSTEM")
+                    .orElseThrow(() -> new RuntimeException("SYSTEM 계정이 존재하지 않습니다."));
+
             ChatMessage errorMessage = chatMessageRepository.save(ChatMessage.builder()
-                    .chatRoomId(aiRoom.getChatRoomId())
-                    .senderId("SYSTEM")
+                    .chatRoom(chatRoom)
+                    .sender(systemMember)
                     .messageText("AI 서비스에 일시적인 문제가 발생했습니다.")
                     .sentAt(LocalDateTime.now())
                     .build());
 
             ChatMessageResponse errorResponse = ChatMessageResponse.builder()
                     .chatMessagesId(errorMessage.getChatMessagesId())
-                    .chatRoomId(errorMessage.getChatRoomId())
-                    .senderId("SYSTEM")
+                    .chatRoomId(errorMessage.getChatRoom().getChatRoomId())
+                    .senderId(systemMember.getMemberId())
                     .senderNickname("시스템")
                     .messageText("AI 서비스에 일시적인 문제가 발생했습니다.")
                     .sentAt(errorMessage.getSentAt())
@@ -197,9 +211,14 @@ public class AiChatServiceImpl implements AiChatService {
 
     @Async
     public void createAiWelcomeMessageAsync(Integer roomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+        Member aiMember = memberRepository.findById("AI_ASSISTANT")
+                .orElseThrow(() -> new RuntimeException("AI 어시스턴트 계정이 존재하지 않습니다."));
+
         chatMessageRepository.save(ChatMessage.builder()
-                .chatRoomId(roomId)
-                .senderId("AI_ASSISTANT")
+                .chatRoom(chatRoom)
+                .sender(aiMember)
                 .messageText("안녕하세요! AI 어시스턴트입니다. 무엇을 도와드릴까요?")
                 .build());
     }
