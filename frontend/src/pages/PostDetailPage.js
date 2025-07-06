@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectCurrentUser, selectIsAuthenticated } from "../error/redux/authSlice";
-import axios from "axios";
+import axios from "../error/api/interceptor";
 import PostContent from "../components/PostContent";
 import CommentSection from "../components/CommentSection";
 import ReportButton from "../components/common/ReportButton";
@@ -28,7 +28,7 @@ export default function PostDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const postRes = await axios.get(`/api/posts/${postNo}`);
+        const postRes = await axios.get(`/posts/${postNo}`);
 
         if (!isAuthenticated) {
           setPost(postRes.data);
@@ -38,10 +38,10 @@ export default function PostDetailPage() {
         }
 
         const [commentsRes, likedRes] = await Promise.all([
-          axios.get(`/api/comments/post/${postNo}`, {
+          axios.get(`/comments/post/${postNo}`, {
             params: { memberId: userId },
           }),
-          axios.get(`/api/posts/${postNo}/like`, {
+          axios.get(`/posts/${postNo}/like`, {
             params: { memberId: userId },
           }),
         ]);
@@ -73,7 +73,7 @@ export default function PostDetailPage() {
     }
 
     try {
-      const res = await axios.post(`/api/posts/${postNo}/like`, null, {
+      const res = await axios.post(`/posts/${postNo}/like`, null, {
         params: { memberId: userId },
       });
       const isLiked = res.data === "liked";
@@ -89,7 +89,7 @@ export default function PostDetailPage() {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`/api/posts/${postNo}`);
+      await axios.delete(`/posts/${postNo}`);
       navigate("/boards");
     } catch (err) {
       showMessage("삭제에 실패했습니다.", "error");

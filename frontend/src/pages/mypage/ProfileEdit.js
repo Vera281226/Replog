@@ -1,7 +1,7 @@
 // src/pages/mypage/ProfileEdit.js
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from '../../error/api/interceptor';
 import GenreSelect from '../../components/member/GenreSelect';
 import './ProfileEdit.css';
 
@@ -22,7 +22,7 @@ export default function ProfileEdit() {
 
   /* ① 프로필 로드 */
   useEffect(() => {
-    axios.get('/api/member/profile', { withCredentials:true })
+    axios.get('/member/profile', { withCredentials:true })
       .then(r => {
   setInfo({
     nickname     : r.data.nickname,
@@ -39,7 +39,7 @@ export default function ProfileEdit() {
   const checkDup = async () => {
     if (!info.nickname.trim()) { setDupMsg('닉네임을 입력하세요'); return; }
     try {
-      await axios.get('/api/member/nickname-check', { params:{n: info.nickname} });
+      await axios.get('/member/nickname-check', { params:{n: info.nickname} });
       setDupMsg('사용 가능한 닉네임입니다.');
     } catch {
       setDupMsg('이미 사용중인 닉네임입니다.');
@@ -72,7 +72,7 @@ export default function ProfileEdit() {
       form.append('image', fileRef.current.files[0]);
 
     try {
-      await axios.post('/api/member/profile', form, {
+      await axios.post('/member/profile', form, {
         withCredentials:true,
         headers:{'Content-Type':'multipart/form-data'}
       });

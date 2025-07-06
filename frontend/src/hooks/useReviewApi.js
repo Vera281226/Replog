@@ -1,4 +1,4 @@
-import api from '../api/axios';
+import api from '../error/api/interceptor';
 
 export const useReviewApi = () => {
   const toggleLike = async (reviewId, memberId) => {

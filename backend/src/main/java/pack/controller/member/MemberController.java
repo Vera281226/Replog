@@ -1,18 +1,12 @@
 package pack.controller.member;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import pack.dto.common.ApiResponse;
 import pack.dto.member.SignUpRequest;
 import pack.service.member.MemberService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/member")

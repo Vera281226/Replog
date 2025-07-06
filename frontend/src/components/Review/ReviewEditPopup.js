@@ -1,7 +1,7 @@
 // src/components/review/ReviewEditPopup.jsx
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../../api/axios';
+import api from '../../error/api/interceptor';
 import StarSelector from './StarSelector';
 
 function ReviewEditPopup() {

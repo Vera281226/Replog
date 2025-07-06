@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
 
 import lombok.RequiredArgsConstructor;
 import pack.dto.report.ReportResponse;
 import pack.model.report.Report.TargetType;
 import pack.service.report.ReportAdminService;
+import pack.util.AuthUtil;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,9 +54,9 @@ public class ReportAdminController {
 
     @PutMapping("/{reportId}/process")
     public ResponseEntity<ReportResponse> processReport(
-        @PathVariable(name = "reportId") Integer reportId,
-        @SessionAttribute(name = "loginMember") String processorId
+        @PathVariable(name = "reportId") Integer reportId
     ) {
+    	String processorId = AuthUtil.getCurrentMemberId();
         return ResponseEntity.ok(reportAdminService.processReport(reportId, processorId));
     }
 }

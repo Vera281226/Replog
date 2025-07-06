@@ -14,6 +14,7 @@ import pack.dto.chat.ChatMessageResponse;
 import pack.service.chat.AiChatService;
 import pack.service.chat.ChatMessageService;
 import pack.service.chat.ChatRoomService;
+import pack.util.AuthUtil;
 
 import java.util.List;
 
@@ -28,10 +29,9 @@ public class ChatController {
     private final ChatRoomService chatRoomService;
 
     @PostMapping("/ai")
-    public ResponseEntity<ChatMessageResponse> sendAiMessage(
-            @RequestParam(value = "message", required = true) String message,
-            HttpServletRequest request) {
-        String memberId = extractMemberId(request);
+    public ResponseEntity sendAiMessage(
+            @RequestParam(value = "message", required = true) String message) {
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null || message == null || message.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
@@ -40,8 +40,8 @@ public class ChatController {
     }
 
     @PostMapping("/rooms/ai")
-    public ResponseEntity<ChatRoomResponse> createAiRoom(HttpServletRequest request) {
-        String memberId = extractMemberId(request);
+    public ResponseEntity createAiRoom() {
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null) {
             return ResponseEntity.status(401).build();
         }
@@ -50,8 +50,8 @@ public class ChatController {
     }
 
     @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoomResponse>> getChatRooms(HttpServletRequest request) {
-        String memberId = extractMemberId(request);
+    public ResponseEntity<List<ChatRoomResponse>> getChatRooms() {
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null) {
             return ResponseEntity.status(401).build();
         }
@@ -63,9 +63,8 @@ public class ChatController {
     public ResponseEntity<Page<ChatMessageResponse>> getMessages(
             @PathVariable("roomId") Integer roomId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "50") int size,
-            HttpServletRequest request) {
-        String memberId = extractMemberId(request);
+            @RequestParam(value = "size", defaultValue = "50") int size) {
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null) {
             return ResponseEntity.status(401).build();
         }
@@ -74,11 +73,10 @@ public class ChatController {
         return ResponseEntity.ok(messages);
     }
 
+
     @PostMapping("/messages")
-    public ResponseEntity<ChatMessageResponse> sendMessage(
-            @RequestBody ChatMessageRequest request,
-            HttpServletRequest httpRequest) {
-        String senderId = extractMemberId(httpRequest);
+    public ResponseEntity sendMessage(@RequestBody ChatMessageRequest request) {
+        String senderId = AuthUtil.getCurrentMemberId();
         if (senderId == null) {
             return ResponseEntity.status(401).build();
         }
@@ -86,27 +84,23 @@ public class ChatController {
         return ResponseEntity.ok(response);
     }
 
+
     @PostMapping("/rooms/{roomId}/join")
-    public ResponseEntity<?> joinChatRoom(
-            @PathVariable("roomId") Integer roomId,
-            HttpServletRequest request) {
-        String memberId = extractMemberId(request);
+    public ResponseEntity<?> joinChatRoom(@PathVariable("roomId") Integer roomId) {
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null) {
             return ResponseEntity.status(401).build();
         }
         boolean joined = chatRoomService.joinChatRoom(roomId, memberId);
         if (!joined) {
-            // 이미 참가자인 경우 409 Conflict 반환
             return ResponseEntity.status(409).body("이미 채팅방에 참가한 사용자입니다.");
         }
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/rooms/{roomId}")
-    public ResponseEntity<ChatRoomResponse> getChatRoom(
-            @PathVariable("roomId") Integer roomId,
-            HttpServletRequest request) {
-        String memberId = extractMemberId(request);
+    public ResponseEntity getChatRoom(@PathVariable("roomId") Integer roomId) {
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null) {
             return ResponseEntity.status(401).build();
         }
@@ -115,38 +109,13 @@ public class ChatController {
     }
 
     @DeleteMapping("/rooms/{roomId}/leave")
-    public ResponseEntity<Void> leaveChatRoom(
-            @PathVariable("roomId") Integer roomId,
-            HttpServletRequest request) {
-        String memberId = extractMemberId(request);
+    public ResponseEntity leaveChatRoom(@PathVariable("roomId") Integer roomId) {
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null) {
             return ResponseEntity.status(401).build();
         }
         chatRoomService.leaveChatRoom(roomId, memberId);
         return ResponseEntity.ok().build();
-    }
-
-    private String extractMemberId(HttpServletRequest request) {
-        // 기존 extractMemberId 로직 그대로 사용
-        try {
-            Object memberIdObj = request.getSession(false) != null
-                    ? request.getSession(false).getAttribute("loginMember")
-                    : null;
-            if (memberIdObj == null) {
-                memberIdObj = request.getSession(false) != null
-                        ? request.getSession(false).getAttribute("memberId")
-                        : null;
-            }
-            if (memberIdObj instanceof String) {
-                String memberId = (String) memberIdObj;
-                if (!memberId.trim().isEmpty()) {
-                    return memberId.trim();
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            return null;
-        }
     }
     
     @GetMapping("/rooms/party-post/{partyPostNo}")

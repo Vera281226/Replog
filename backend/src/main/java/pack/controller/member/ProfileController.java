@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import pack.dto.member.ProfileDto;
 import pack.dto.member.ProfileUpdateRequest;
 import pack.service.member.ProfileService;
+import pack.util.AuthUtil;
 
 @RestController
 @RequestMapping("/api/member/profile")
@@ -24,7 +25,7 @@ public class ProfileController {
     /* 프로필(닉네임·사진·소개) 조회 */
     @GetMapping
     public ResponseEntity<ProfileDto> getProfile(HttpSession session) {
-        String memberId = (String) session.getAttribute("loginMember");
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null) return ResponseEntity.status(401).build();
 
         return ResponseEntity.ok(profileService.getProfile(memberId));
@@ -33,10 +34,9 @@ public class ProfileController {
     /* 프로필 수정: 이미지 + 텍스트 멀티파트 */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> updateProfile(
-            @ModelAttribute ProfileUpdateRequest req,
-            HttpSession session) {
+            @ModelAttribute ProfileUpdateRequest req) {
 
-        String memberId = (String) session.getAttribute("loginMember");
+        String memberId = AuthUtil.getCurrentMemberId();
         if (memberId == null) return ResponseEntity.status(401).body("로그인이 필요합니다.");
 
         profileService.updateProfile(memberId, req);    // ← 구현 필요

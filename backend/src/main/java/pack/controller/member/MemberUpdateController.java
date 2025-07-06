@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pack.dto.member.MemberUpdateRequest;
 import pack.service.member.MemberUpdateService;
+import pack.util.AuthUtil;
 
 @RestController
 @RequestMapping("/api/member")
@@ -16,7 +17,7 @@ public class MemberUpdateController {
 
     @PostMapping("/update")
     public ResponseEntity<String> update(@RequestBody MemberUpdateRequest request, HttpSession session) {
-        String sessionId = (String) session.getAttribute("loginMember");
+        String sessionId = AuthUtil.getCurrentMemberId();
 
         if (sessionId == null || !sessionId.equals(request.getMemberId())) {
             return ResponseEntity.status(401).body("로그인 정보가 일치하지 않습니다.");

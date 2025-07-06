@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import pack.dto.theater.PartyResponse;
 import pack.dto.theater.PartyPostRequest;
 import pack.service.theater.PartyPostService;
+import pack.util.AuthUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -48,8 +48,8 @@ public class PartyPostController {
         
         try {
             // ✅ 세션에서 사용자 정보 추출
-            String memberId = extractMemberIdFromSession(request);
-            String nickname = extractNicknameFromSession(request);
+        	String memberId = AuthUtil.getCurrentMemberId();
+            String nickname = AuthUtil.getCurrentNickname();
             
             if (memberId == null) {
                 log.warn("모집글 작성 요청에서 사용자 인증 실패");
@@ -102,52 +102,5 @@ public class PartyPostController {
     public ResponseEntity<Void> delete(@PathVariable(value = "partyPostNo") Integer partyPostNo) {
         partyPostService.deletePartyPost(partyPostNo);
         return ResponseEntity.ok().build();
-    }
-    
-    // ✅ 세션에서 사용자 ID 추출
-    private String extractMemberIdFromSession(HttpServletRequest request) {
-        try {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                Object loginMember = session.getAttribute("loginMember");
-                if (loginMember instanceof String) {
-                    String memberId = ((String) loginMember).trim();
-                    if (!memberId.isEmpty()) {
-                        log.debug("세션에서 추출한 memberId: {}", memberId);
-                        return memberId;
-                    }
-                }
-            }
-            log.warn("세션에서 loginMember를 찾을 수 없음");
-            return null;
-        } catch (Exception e) {
-            log.error("세션에서 memberId 추출 실패", e);
-            return null;
-        }
-    }
-    
-    // ✅ 세션에서 닉네임 추출 (추가 정보가 있다면)
-    private String extractNicknameFromSession(HttpServletRequest request) {
-        try {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                // memberInfo 객체가 있다면 거기서 닉네임 추출
-                Object memberInfo = session.getAttribute("memberInfo");
-                if (memberInfo != null) {
-                    // Member 객체라면 getNickname() 호출 (실제 구조에 맞게 수정)
-                    // return ((Member) memberInfo).getNickname();
-                }
-                
-                // 또는 별도의 nickname 세션 속성이 있다면
-                Object nickname = session.getAttribute("nickname");
-                if (nickname instanceof String) {
-                    return (String) nickname;
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            log.warn("세션에서 nickname 추출 실패", e);
-            return null;
-        }
     }
 }

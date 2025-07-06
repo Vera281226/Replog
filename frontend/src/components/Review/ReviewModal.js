@@ -1,7 +1,7 @@
 // src/components/Review/ReviewModal.jsx
 import React, { useState, useEffect } from 'react';
 import './ReviewModal.css';  // 추가
-import api from '../../api/axios';
+import api from '../../error/api/interceptor';
 import StarSelector from './StarSelector';
 
 export default function ReviewModal({ contentId, memberId, onClose, onReviewCreated }) {

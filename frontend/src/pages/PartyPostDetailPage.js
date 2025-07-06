@@ -1,7 +1,7 @@
 // src/pages/PartyPostDetailPage.js
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../error/api/interceptor";
 
 const PartyPostDetailPage = () => {
   const { partyPostNo } = useParams();
@@ -10,7 +10,7 @@ const PartyPostDetailPage = () => {
 
   useEffect(() => {
     axios
-      .get(`/api/partyposts/${partyPostNo}`)
+      .get(`/partyposts/${partyPostNo}`)
       .then((res) => setPost(res.data))
       .catch((err) => {
         console.error("상세글 조회 실패", err);
@@ -78,11 +78,11 @@ const PartyPostDetailPage = () => {
           onClick={async () => {
             try {
               const res = await axios.get(
-                `/api/chat/rooms/party-post/${post.partyPostNo}`
+                `/chat/rooms/party-post/${post.partyPostNo}`
               );
               const { chatRoomId } = res.data;
               await axios.post(
-                `/api/chat/rooms/${chatRoomId}/join`,
+                `/chat/rooms/${chatRoomId}/join`,
                 {},
                 { withCredentials: true }
               );

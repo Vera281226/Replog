@@ -1,6 +1,6 @@
 // src/components/member/GenreSelect.js
 import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import axios from '../../error/api/interceptor';
 import './GenreSelect.css';          // 아래 CSS 참고
 
 const GenreSelect = ({ selectedGenres = [], onChange, maxSelect = 5 }) => {
@@ -13,7 +13,7 @@ const GenreSelect = ({ selectedGenres = [], onChange, maxSelect = 5 }) => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('/api/genres');
+        const res = await axios.get('/genres');
         setOptions(res.data.map(g => ({ value: g.genreId, label: g.name })));
       } catch {
         setErrorMsg('장르 목록을 불러오지 못했습니다.');
