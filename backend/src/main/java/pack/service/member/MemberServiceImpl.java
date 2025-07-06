@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pack.ProjectBackendApplication;
+import pack.dto.member.MemberInfoResponse;
 import pack.dto.member.SignUpRequest;
 import pack.dto.member.UserInfoResponse;
 import pack.model.member.Member;
@@ -113,6 +114,21 @@ public class MemberServiceImpl implements MemberService {
 	        .memberId(member.getMemberId())
 	        .nickname(member.getNickname())
 	        .email(member.getEmail())
+	        .build();
+	}
+	
+	public MemberInfoResponse getMemberInfo(String memberId) {
+	    Member member = memberRepository.findById(memberId)
+	        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+	    return MemberInfoResponse.builder()
+	        .memberId(member.getMemberId())
+	        .name(member.getName())
+	        .nickname(member.getNickname())
+	        .email(member.getEmail())
+	        .phone(member.getPhone())
+	        .address(member.getAddress())
+	        .birthdate(member.getBirthdate())
+	        .gender(member.getGender())
 	        .build();
 	}
 }

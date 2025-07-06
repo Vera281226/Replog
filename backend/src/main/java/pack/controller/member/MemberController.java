@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pack.dto.common.ApiResponse;
+import pack.dto.member.MemberInfoResponse;
 import pack.dto.member.SignUpRequest;
 import pack.service.member.MemberService;
+import pack.util.AuthUtil;
 
 @RestController
 @RequestMapping("/api/member")
@@ -37,5 +39,15 @@ public class MemberController {
         } else {
             return ResponseEntity.ok("사용 가능한 닉네임입니다.");
         }
+    }
+    
+    @GetMapping("/info")
+    public ResponseEntity<MemberInfoResponse> getMemberInfo() {
+        String memberId = AuthUtil.getCurrentMemberId();
+        if (memberId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        MemberInfoResponse info = memberService.getMemberInfo(memberId);
+        return ResponseEntity.ok(info);
     }
 }

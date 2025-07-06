@@ -12,13 +12,14 @@ import ContentsPage from './contents/ContentsPage';
 import BoardPage    from './pages/BoardPage';
 import TheaterPage from './pages/TheaterPage';
 import LoginForm from './components/member/LoginForm';
-import MemberRegisterForm from './components/member/MemberRegisterForm';
 import MyPageMain from './pages/mypage/MyPageMain';
 import ProfileEdit from './pages/mypage/ProfileEdit';
 import WritePostPage from './pages/WritePostPage';
 import ReviewPage from './pages/ReviewPage';
 import PostDetailPage from './pages/PostDetailPage';
 import PartyPostDetailPage from './pages/PartyPostDetailPage';
+import ReportAdminPage from './pages/ReportAdminPage';
+import MemberForm from './components/member/MemberForm';
 
 export default function RootRouter() {
   const dispatch = useDispatch();
@@ -32,6 +33,7 @@ export default function RootRouter() {
           {/* 모든 “정상 페이지”는 MainLayout 아래에 둔다 */}
           <Route element={<MainLayout />}>
             <Route path="/"          element={<IndexPage />} />
+            <Route path="/admin" element={<ReportAdminPage/>} />
             <Route path="/search"    element={<SearchPage />} />
             <Route path="/contents"  element={<ContentsPage />} />
             <Route path="/boards"    element={<BoardPage />} />
@@ -40,7 +42,8 @@ export default function RootRouter() {
             <Route path="/theaters"      element={<TheaterPage />} />
             <Route path="/theaters/:partyPostNo" element={<PartyPostDetailPage />} />
             <Route path="/login"      element={<LoginForm />} />
-            <Route path="/signup"     element={<MemberRegisterForm/>}/>
+            <Route path="/signup"     element={<MemberForm mode="register" />}/>
+            <Route path="/member/edit" element={<MemberForm mode="edit" />} />
             <Route path="/mypage"     element={<MyPageMain/>}/>
             <Route path="/mypage/edit"     element={<ProfileEdit/>}/>
             <Route path="/contents/:contentId/reviews" element={<ReviewPage />} />

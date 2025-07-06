@@ -1,4 +1,5 @@
 // src/pages/mypage/MyPageMain.js
+
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../error/api/interceptor';
@@ -40,6 +41,10 @@ export default function MyPageMain() {
 
       {/* ② 프로필 수정 버튼 */}
       <Link to="/mypage/edit" className="btn edit">프로필 수정</Link>
+
+      {/* ②-1. 회원 정보 수정 버튼 추가 */}
+      <Link to="/member/edit" className="btn info">회원 정보 수정</Link>
+
 
       {/* ③ 기타 메뉴 (원하면 링크 추가) */}
       <div className="link-box">

@@ -1,5 +1,6 @@
 package pack.service.member;
 
+import pack.dto.member.MemberInfoResponse;
 import pack.dto.member.SignUpRequest;
 import pack.dto.member.UserInfoResponse;
 
@@ -12,4 +13,5 @@ public interface MemberService {
     //void updatePassword(String email, String newPassword); // 비밀번호 재설정용 메서드
 	UserInfoResponse authenticateUser(String memberId, String password);
 	UserInfoResponse getUserInfo(String memberId);
+	MemberInfoResponse getMemberInfo(String memberId);
 }
