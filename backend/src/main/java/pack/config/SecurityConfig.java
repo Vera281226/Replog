@@ -71,7 +71,10 @@ public class SecurityConfig {
                     "/api/auth/current-user",
                     "/api/member/signup",
                     "/api/auth/logout",
-                    "/api/email/**"
+                    "/api/email/**",
+                    "/api/genres",
+                    "/api/contents/**",
+                    "/api/index"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
@@ -79,7 +82,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/chat/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/theaters/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/partyposts/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/member/profile/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/member/profile/**").permitAll()	
                 .requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reports/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/posts/**").hasRole("USER")
@@ -104,11 +107,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/partyposts/**").hasRole("USER")
                 .requestMatchers("/api/member/**").hasRole("USER")
                 .requestMatchers("/api/reports/**").hasRole("USER")
-                .requestMatchers("/api/admin/**").hasRole("USER")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-            	    .loginProcessingUrl("/api/auth/login")
+            	    .loginProcessingUrl("/api/auth/login")					
             	    .usernameParameter("memberId")
             	    .passwordParameter("password")
             	    .successHandler((request, response, authentication) -> {
