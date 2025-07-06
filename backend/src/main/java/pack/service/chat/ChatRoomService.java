@@ -8,9 +8,10 @@ import pack.dto.chat.ChatRoomResponse;
 public interface ChatRoomService {
     ChatRoomResponse createChatRoom(ChatRoomRequest request, String creatorId);
     List<ChatRoomResponse> getMyChatRooms(String memberId);
-    void joinChatRoom(Integer roomId, String memberId);
+    boolean joinChatRoom(Integer roomId, String memberId);
     void leaveChatRoom(Integer roomId, String memberId);
     void deleteChatRoom(Integer roomId, String memberId);
     ChatRoomResponse getChatRoom(Integer roomId);
     List<ChatRoomResponse> getAllActiveRooms();
+	ChatRoomResponse getRoomByPartyPostNo(Integer partyPostNo);
 }

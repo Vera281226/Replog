@@ -87,14 +87,18 @@ public class ChatController {
     }
 
     @PostMapping("/rooms/{roomId}/join")
-    public ResponseEntity<Void> joinChatRoom(
+    public ResponseEntity<?> joinChatRoom(
             @PathVariable("roomId") Integer roomId,
             HttpServletRequest request) {
         String memberId = extractMemberId(request);
         if (memberId == null) {
             return ResponseEntity.status(401).build();
         }
-        chatRoomService.joinChatRoom(roomId, memberId);
+        boolean joined = chatRoomService.joinChatRoom(roomId, memberId);
+        if (!joined) {
+            // 이미 참가자인 경우 409 Conflict 반환
+            return ResponseEntity.status(409).body("이미 채팅방에 참가한 사용자입니다.");
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -143,5 +147,11 @@ public class ChatController {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    @GetMapping("/rooms/party-post/{partyPostNo}")
+    public ResponseEntity<ChatRoomResponse> getRoomByPartyPost(@PathVariable(name="partyPostNo") Integer partyPostNo) {
+        ChatRoomResponse response = chatRoomService.getRoomByPartyPostNo(partyPostNo);
+        return ResponseEntity.ok(response);
     }
 }

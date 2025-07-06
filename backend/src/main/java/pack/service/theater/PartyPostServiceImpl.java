@@ -96,32 +96,34 @@ public class PartyPostServiceImpl implements PartyPostService {
                 .collect(Collectors.toList());
     }
 
-    @Override
     @Transactional
     public PartyResponse createPartyPost(PartyPostRequest dto) {
-        validatePartyPostRequest(dto);
-        validateMemberExists(dto.getMemberId());
+        // 1. 모집글 저장
+        PartyPost savedPost = partyPostRepository.save(toEntity(dto));
 
-        PartyPost post = toEntity(dto);
-        PartyPost savedPost = partyPostRepository.save(post);
-
-        ChatRoomRequest chatRoomRequest = ChatRoomRequest.builder()
+        // 2. 채팅방 생성
+        ChatRoomResponse chatRoom = chatRoomService.createChatRoom(
+            ChatRoomRequest.builder()
                 .partyPostNo(savedPost.getPartyPostNo())
                 .roomName(savedPost.getMovie() + " 모집 채팅방")
                 .roomType(RoomType.PARTY)
-                .build();
-        ChatRoomResponse chatRoom = chatRoomService.createChatRoom(chatRoomRequest, dto.getMemberId());
+                .build(),
+            dto.getMemberId()
+        );
 
-        chatRoomService.joinChatRoom(chatRoom.getChatRoomId(), dto.getMemberId());
-
-        ChatMessageRequest welcomeMsg = ChatMessageRequest.builder()
+        // 3. 환영 메시지 전송 (동일 트랜잭션 내)
+        chatMessageService.sendMessage(
+            ChatMessageRequest.builder()
                 .chatRoomId(chatRoom.getChatRoomId())
-                .messageText("🎬 모집글 채팅방이 생성되었습니다! 파티 멤버들과 대화를 나눠보세요.")
-                .build();
-        chatMessageService.sendMessage(welcomeMsg, "SYSTEM");
+                .messageText("채팅방이 생성되었습니다!")
+                .build(),
+            dto.getMemberId()
+        );
 
         return toDto(savedPost);
     }
+
+
 
     private void validateMemberExists(String memberId) {
         if (memberId == null || memberId.trim().isEmpty()) {

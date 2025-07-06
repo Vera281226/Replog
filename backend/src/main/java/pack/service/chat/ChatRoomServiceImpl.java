@@ -9,8 +9,10 @@ import pack.dto.chat.ChatRoomResponse;
 import pack.model.chat.ChatParticipant;
 import pack.model.chat.ChatParticipantId;
 import pack.model.chat.ChatRoom;
+import pack.model.theater.PartyPost;
 import pack.repository.chat.ChatParticipantRepository;
 import pack.repository.chat.ChatRoomRepository;
+import pack.repository.theater.PartyPostRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,24 +24,30 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatParticipantRepository chatParticipantRepository;
-
+    private final ChatParticipantService chatParticipantService;
+    private final PartyPostRepository partyPostRepository;
+    
     @Override
     @Transactional
-    @CacheEvict(value = "chatRooms", key = "#creatorId")
+    @CacheEvict(value = "chatRooms", key = "#p1")
     public ChatRoomResponse createChatRoom(ChatRoomRequest request, String creatorId) {
+        PartyPost partyPost = partyPostRepository.findById(request.getPartyPostNo())
+            .orElseThrow(() -> new RuntimeException("모집글을 찾을 수 없습니다."));
+
+        if (chatRoomRepository.findByPartyPost_PartyPostNo(request.getPartyPostNo()).isPresent()) {
+            throw new IllegalStateException("이미 채팅방이 생성된 모집글입니다.");
+        }
+
         ChatRoom chatRoom = ChatRoom.builder()
-                .partyPostNo(request.getPartyPostNo())
-                .roomName(request.getRoomName())
-                .roomType(request.getRoomType())
-                .isActive(true)
-                .build();
+            .partyPost(partyPost)
+            .roomName(request.getRoomName())
+            .roomType(request.getRoomType())
+            .isActive(true)
+            .build();
         ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
 
-        ChatParticipant participant = ChatParticipant.builder()
-                .chatRoomId(savedRoom.getChatRoomId())
-                .memberId(creatorId)
-                .build();
-        chatParticipantRepository.save(participant);
+        // 중복 참가자 insert 방지
+        chatParticipantService.registerParticipant(savedRoom.getChatRoomId(), creatorId);
 
         return buildChatRoomResponse(savedRoom);
     }
@@ -54,15 +62,16 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Override
     @Transactional
-    public void joinChatRoom(Integer roomId, String memberId) {
+    public boolean joinChatRoom(Integer roomId, String memberId) {
         if (chatParticipantRepository.existsByChatRoomIdAndMemberId(roomId, memberId)) {
-            return;
+            return false; // 이미 참가자
         }
         ChatParticipant participant = ChatParticipant.builder()
                 .chatRoomId(roomId)
                 .memberId(memberId)
                 .build();
         chatParticipantRepository.save(participant);
+        return true; // 신규 참가
     }
 
     @Override
@@ -86,7 +95,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다"));
         return buildChatRoomResponse(chatRoom);
     }
-
+    @Override
+    public ChatRoomResponse getRoomByPartyPostNo(Integer partyPostNo) {
+        ChatRoom chatRoom = chatRoomRepository.findByPartyPost_PartyPostNo(partyPostNo)
+            .orElseThrow(() -> new RuntimeException("해당 모집글에 연동된 채팅방이 없습니다."));
+        return buildChatRoomResponse(chatRoom);
+    }
     @Override
     public List<ChatRoomResponse> getAllActiveRooms() {
         return chatRoomRepository.findByIsActiveTrue()
@@ -96,10 +110,12 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     private ChatRoomResponse buildChatRoomResponse(ChatRoom chatRoom) {
-        long participantCount = chatParticipantRepository.countByChatRoomId(chatRoom.getChatRoomId());
+        Long participantCount = chatParticipantRepository.countByChatRoomId(chatRoom.getChatRoomId());
+        Integer partyPostNo = chatRoom.getPartyPost() != null ? chatRoom.getPartyPost().getPartyPostNo() : null;
+
         return ChatRoomResponse.builder()
                 .chatRoomId(chatRoom.getChatRoomId())
-                .partyPostNo(chatRoom.getPartyPostNo())
+                .partyPostNo(partyPostNo)
                 .roomName(chatRoom.getRoomName())
                 .roomType(chatRoom.getRoomType())
                 .createdAt(chatRoom.getCreatedAt())
@@ -107,4 +123,5 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .participantCount(participantCount)
                 .build();
     }
+
 }
