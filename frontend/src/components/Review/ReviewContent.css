@@ -1,0 +1,102 @@
+.review-buttons .like-btn,
+.review-buttons .reply-btn,
+.review-buttons .edit-btn {
+  all: unset;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  margin-right: 8px;
+}
+
+.review-buttons .like-btn:hover,
+.review-buttons .reply-btn:hover,
+.review-buttons .edit-btn:hover {
+  text-decoration: underline;
+  color: #000;
+}
+
+.review-spoiler {
+  display: inline-block;
+  background-color: #f1f3f5;
+  padding: 30px 300px;
+  border-radius: 6px;
+  font-size: 15px;
+  color: #444;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.btn-show {
+  margin-left: 8px;
+  color: #007bff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-show:hover {
+  text-decoration: underline;
+}
+
+/* ReviewContent.css 에 추가 */
+
+.reply-buttons .reply-btn {
+  font-size: 14px;
+  color: #444;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: color 0.2s;
+}
+
+.reply-buttons .reply-btn:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+.reply-buttons .reply-btn.delete {
+  color: #e53935;
+}
+
+.reply-buttons .reply-btn.delete:hover {
+  color: #b71c1c;
+}
+
+
+.review-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 16px; /* ← 이거 추가 */
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.btn-report-top {
+  background: none;
+  border: none;
+   color: #666;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-report-top:hover {
+   color: #666;
+  text-decoration: underline;
+}

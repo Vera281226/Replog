@@ -1,0 +1,48 @@
+.review-btn {
+  padding: 4px 8px;
+  margin-right: 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.review-btn:hover {
+  background-color: #e9e9e9;
+}
+
+.review-like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.review-like-btn:hover {
+  color: #ff4d6d;
+}
+
+.review-delete {
+  color: #e53935;
+  border-color: #e53935;
+}
+
+.review-edit {
+  color: #1e88e5;
+  border-color: #1e88e5;
+}
+
+.review-delete:hover {
+  background-color: #fdecea;
+}
+
+.review-edit:hover {
+  background-color: #e3f2fd;
+}
+
