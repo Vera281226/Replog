@@ -28,8 +28,12 @@ public interface ContentProvidersRepository extends JpaRepository<ContentProvide
      * 콘텐츠 ID 기준으로 연결된 플랫폼 이름 목록을 조회합니다.
      * - 플랫폼 이름만 리스트로 추출 (JPQL 기반)
      */
-    @Query("SELECT p.name FROM ContentProviders cp " +
-            "JOIN Providers p ON cp.providerId = p.providerId " +
-            "WHERE cp.contentId = :contentId")
-    List<String> findProviderNamesByContentId(@Param("contentId") Integer contentId);
+    @Query("""
+    	    SELECT p.name FROM ContentProviders cp
+    	    JOIN Providers p ON cp.providerId = p.providerId
+    	    WHERE cp.contentId = :contentId
+    	    """)
+    	    List<String> findProviderNamesByContentId(@Param("contentId") Integer contentId);
+    
+    
 }
