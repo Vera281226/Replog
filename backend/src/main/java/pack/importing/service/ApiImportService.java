@@ -1,10 +1,13 @@
 package pack.importing.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.transaction.Transactional;
 import pack.config.TmdbProperties;
@@ -81,15 +84,20 @@ public class ApiImportService {
                     }
 
                     try {
-                        // 1단계: 컨텐츠 저장
-                        Contents saved = saveContent(dto);
+                        // 1단계: 상세 정보 수집 (Runtime 포함)
+                        TmdbContentDto detailedDto = getMovieDetails(dto.getId(), headers);
+                        
+                        // 2단계: Age Rating 수집
+                        String certification = getMovieCertification(dto.getId(), headers);
+                        detailedDto.setAgeRating(certification);
+                        
+                        // 3단계: 컨텐츠 저장 (Runtime 및 Age Rating 포함)
+                        Contents saved = saveContentWithRuntimeAndCertification(detailedDto);
                         processedTmdbIds.add(dto.getId());
 
-                        // 2단계: 안전한 장르 매핑 저장
-                        saveContentGenres(saved.getContentId(), dto);
-                        
-                        // 3단계: 안전한 플랫폼 매핑 저장
-                        saveContentProviders(saved.getContentId(), dto, headers);
+                        // 4단계: 기존 매핑 로직 유지
+                        saveContentGenres(saved.getContentId(), detailedDto);
+                        saveContentProviders(saved.getContentId(), detailedDto, headers);
                         
                     } catch (Exception e) {
                     }
@@ -99,7 +107,79 @@ public class ApiImportService {
         }
     }
 	
-	private Contents saveContent(TmdbContentDto dto) {
+	private String getMovieCertification(int movieId, HttpHeaders headers) {
+        String releaseDateUrl = tmdbProperties.getBaseUrl() + "/movie/" + movieId + "/release_dates";
+        
+        try {
+            ResponseEntity<TmdbReleaseDateDto> response = restTemplate.exchange(
+                releaseDateUrl, HttpMethod.GET, new HttpEntity<>(headers), TmdbReleaseDateDto.class);
+            
+            TmdbReleaseDateDto releaseDates = response.getBody();
+            if (releaseDates != null && releaseDates.getResults() != null) {
+                
+                // 1순위: 한국(KR) 인증 정보
+                String krCertification = extractCertificationByCountry(releaseDates, "KR");
+                if (krCertification != null && !krCertification.isEmpty()) {
+                    return krCertification;
+                }
+                
+                // 2순위: 미국(US) 인증 정보 (MPAA 등급)
+                String usCertification = extractCertificationByCountry(releaseDates, "US");
+                if (usCertification != null && !usCertification.isEmpty()) {
+                    return usCertification;
+                }
+                
+                // 3순위: 첫 번째로 발견되는 인증 정보
+                for (TmdbReleaseDateDto.TmdbReleaseDateResult result : releaseDates.getResults()) {
+                    if (result.getReleaseDates() != null && !result.getReleaseDates().isEmpty()) {
+                        String firstCertification = result.getReleaseDates().get(0).getCertification();
+                        if (firstCertification != null && !firstCertification.isEmpty()) {
+                           
+                            return firstCertification;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+        
+        return "미정"; // 기본값
+    }
+
+
+	private String extractCertificationByCountry(TmdbReleaseDateDto releaseDates, String countryCode) {
+        return releaseDates.getResults().stream()
+            .filter(result -> countryCode.equals(result.getCountryCode()))
+            .flatMap(result -> result.getReleaseDates().stream())
+            .filter(release -> release.getCertification() != null && !release.getCertification().isEmpty())
+            .map(TmdbReleaseDateDto.TmdbReleaseInfo::getCertification)
+            .findFirst()
+            .orElse(null);
+    }
+
+
+	private TmdbContentDto getMovieDetails(int movieId, HttpHeaders headers) {
+        String detailUrl = tmdbProperties.getBaseUrl() + "/movie/" + movieId + "?language=ko";
+        
+        try {
+            ResponseEntity<TmdbContentDto> response = restTemplate.exchange(
+                detailUrl, HttpMethod.GET, new HttpEntity<>(headers), TmdbContentDto.class);
+            
+            TmdbContentDto details = response.getBody();
+            if (details != null) {
+                return details;
+            }
+        } catch (Exception e) {
+        }
+        
+        // 기본값 반환
+        TmdbContentDto emptyDto = new TmdbContentDto();
+        emptyDto.setId(movieId);
+        return emptyDto;
+    }
+
+
+	private Contents saveContentWithRuntimeAndCertification(TmdbContentDto dto) {
         Contents content = new Contents();
         content.setTmdbId(dto.getId());
         content.setTitle(dto.getTitle());
@@ -109,7 +189,17 @@ public class ApiImportService {
         content.setRating((float) dto.getVoteAverage());
         content.setMediaType("movie");
         
-        // 안전한 날짜 파싱
+        //  Runtime 설정
+        if (dto.getRuntime() != null && dto.getRuntime() > 0) {
+            content.setRuntime(dto.getRuntime());
+        }
+        
+        //  Age Rating 설정
+        if (dto.getAgeRating() != null && !dto.getAgeRating().isEmpty()) {
+            content.setAgeRating(dto.getAgeRating());
+        }
+        
+        // 기존 날짜 파싱 로직 유지
         if (dto.getReleaseDate() != null && !dto.getReleaseDate().isEmpty()) {
             try {
                 content.setReleaseDate(LocalDate.parse(dto.getReleaseDate()));
