@@ -6,7 +6,6 @@ import ReportButton from './common/ReportButton';
 
 const Header = ({ currentUser, onLogout }) => {
   const isLoggedIn = !!currentUser?.memberId;
-  const isAdmin = currentUser?.role === 'ROLE_ADMIN';
 
   useEffect(() => {
     const tooltipText = document.getElementById('tooltip-text');
@@ -36,19 +35,22 @@ const Header = ({ currentUser, onLogout }) => {
             isRequest={true}
           />
           {isLoggedIn ? (
-          <>
-            {isAdmin && (
-              <Link to="/admin" className="header-icon" title="관리자페이지">🛠️ 관리자</Link>
-            )}
-            <Link to="/mypage" className="header-icon" title="마이페이지">👤</Link>
-            <button onClick={onLogout} className="logout-btn">로그아웃</button>
-          </>
-        ) : (
-          <>
-            <Link to="/login">로그인</Link>
-            <Link to="/signup">회원가입</Link>
-          </>
-        )}
+            <>
+              <Link to="/mypage" className="header-icon" title="마이페이지">👤</Link>
+              <button 
+                onClick={onLogout} 
+                className="logout-btn"
+              >
+                로그아웃
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/admin">관리자</Link>
+              <Link to="/login">로그인</Link>
+              <Link to="/signup">회원가입</Link>
+            </>
+          )}
         </div>
       </nav>
     </header>

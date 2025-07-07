@@ -63,22 +63,22 @@
 }
 
 .btn {
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 8px 16px; /* 기존 10px 20px → 일치 */
+  border-radius: 4px; /* 기존 8px → 일치 */
+  font-size: 14px;    /* 기존 16px → 일치 */
   cursor: pointer;
-  font-weight: 600;
+  font-weight: bold;  /* 기존 600 → 일치 */
   transition: background-color 0.2s ease;
 }
 
 .btn-primary {
-  background-color: #2563eb;
+  background-color: #6C4D9A;
   color: white;
   border: none;
 }
 
 .btn-primary:hover {
-  background-color: #1d4ed8;
+  background-color: #5A3E85;
 }
 
 .btn-secondary {

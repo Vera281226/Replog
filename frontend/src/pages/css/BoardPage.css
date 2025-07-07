@@ -1,61 +1,81 @@
-.board-page { 
+.board-page {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .board-controls {
-  position: relative;
-  height: 48px;
   margin-bottom: 20px;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.board-sort select,
-.board-search select,
-.board-search input {
-  padding: 6px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 6px;
-}
-
-.board-search button {
-  padding: 6px 12px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.board-search button:hover {
-  background-color: #0056b3;
+.board-sort,
+.board-search {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .board-categories {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  flex: 2;
   display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
 .category-button {
   padding: 6px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #6C4D9A;
   border-radius: 4px;
   background-color: #fff;
-  color: #000;
+  color: #6C4D9A;
   cursor: pointer;
   transition: all 0.2s;
 }
 
+.category-button:hover {
+  background-color: #E5DFF1;
+}
+
 .category-button.active {
-  background-color: #007bff;
-  color: #fff;
+  background-color: #6C4D9A !important;
+  color: #fff !important;
+  border: 1px solid #6C4D9A !important;
+}
+
+.board-sort select,
+.board-search select {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.board-search input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 0;
+}
+
+.board-search button {
+  padding: 6px 12px;
+  background-color: #6C4D9A;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.board-search button:hover {
+  background-color: #5A3E85;
 }
 
 .board-table {
@@ -77,7 +97,7 @@
 }
 
 .board-table td a {
-  color: #007bff;
+  color: #6C4D9A;
   text-decoration: none;
 }
 
@@ -85,11 +105,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .pagination {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .pagination button {
@@ -102,7 +125,7 @@
 }
 
 .pagination button.active {
-  background-color: #000;
+  background-color: #6C4D9A;
   color: #fff;
 }
 
@@ -114,7 +137,7 @@
 
 .write-button {
   padding: 8px 16px;
-  background-color: #007bff;
+  background-color: #6C4D9A;
   color: white;
   border: none;
   border-radius: 4px;
@@ -123,5 +146,5 @@
 }
 
 .write-button:hover {
-  background-color: #0056b3;
+  background-color: #5A3E85;
 }

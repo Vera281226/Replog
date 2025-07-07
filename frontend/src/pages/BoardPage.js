@@ -4,6 +4,7 @@ import { selectIsAuthenticated } from "../error/redux/authSlice";
 import axios from "../error/api/interceptor";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import LoginRequiredModal from "../components/LoginRequiredModel";
+import { ErrorModal } from "../error/components/ErrorModal"; // ✅ 추가
 import "./css/BoardPage.css";
 
 function useQuery() {
@@ -31,6 +32,15 @@ export default function BoardPage() {
     searchKeyword: ""
   });
 
+  // ✅ 에러 모달 상태
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+
+  const openErrorModal = (message) => {
+    setErrorModalMessage(message);
+    setErrorModalOpen(true);
+  };
+
   const fetchPosts = useCallback(async () => {
     try {
       const params = {
@@ -47,7 +57,8 @@ export default function BoardPage() {
       setPosts(res.data.content);
       setTotalPages(res.data.totalPages);
     } catch (err) {
-      console.error("게시글 조회 실패:", err);
+      const message = err.response?.data?.message || "게시글 목록을 불러오는 데 실패했습니다.";
+      openErrorModal(message);
     }
   }, [page, category, sortBy, direction, lastSearchParams]);
 
@@ -205,6 +216,15 @@ export default function BoardPage() {
       </div>
 
       <LoginRequiredModal isOpen={loginModalOpen} />
+
+      {/* 에러 모달 */}
+      <ErrorModal
+        isOpen={errorModalOpen}
+        title="오류"
+        message={errorModalMessage}
+        onConfirm={() => setErrorModalOpen(false)}
+        onCancel={() => setErrorModalOpen(false)}
+      />
     </div>
   );
 }

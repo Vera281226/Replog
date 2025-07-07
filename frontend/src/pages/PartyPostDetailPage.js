@@ -1,33 +1,62 @@
-// src/pages/PartyPostDetailPage.js
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../error/api/interceptor";
+import { ErrorModal } from "../error/components/ErrorModal"; // ✅ 추가
+import "./css/PartyPostDetailPage.css";
 
 const PartyPostDetailPage = () => {
   const { partyPostNo } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
 
+  // ✅ 에러 모달 상태
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+
+  const openErrorModal = (message) => {
+    setErrorModalMessage(message);
+    setErrorModalOpen(true);
+  };
+
   useEffect(() => {
     axios
       .get(`/partyposts/${partyPostNo}`)
       .then((res) => setPost(res.data))
-      .catch((err) => {
-        console.error("상세글 조회 실패", err);
-        alert("게시글을 불러오지 못했습니다.");
+      .catch(() => {
+        openErrorModal("게시글을 불러오지 못했습니다.");
         navigate(-1);
       });
   }, [partyPostNo, navigate]);
+
+  const handleJoinClick = async () => {
+    try {
+      const res = await axios.get(`/chat/rooms/party-post/${post.partyPostNo}`);
+      const { chatRoomId } = res.data;
+      await axios.post(
+        `/chat/rooms/${chatRoomId}/join`,
+        {},
+        { withCredentials: true }
+      );
+      openErrorModal("채팅방에 참가되었습니다!");
+      // navigate(`/chat/${chatRoomId}`);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        openErrorModal("이미 채팅방에 참가한 사용자입니다.");
+      } else {
+        openErrorModal("채팅방 참가에 실패했습니다.");
+      }
+    }
+  };
 
   if (!post)
     return <p style={{ textAlign: "center", marginTop: "50px" }}>로딩 중...</p>;
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>{post.title}</h2>
+    <div className="detail-container">
+      <div className="detail-card">
+        <h2 className="detail-title">{post.title}</h2>
 
-        <div style={styles.meta}>
+        <div className="detail-meta">
           <div>
             <strong>👤 작성자:</strong> {post.nickname}
           </div>
@@ -40,85 +69,63 @@ const PartyPostDetailPage = () => {
           </div>
         </div>
 
-        <table style={styles.table}>
+        <table className="detail-table">
           <tbody>
             <tr>
-              <th style={styles.th}>🎬 영화명</th>
-              <td style={styles.td}>{post.movie}</td>
+              <th>🎬 영화명</th>
+              <td>{post.movie}</td>
             </tr>
             <tr>
-              <th style={styles.th}>📅 모집 마감일</th>
-              <td style={styles.td}>
-                {new Date(post.partyDeadline).toLocaleString()}
-              </td>
+              <th>📅 모집 마감일</th>
+              <td>{new Date(post.partyDeadline).toLocaleString()}</td>
             </tr>
             <tr>
-              <th style={styles.th}>👥 모집 인원</th>
-              <td style={styles.td}>{post.partyLimit}명</td>
+              <th>👥 모집 인원</th>
+              <td>{post.partyLimit}명</td>
             </tr>
             <tr>
-              <th style={styles.th}>⚧ 성별 제한</th>
-              <td style={styles.td}>{post.gender || "무관"}</td>
+              <th>⚧ 성별 제한</th>
+              <td>{post.gender || "무관"}</td>
             </tr>
             <tr>
-              <th style={styles.th}>🎂 연령대 제한</th>
-              <td style={styles.td}>{getAgeGroups(post.ageGroupsMask)}</td>
+              <th>🎂 연령대 제한</th>
+              <td>{getAgeGroups(post.ageGroupsMask)}</td>
             </tr>
           </tbody>
         </table>
 
-        <div style={styles.content}>
+        <div className="detail-content">
           <h4 style={{ marginBottom: "10px" }}>📝 본문 내용</h4>
           <div
-            style={styles.text}
+            className="detail-text"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </div>
-        <button
-          onClick={async () => {
-            try {
-              const res = await axios.get(
-                `/chat/rooms/party-post/${post.partyPostNo}`
-              );
-              const { chatRoomId } = res.data;
-              await axios.post(
-                `/chat/rooms/${chatRoomId}/join`,
-                {},
-                { withCredentials: true }
-              );
-              alert("채팅방에 참가되었습니다!");
-              // navigate(`/chat/${chatRoomId}`);
-            } catch (err) {
-              if (err.response && err.response.status === 409) {
-                alert("이미 채팅방에 참가한 사용자입니다.");
-              } else {
-                alert("채팅방 참가에 실패했습니다.");
-              }
-            }
-          }}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#28a745",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            marginBottom: "16px",
-          }}
-        >
+
+        <button className="detail-join-button" onClick={handleJoinClick}>
           참가하기
         </button>
-        <div style={{ textAlign: "right" }}>
-          <button onClick={() => navigate(-1)} style={styles.backButton}>
+
+        <div className="detail-back">
+          <button onClick={() => navigate(-1)} className="detail-back-button">
             ← 목록으로 돌아가기
           </button>
         </div>
       </div>
+
+      {/* 에러 모달 */}
+      <ErrorModal
+        isOpen={errorModalOpen}
+        title="알림"
+        message={errorModalMessage}
+        onConfirm={() => setErrorModalOpen(false)}
+        onCancel={() => setErrorModalOpen(false)}
+      />
     </div>
   );
 };
 
-// 💡 ageGroups 변환 함수는 그대로
+// 연령대 마스크 해석 함수
 const getAgeGroups = (mask) => {
   if (mask === 0 || mask == null) return "무관";
   const ageGroups = [];
@@ -129,79 +136,6 @@ const getAgeGroups = (mask) => {
   if (mask & 16) ageGroups.push("50대");
   if (mask & 32) ageGroups.push("60대");
   return ageGroups.join(", ");
-};
-
-// 🎨 스타일
-const styles = {
-  container: {
-    backgroundColor: "#f4f6f8",
-    minHeight: "100vh",
-    padding: "40px 20px",
-    display: "flex",
-    justifyContent: "center",
-  },
-  card: {
-    backgroundColor: "#fff",
-    width: "800px",
-    borderRadius: "12px",
-    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-    padding: "30px",
-    boxSizing: "border-box",
-  },
-  title: {
-    fontSize: "28px",
-    fontWeight: "600",
-    marginBottom: "16px",
-    borderBottom: "2px solid #ddd",
-    paddingBottom: "8px",
-    color: "#222",
-  },
-  meta: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "14px",
-    color: "#666",
-    marginBottom: "20px",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    marginBottom: "30px",
-  },
-  th: {
-    backgroundColor: "#f9f9f9",
-    padding: "10px",
-    textAlign: "left",
-    width: "160px",
-    borderBottom: "1px solid #e0e0e0",
-    color: "#444",
-  },
-  td: {
-    padding: "10px",
-    borderBottom: "1px solid #e0e0e0",
-  },
-  content: {
-    marginBottom: "30px",
-  },
-  text: {
-    backgroundColor: "#f0f0f0",
-    padding: "15px",
-    borderRadius: "8px",
-    fontSize: "16px",
-    lineHeight: "1.6",
-    whiteSpace: "pre-wrap",
-    color: "#333",
-  },
-  backButton: {
-    backgroundColor: "#007bff",
-    color: "#fff",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "14px",
-    transition: "background-color 0.3s",
-  },
 };
 
 export default PartyPostDetailPage;

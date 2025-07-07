@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "../error/api/interceptor";
@@ -14,6 +14,7 @@ import {
 import BannedWordFilterModal, {
   checkBannedWords,
 } from "../components/BannedWordFilterModal";
+import { ErrorModal } from "../error/components/ErrorModal"; // ✅ 추가
 import "./css/WritePostPage.css";
 
 export default function WritePostPage() {
@@ -44,10 +45,19 @@ export default function WritePostPage() {
   const [bannedModalOpen, setBannedModalOpen] = useState(false);
   const [bannedWordsMatched, setBannedWordsMatched] = useState([]);
 
+  // ✅ 에러 모달 상태
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+
+  const openErrorModal = (message) => {
+    setErrorModalMessage(message);
+    setErrorModalOpen(true);
+  };
+
   useEffect(() => {
     if (!isAuthenticated) {
-      alert("로그인이 필요한 기능입니다.");
-      navigate("/login");
+      openErrorModal("로그인이 필요한 기능입니다.");
+      setTimeout(() => navigate("/login"), 1500);
       return;
     }
 
@@ -67,11 +77,17 @@ export default function WritePostPage() {
     e.preventDefault();
 
     if (!form.category) {
-      alert("카테고리를 선택해주세요.");
+      openErrorModal("카테고리를 선택해주세요.");
       return;
     }
+
     if (!form.title.trim()) {
-      alert("제목을 입력해주세요.");
+      openErrorModal("제목을 입력해주세요.");
+      return;
+    }
+
+    if (!editor?.getText().trim()) {
+      openErrorModal("내용을 입력해주세요.");
       return;
     }
 
@@ -98,9 +114,8 @@ export default function WritePostPage() {
         { withCredentials: true }
       );
       navigate("/boards");
-    } catch (err) {
-      console.error(err);
-      alert("글 작성에 실패했습니다.");
+    } catch {
+      openErrorModal("글 작성에 실패했습니다.");
     }
   };
 
@@ -109,7 +124,6 @@ export default function WritePostPage() {
       <div className="write-post-container">
         <h2 className="write-post-title">글쓰기</h2>
         <form className="write-post-form" onSubmit={handleSubmit}>
-          {/* 닉네임 표시 (읽기 전용) */}
           <input
             type="text"
             name="nickname"
@@ -123,7 +137,6 @@ export default function WritePostPage() {
             name="category"
             value={form.category}
             onChange={handleChange}
-            required
             className="write-post-input"
           >
             <option value="" disabled hidden>
@@ -141,7 +154,6 @@ export default function WritePostPage() {
             placeholder="제목"
             value={form.title}
             onChange={handleChange}
-            required
             className="write-post-input"
           />
 
@@ -172,6 +184,14 @@ export default function WritePostPage() {
         isOpen={bannedModalOpen}
         matchedWords={bannedWordsMatched}
         onClose={() => setBannedModalOpen(false)}
+      />
+
+      <ErrorModal
+        isOpen={errorModalOpen}
+        title="오류"
+        message={errorModalMessage}
+        onConfirm={() => setErrorModalOpen(false)}
+        onCancel={() => setErrorModalOpen(false)}
       />
     </div>
   );

@@ -21,9 +21,18 @@ export default function PostDetailPage() {
   const [post, setPost] = useState(null);
   const [comments, setComments] = useState([]);
   const [liked, setLiked] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("success");
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // ✅ 추가된 모달 상태
+  const [alertModalOpen, setAlertModalOpen] = useState(false);
+  const [alertModalTitle, setAlertModalTitle] = useState("");
+  const [alertModalMessage, setAlertModalMessage] = useState("");
+
+  const openAlertModal = (message, title = "알림") => {
+    setAlertModalTitle(title);
+    setAlertModalMessage(message);
+    setAlertModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,8 +60,7 @@ export default function PostDetailPage() {
         setLiked(likedRes.data);
       } catch (err) {
         console.error("데이터 로딩 실패:", err);
-        setMessage("데이터를 불러오지 못했습니다.");
-        setMessageType("error");
+        openAlertModal("데이터를 불러오지 못했습니다.", "오류");
         setTimeout(() => navigate("/boards"), 2000);
       }
     };
@@ -60,15 +68,9 @@ export default function PostDetailPage() {
     if (postNo) fetchData();
   }, [postNo, userId, isAuthenticated, navigate]);
 
-  const showMessage = (msg, type = "success") => {
-    setMessage(msg);
-    setMessageType(type);
-    setTimeout(() => setMessage(""), 3000);
-  };
-
   const toggleLike = async () => {
     if (!isAuthenticated) {
-      showMessage("로그인이 필요합니다.", "error");
+      openAlertModal("로그인이 필요합니다.", "알림");
       return;
     }
 
@@ -83,7 +85,7 @@ export default function PostDetailPage() {
         likes: isLiked ? prev.likes + 1 : prev.likes - 1,
       }));
     } catch (err) {
-      showMessage("좋아요 처리 실패", "error");
+      openAlertModal("좋아요 처리 실패", "오류");
     }
   };
 
@@ -92,7 +94,7 @@ export default function PostDetailPage() {
       await axios.delete(`/posts/${postNo}`);
       navigate("/boards");
     } catch (err) {
-      showMessage("삭제에 실패했습니다.", "error");
+      openAlertModal("삭제에 실패했습니다.", "오류");
     } finally {
       setShowConfirm(false);
     }
@@ -105,10 +107,6 @@ export default function PostDetailPage() {
 
   return (
     <div className="post-detail-page">
-      {message && (
-        <div className={`message-box ${messageType}`}>{message}</div>
-      )}
-
       <div className="category-buttons">
         {categoryList.map((cat) => (
           <button
@@ -140,7 +138,7 @@ export default function PostDetailPage() {
         post={post}
         liked={liked}
         toggleLike={toggleLike}
-        onEdit={() => navigate(`/posts/edit/${post.postNo}`, { state: { post } })}
+        onEdit={() => navigate(`/boards/edit/${post.postNo}`, { state: { post } })}
         onDelete={() => setShowConfirm(true)}
         isAuthor={isAuthor}
         isAuthenticated={isAuthenticated}
@@ -152,16 +150,32 @@ export default function PostDetailPage() {
         nickname={nickname}
         comments={comments}
         setComments={setComments}
-        showMessage={showMessage}
+        showMessage={(msg, type) => {
+          if (type === "error") {
+            openAlertModal(msg, "오류");
+          } else {
+            openAlertModal(msg, "알림");
+          }
+        }}
         isAuthenticated={isAuthenticated}
       />
 
+      {/* 게시글 삭제 확인 모달 */}
       <ErrorModal
         isOpen={showConfirm}
         title="게시글 삭제 확인"
         message="정말 삭제하시겠습니까?"
         onConfirm={confirmDelete}
         onCancel={() => setShowConfirm(false)}
+      />
+
+      {/* 공통 알림 모달 */}
+      <ErrorModal
+        isOpen={alertModalOpen}
+        title={alertModalTitle}
+        message={alertModalMessage}
+        onConfirm={() => setAlertModalOpen(false)}
+        onCancel={() => setAlertModalOpen(false)}
       />
     </div>
   );
