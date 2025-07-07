@@ -77,16 +77,15 @@ public class ApiImportController {
         try {
             LocalDate startDate = LocalDate.now().minusMonths(6);
             
-            // 1단계: 컨텐츠 선행 적재
-            apiImportService.importContentsFromTmdb(startDate);
-            
-            // 2단계: 메타데이터 적재 (병렬 가능)
+            // 1단계: 기본 메타데이터 우선 적재
             apiImportService.importGenresFromTmdb();
             apiImportService.importProvidersFromTmdb();
-//            apiImportService.importPeopleFromTmdb();
             
-            // 3단계: 매핑 테이블 적재 (컨텐츠 및 메타데이터 존재 후)
-//            apiImportService.importContentMappings();
+            // 2단계: 컨텐츠 및 매핑 적재
+            apiImportService.importContentsFromTmdb(startDate);
+            
+            // 3단계: People 및 Credits 적재
+            apiImportService.importPeopleAndCredits();
             
             return ResponseEntity.ok("전체 데이터 수집 완료");
         } catch (Exception e) {
