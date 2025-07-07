@@ -18,7 +18,7 @@ public class MemberUpdateServiceImpl implements MemberUpdateService {
         Member member = memberRepository.findById(request.getMemberId())
                 .orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
 
-        // 2. 정보 수정 (ID는 제외)
+        // 2. 정보 수정 (ID, password는 제외)
         member.setName(request.getName());
         member.setNickname(request.getNickname());
         member.setEmail(request.getEmail());

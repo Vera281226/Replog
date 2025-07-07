@@ -46,7 +46,7 @@ public class ContentsResponse {
     private String backdropPath;
 
     // 러닝타임 (분 단위)
-    private Integer runtime;
+   private Integer runtime;
 
     // 연령 등급 (예: "전체관람가", "15세", "18세")
     private String ageRating;

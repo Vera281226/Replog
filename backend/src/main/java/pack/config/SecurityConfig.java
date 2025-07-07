@@ -54,7 +54,8 @@ public class SecurityConfig {
                         "/api/auth/login", 
                         "/api/member/signup", 
                         "/api/auth/logout",
-                        "/api/index/**"
+                        "/api/index/**",
+                        "/api/import/**"
                     )
             )
 
@@ -74,7 +75,8 @@ public class SecurityConfig {
                     "/api/email/**",
                     "/api/genres",
                     "/api/contents/**",
-                    "/api/index/**"
+                    "/api/index/**",
+                    "/api/import/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()

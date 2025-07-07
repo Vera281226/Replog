@@ -2,49 +2,52 @@ package pack.importing.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * TmdbContentDto
  * -------------------------------------------------------------
  * ✅ TMDB 콘텐츠 1건을 매핑하는 DTO 클래스입니다.
- * ✅ TMDB API에서 받아온 JSON 응답을 자동으로 매핑합니다.
- * ✅ 별도의 @JsonProperty 없이 application 설정(camelCase) 기준 사용
- *
- * ✅ 영화(movie) vs 예능(tv) 구분 기준:
- * - 영화: title + releaseDate 사용
- * - 예능: name + firstAirDate 사용
+ * ✅ 영화(movie) 콘텐츠 전용이며, 예능(tv)은 포함하지 않습니다.
+ * ✅ Jackson 자동 매핑 (snake_case → camelCase)을 사용하므로
+ *    별도의 @JsonProperty는 사용하지 않습니다.
  * -------------------------------------------------------------
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TmdbContentDto {
-
-    // TMDB 콘텐츠 고유 ID
     private int id;
-
-    // 콘텐츠 제목
-    private String title;        // ✅ 영화용 필드 (영화: title)
-    private String name;         // ✅ 예능/TV용 필드 (TV: name)
-
-    // 줄거리
+    private String title;
     private String overview;
-
-    // 포스터 이미지 경로 (예: /abcd123.jpg)
+    
+    @JsonProperty("poster_path")
     private String posterPath;
-
-    // 배경 이미지 경로 (예: /backdrop123.jpg) → TV용에서 주로 사용
+    
+    @JsonProperty("backdrop_path")
     private String backdropPath;
-
-    // 개봉일
-    private String releaseDate;   // ✅ 영화용 (영화: release_date)
-
-    // 첫 방영일
-    private String firstAirDate;  // ✅ 예능용 (TV: first_air_date)
-
-    // TMDB 평점 (0.0 ~ 10.0)
+    
+    @JsonProperty("release_date")
+    private String releaseDate;
+    
+    @JsonProperty("vote_average")
     private double voteAverage;
-
-    // 장르 ID 목록
-    private List<Integer> genreIds;
+    
+    @JsonProperty("genre_ids")
+    private List<Integer> genreIds = new ArrayList<>();  // 기본값으로 빈 리스트 초기화
+    
+    private Integer runtime;
+    
+    @JsonProperty("age_rating")
+    private String ageRating;
+    
+    // Null-Safe Getter
+    public List<Integer> getGenreIds() {
+        return genreIds != null ? genreIds : new ArrayList<>();
+    }
 }
+

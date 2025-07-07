@@ -1,43 +1,32 @@
 package pack.importing.controller;
 
-import java.time.LocalDate;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import lombok.RequiredArgsConstructor;
 import pack.importing.service.ApiImportService;
+
+import java.time.LocalDate;
 
 /**
  * ApiImportController
- *
+ * -------------------------------------------------------------
  * ✅ TMDB API로부터 데이터를 가져오는 Import 컨트롤러 클래스입니다.
- * - TMDB 연동은 importing.service.ApiImportService 내부에서 처리됩니다.
- * - 이 컨트롤러는 관리자 또는 배치 서버에서 호출하는 REST API 엔드포인트를 제공합니다.
- *
- * ✅ 제공하는 API 목록:
- * - POST /api/import/genres            : 장르 수집
- * - POST /api/import/providers         : 플랫폼 수집
- * - POST /api/import/variety-shows     : 예능(tv) 콘텐츠 수집 (2006년~)
- * - POST /api/import/people            : 출연진/감독 수집
- * - POST /api/import/all               : 전체 수집 (현재는 예능(tv) 중심)
- *
- * ✅ HTTP 메서드 사용 기준:
- * - POST: TMDB 데이터를 가져와서 우리 DB에 "저장(insert/update)"하는 것이므로 반드시 POST 사용
+ * - 장르 / 플랫폼 / 콘텐츠 / 인물 전체 정보를 가져와 DB에 저장합니다.
+ * - 예능(tv)은 제외하고 영화/OTT 콘텐츠만 수집합니다.
+ * -------------------------------------------------------------
  */
 @RestController
 @RequestMapping("/api/import")
 @RequiredArgsConstructor
 public class ApiImportController {
 
+    // ✅ TMDB 연동 서비스
     private final ApiImportService apiImportService;
 
     /**
-     * ✅ TMDB에서 영화 장르 목록을 가져와 DB에 저장합니다.
-     * 대상 테이블: genres
+     * ✅ 장르 목록 수집 (genres 테이블)
      */
     @PostMapping("/genres")
     public ResponseEntity<Void> importGenres() {
@@ -46,8 +35,7 @@ public class ApiImportController {
     }
 
     /**
-     * ✅ TMDB에서 OTT 플랫폼 목록을 가져와 DB에 저장합니다.
-     * 대상 테이블: providers
+     * ✅ 플랫폼 목록 수집 (providers 테이블)
      */
     @PostMapping("/providers")
     public ResponseEntity<Void> importProviders() {
@@ -56,19 +44,23 @@ public class ApiImportController {
     }
 
     /**
-     * ✅ TMDB에서 한국 오리지널 예능(tv) 콘텐츠를 수집하여 저장합니다.
-     * 조건: 2006년 1월 1일 이후 방영된 콘텐츠, 인기순 정렬
-     * 대상 테이블: contents, content_genres, content_providers
+     * ✅ 영화 및 OTT 콘텐츠 수집 (예능 제외)
+     * 대상: contents, content_genres, content_providers
      */
-    @PostMapping("/variety-shows")
-    public ResponseEntity<Void> importKoreanVarietyShows() {
-        apiImportService.importKoreanVarietyShowsFromTmdb();
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @PostMapping("/contents")
+    public ResponseEntity<String> importContents() {
+        try {
+            apiImportService.importContentsFromTmdb(LocalDate.now().minusMonths(6));
+            return ResponseEntity.ok("컨텐츠 수집 완료");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("컨텐츠 수집 실패: " + e.getMessage());
+        }
     }
 
     /**
-     * ✅ TMDB에서 출연진 및 제작진 정보를 가져와 DB에 저장합니다.
-     * 대상 테이블: people, content_people
+     * ✅ 출연진/제작진 정보 수집
+     * 대상: people, content_people
      */
     @PostMapping("/people")
     public ResponseEntity<Void> importPeopleAndCredits() {
@@ -77,24 +69,37 @@ public class ApiImportController {
     }
 
     /**
-     * ✅ TMDB에서 전체 정보를 통합적으로 가져와 DB에 저장합니다.
-     * 포함 항목: 장르, 플랫폼, 예능 콘텐츠(tv), 인물/매핑 정보
-     * - 예능은 2006년 1월 1일부터 고정 기준으로 가져옵니다.
-     * - startDate 파라미터는 현재 사용되지 않으며 향후 영화 수집 확장 시 활용 예정입니다.
+     * ✅ 전체 수집 API (예능 제외, 영화/OTT 전용)
+     * 포함: 장르, 플랫폼, 콘텐츠(movie), 인물/매핑
      */
     @PostMapping("/all")
-    public ResponseEntity<Void> importAllFromTmdb() {
-        apiImportService.importAllFromTmdbSince(LocalDate.now().minusMonths(3));
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<String> importAllFromTmdb() {
+        try {
+            LocalDate startDate = LocalDate.now().minusMonths(6);
+            
+            // 1단계: 컨텐츠 선행 적재
+            apiImportService.importContentsFromTmdb(startDate);
+            
+            // 2단계: 메타데이터 적재 (병렬 가능)
+            apiImportService.importGenresFromTmdb();
+            apiImportService.importProvidersFromTmdb();
+//            apiImportService.importPeopleFromTmdb();
+            
+            // 3단계: 매핑 테이블 적재 (컨텐츠 및 메타데이터 존재 후)
+//            apiImportService.importContentMappings();
+            
+            return ResponseEntity.ok("전체 데이터 수집 완료");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("데이터 수집 실패: " + e.getMessage());
+        }
     }
 
-    // ===============================================================
-    // 🔒 기존 영화 기반 콘텐츠 수집 API는 현재 사용하지 않음 (아래는 주석으로 보존)
-    // ===============================================================
+    // 🔒 예능(tv) 콘텐츠 수집은 더 이상 사용하지 않음 (기능 보존용 주석)
     /*
-    @PostMapping("/contents")
-    public ResponseEntity<Void> importContents() {
-        apiImportService.importContentsFromTmdb();
+    @PostMapping("/variety-shows")
+    public ResponseEntity<Void> importKoreanVarietyShows() {
+        apiImportService.importKoreanVarietyShowsFromTmdb();
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     */
