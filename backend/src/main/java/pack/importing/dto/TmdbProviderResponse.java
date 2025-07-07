@@ -1,18 +1,32 @@
 package pack.importing.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
-/**
- * TMDB에서 가져온 Provider 목록 전체 응답 DTO
- */
+// ==========================================================
+// TMDB 플랫폼 목록 응답 DTO
+// - /watch/providers/movie 또는 /watch/providers/tv 응답 전체 구조 매핑
+// - 내부에 OTT 제공자 리스트 포함 (TmdbProviderDto)
+// - 예시:
+//   {
+//     "results": [
+//       {
+//         "provider_id": 337,
+//         "provider_name": "Disney Plus",
+//         "logo_path": "/xyz.png"
+//       },
+//       ...
+//     ]
+//   }
+// ==========================================================
 @Getter
 @Setter
 public class TmdbProviderResponse {
 
-    @JsonProperty("results")
+    // OTT 제공자 리스트
+    // - JSON 키: "results"
+    // - 예: List<TmdbProviderDto>
     private List<TmdbProviderDto> results;
 }

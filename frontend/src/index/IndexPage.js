@@ -1,69 +1,96 @@
-  // src/index/IndexPage.js
-  import React from 'react';
-  import './css/IndexPage.css';
+// src/index/IndexPage.js
 
-  // 공통 컴포넌트
-  import Header from '../components/Header';
-  import Footer from '../components/Footer';
-  import FabButton from '../components/FabButton';
+import React from 'react';
+import './css/IndexPage.css';
 
-  // 콘텐츠 섹션 컴포넌트
-  import HotReviewSlider from './components/HotReviewSlider';
-  import NowPlayingSection from './components/NowPlayingSection';
-  import ContentsNetflix from './components/ContentsNetflix';
-  import ContentsDisney from './components/ContentsDisney';
-  import UpcomingSection from './components/UpcomingSection';
-  import TrailerSection from './components/TrailerSection';
-  import UpcomingMixSection from './components/UpcomingMixSection';
+/**
+ * ✅ 공통 포함 요소는 MainLayout.js에서 자동 포함됨
+ * - Header, Footer, FabButton은 여기서 중복 제거됨
+ * - 따라서 이 파일에서는 import 불필요
+ */
 
-  // 검색창 컴포넌트
-  import SearchBar from '../search/components/SearchBar';
+/* 콘텐츠 섹션 컴포넌트 */
+import HotReviewSlider from './components/HotReviewSlider';
+import NowPlayingSection from './components/NowPlayingSection';
+import ContentsNetflix from './components/ContentsNetflix';
+import ContentsDisney from './components/ContentsDisney';
+import UpcomingSection from './components/UpcomingSection';
+import TrailerSection from './components/TrailerSection';
+import UpcomingMixSection from './components/UpcomingMixSection';
 
-  /**
-   * IndexPage 컴포넌트
-   * - 메인 홈 화면을 구성하는 최상위 페이지
-   * - TMDB 기반 콘텐츠 섹션 및 검색 UI 포함
-   */
-  const IndexPage = () => {
-    return (
-        <>
-          <main>
-            {/* 검색창 영역 (자동완성 + 최근검색어 포함) */}
-            <SearchBar />
+/* 검색창 컴포넌트 */
+import SearchBar from '../search/components/SearchBar';
 
-            {/* 현재 상영 중인 영화 섹션 */}
-            <section className="now-playing-section">
-              <div className="section-inner">
-                <h2 className="section-title">현재 상영 중인 영화</h2>
-                <NowPlayingSection />
-              </div>
-            </section>
+/**
+ * IndexPage 컴포넌트
+ * - 메인 홈 화면을 구성하는 최상위 페이지
+ * - TMDB 기반 콘텐츠 섹션 및 검색 UI 포함
+ * - 공통 레이아웃(Header, Footer, FAB)은 MainLayout에서 관리
+ */
+const IndexPage = () => {
+  return (
+      <>
+        <main>
+          {/**
+           * 🔍 검색창 영역
+           * - 자동완성, 최근 검색어 포함 (컴포넌트 내부에서 제어)
+           */}
+          <SearchBar />
 
-            {/* 넷플릭스 인기 콘텐츠 */}
-            <ContentsNetflix />
+          {/**
+           * 🎬 현재 상영 중인 영화
+           * - 백엔드 API: /api/index/now-playing
+           */}
+          <section className="now-playing-section">
+            <div className="section-inner">
+              <h2 className="section-title">현재 상영 중인 영화</h2>
+              <NowPlayingSection />
+            </div>
+          </section>
 
-            {/* 디즈니+ 인기 콘텐츠 */}
-            <ContentsDisney />
+          {/**
+           * 🔥 넷플릭스 인기 콘텐츠
+           * - 백엔드 API 기반으로 인기 콘텐츠 조회
+           */}
+          <ContentsNetflix />
 
-            {/* 개봉 예정 영화 */}
-            <UpcomingSection />
+          {/**
+           * 🐭 디즈니+ 인기 콘텐츠
+           */}
+          <ContentsDisney />
 
-            {/* 지금 뜨는 리뷰 섹션
-            <section>
-              <div className="section-inner">
-                <h2 className="section-title">지금 뜨는 리뷰</h2>
-                <HotReviewSlider />
-              </div>
-            </section> */}
+          {/**
+           * 📅 개봉 예정 영화
+           */}
+          <UpcomingSection />
 
-            {/* 추천 예고편 */}
-            <TrailerSection />
+          {/**
+           * 💬 지금 뜨는 리뷰 섹션
+           * - 주석 해제 시 활성화됨
+           * - API: /api/index/hot-reviews
+           */}
+          {/*
+        <section>
+          <div className="section-inner">
+            <h2 className="section-title">지금 뜨는 리뷰</h2>
+            <HotReviewSlider />
+          </div>
+        </section>
+        */}
 
-            {/* 콘텐츠 예정작 (넷플릭스 + 디즈니 믹스) */}
-            <UpcomingMixSection />
-          </main>
-        </>
-    );
-  };
+          {/**
+           * 🎞️ 추천 예고편
+           * - 유튜브 썸네일 기반 슬라이드
+           */}
+          <TrailerSection />
 
-  export default IndexPage;
+          {/**
+           * 🔀 콘텐츠 예정작 (넷플릭스 + 디즈니 섞어서 랜덤 6개)
+           */}
+          <UpcomingMixSection />
+        </main>
+      </>
+  );
+};
+
+export default IndexPage;

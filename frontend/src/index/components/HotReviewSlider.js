@@ -1,7 +1,7 @@
 // src/index/components/HotReviewSlider.js
 
 import React, { useEffect, useState } from 'react';
-import './HotReviewSlider.css';
+import '../css/HotReviewSlider.css';
 
 const HotReviewSlider = () => {
   const [reviews, setReviews] = useState([]);

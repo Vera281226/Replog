@@ -1,6 +1,5 @@
-// src/index/components/MovieCard.js
-
 import React from 'react';
+import '../css/MovieCard.css';
 
 /**
  * ✅ MovieCard 컴포넌트
@@ -20,30 +19,30 @@ const MovieCard = ({ title, posterPath, releaseDate, voteAverage, voteCount, pla
   };
 
   return (
-    <div className="movie-card">
-      <div className="poster-wrapper">
-        <img
-          className="poster"
-          src={`https://image.tmdb.org/t/p/w500${posterPath}`}
-          alt={title}
-        />
-        {platform && (
+      <div className="movie-card">
+        <div className="poster-wrapper">
           <img
-            className="platform-logo"
-            src={getPlatformLogo()}
-            alt={platform}
+              className="poster"
+              src={`https://image.tmdb.org/t/p/w500${posterPath}`}
+              alt={title}
           />
-        )}
-      </div>
+          {platform && (
+              <img
+                  className="platform-logo"
+                  src={getPlatformLogo()}
+                  alt={platform}
+              />
+          )}
+        </div>
 
-      <div className="movie-info">
-        <div className="movie-title">{title}</div>
-        <div className="movie-sub">{releaseDate?.slice(0, 4)}</div>
-        <div className="movie-rating">
-          평균 ⭐ {voteAverage?.toFixed(1)} / 참여 {voteCount}명
+        <div className="movie-info">
+          <div className="movie-title">{title}</div>
+          <div className="movie-sub">{releaseDate?.slice(0, 4)}</div>
+          <div className="movie-rating">
+            평균 ⭐ {voteAverage?.toFixed(1)} / 참여 {voteCount}명
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 
