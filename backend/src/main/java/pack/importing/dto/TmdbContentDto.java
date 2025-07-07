@@ -49,5 +49,10 @@ public class TmdbContentDto {
     public List<Integer> getGenreIds() {
         return genreIds != null ? genreIds : new ArrayList<>();
     }
+    
+ // ✅ Runtime Null-Safe Getter
+    public Integer getRuntime() {
+        return runtime != null ? runtime : 0;
+    }
 }
 
