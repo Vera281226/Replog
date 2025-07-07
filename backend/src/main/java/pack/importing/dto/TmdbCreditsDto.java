@@ -1,111 +1,91 @@
 package pack.importing.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
 /**
- * TMDB Credits 응답 DTO
- * - /movie/{movie_id}/credits 또는 /tv/{tv_id}/credits
- * - 출연진(cast)과 제작진(crew)을 포함
+ * TmdbCreditsDto
+ * - TMDB Credits API 응답 구조
+ * - 출연진(Cast), 제작진(Crew) 정보를 포함
  */
 @Getter
 @Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class TmdbCreditsDto {
 
-    /**
-     * 콘텐츠 ID
-     */
+    // TMDB 콘텐츠 ID
+    // - JSON 키: "id"
+    // - 예: 123456
     private int id;
 
-    /**
-     * 출연진 리스트
-     */
+    // 출연진 리스트
+    // - JSON 키: "cast"
+    // - 각 항목은 Cast 클래스에 매핑됨
     private List<Cast> cast;
 
-    /**
-     * 제작진 리스트
-     */
+    // 제작진 리스트
+    // - JSON 키: "crew"
+    // - 각 항목은 Crew 클래스에 매핑됨
     private List<Crew> crew;
 
-    /**
-     * 출연진 정보 클래스
-     */
+    // --------------------------
+    // 출연진(Cast) 정보 클래스
+    // --------------------------
     @Getter
     @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Cast {
 
-        /**
-         * 인물 ID
-         */
+        // 출연진 인물 ID
+        // - JSON 키: "id"
         private int id;
 
-        /**
-         * 인물 이름
-         */
+        // 이름
+        // - JSON 키: "name"
         private String name;
 
-        /**
-         * 캐릭터 이름 (출연 역할)
-         */
+        // 배역 이름
+        // - JSON 키: "character"
         private String character;
 
-        /**
-         * 부서명 (예: Acting)
-         */
-        @JsonProperty("known_for_department")
+        // 주요 활동 부서
+        // - JSON 키: "known_for_department"
         private String knownForDepartment;
 
-        /**
-         * 프로필 이미지 경로
-         */
-        @JsonProperty("profile_path")
+        // 프로필 이미지 경로
+        // - JSON 키: "profile_path"
         private String profilePath;
     }
 
-    /**
-     * 제작진 정보 클래스
-     */
+    // --------------------------
+    // 제작진(Crew) 정보 클래스
+    // --------------------------
     @Getter
     @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Crew {
 
-        /**
-         * 인물 ID
-         */
+        // 제작진 인물 ID
+        // - JSON 키: "id"
         private int id;
 
-        /**
-         * 인물 이름
-         */
+        // 이름
+        // - JSON 키: "name"
         private String name;
 
-        /**
-         * 담당 직무 (예: Director)
-         */
+        // 맡은 직무
+        // - JSON 키: "job"
         private String job;
 
-        /**
-         * 소속 부서 (예: Directing) ← 이게 바로 getDepartment()용
-         */
+        // 부서
+        // - JSON 키: "department"
         private String department;
 
-        /**
-         * 부서명 (예: Directing)
-         */
-        @JsonProperty("known_for_department")
+        // 주요 활동 부서
+        // - JSON 키: "known_for_department"
         private String knownForDepartment;
 
-        /**
-         * 프로필 이미지 경로
-         */
-        @JsonProperty("profile_path")
+        // 프로필 이미지 경로
+        // - JSON 키: "profile_path"
         private String profilePath;
     }
 }

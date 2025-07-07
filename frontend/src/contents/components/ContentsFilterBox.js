@@ -1,13 +1,19 @@
+// src/contents/components/ContentsFilterBox.js
+
 import React, { useState, useEffect } from 'react';
 
 /**
  * ContentsFilterBox 컴포넌트
- * - 콘텐츠 필터 영역
- * - 정렬, 개봉일, 장르, 연령, 평점, 러닝타임, 플랫폼 필터 제공
- * - '검색하기' 클릭 시 부모로 필터 상태 전달
+ * -------------------------------------------------------------------
+ * ○ 콘텐츠 필터 영역
+ * ○ 정렬, 개봉일, 장르, 연령, 평점, 러닝타임, 플랫폼 필터 제공
+ * ○ '검색하기' 클릭 시 부모로 필터 상태 전달 (onFilterChange)
+ * -------------------------------------------------------------------
  */
 function ContentsFilterBox({ onFilterChange }) {
-    // ✅ 폼 상태 초기값 정의
+    // -------------------------------------------------------------------
+    // ✅ 필터 상태 정의
+    // -------------------------------------------------------------------
     const [formState, setFormState] = useState({
         sort: '',
         releaseStart: '',
@@ -24,7 +30,9 @@ function ContentsFilterBox({ onFilterChange }) {
     // ✅ 장르 리스트 상태
     const [genreList, setGenreList] = useState([]);
 
-    // ✅ 장르 목록 불러오기
+    // -------------------------------------------------------------------
+    // ✅ 장르 목록 불러오기 (/api/genres)
+    // -------------------------------------------------------------------
     useEffect(() => {
         const fetchGenres = async () => {
             try {
@@ -38,13 +46,17 @@ function ContentsFilterBox({ onFilterChange }) {
         fetchGenres();
     }, []);
 
-    // ✅ 단일 입력 필드 처리
+    // -------------------------------------------------------------------
+    // ✅ 일반 입력 필드 변경 처리 (정렬, 날짜, 평점 등)
+    // -------------------------------------------------------------------
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormState((prev) => ({ ...prev, [name]: value }));
     };
 
-    // ✅ 배열 선택 항목 토글 처리 (장르, 플랫폼 등)
+    // -------------------------------------------------------------------
+    // ✅ 체크박스/버튼형 필드 토글 (장르, 플랫폼)
+    // -------------------------------------------------------------------
     const handleToggle = (key, value) => {
         setFormState((prev) => ({
             ...prev,
@@ -54,12 +66,16 @@ function ContentsFilterBox({ onFilterChange }) {
         }));
     };
 
-    // ✅ 검색 버튼 클릭 시 필터 전달
+    // -------------------------------------------------------------------
+    // ✅ 검색 버튼 클릭 시 필터 적용
+    // -------------------------------------------------------------------
     const handleSubmit = () => {
         onFilterChange(formState);
     };
 
-    // ✅ 필터 초기화 버튼 클릭
+    // -------------------------------------------------------------------
+    // ✅ 필터 초기화
+    // -------------------------------------------------------------------
     const handleReset = () => {
         const empty = {
             sort: '',
@@ -85,21 +101,18 @@ function ContentsFilterBox({ onFilterChange }) {
             <div className="filter-section">
                 <label>정렬</label>
                 <div>
-                    <label>
-                        <input type="radio" name="sort" value="popularity"
-                               checked={formState.sort === 'popularity'} onChange={handleChange} />
-                        인기순
-                    </label><br />
-                    <label>
-                        <input type="radio" name="sort" value="oldest"
-                               checked={formState.sort === 'oldest'} onChange={handleChange} />
-                        오래된순
-                    </label><br />
-                    <label>
-                        <input type="radio" name="sort" value="latest"
-                               checked={formState.sort === 'latest'} onChange={handleChange} />
-                        최신순
-                    </label>
+                    {['popularity', 'oldest', 'latest'].map((value) => (
+                        <label key={value}>
+                            <input
+                                type="radio"
+                                name="sort"
+                                value={value}
+                                checked={formState.sort === value}
+                                onChange={handleChange}
+                            />
+                            {value === 'popularity' ? '인기순' : value === 'oldest' ? '오래된순' : '최신순'}
+                        </label>
+                    ))}
                 </div>
             </div>
 
@@ -130,18 +143,8 @@ function ContentsFilterBox({ onFilterChange }) {
             {/* ✅ 시청 연령 */}
             <div className="filter-section">
                 <label>시청 연령</label>
-                <label>
-                    <input
-                        type="radio"
-                        name="age"
-                        value=""
-                        checked={formState.age === ''}
-                        onChange={handleChange}
-                    />
-                    전체
-                </label>
-                {['12', '15', '19'].map((age) => (
-                    <label key={age}>
+                {['', '12', '15', '19'].map((age) => (
+                    <label key={age || 'all'}>
                         <input
                             type="radio"
                             name="age"
@@ -149,7 +152,7 @@ function ContentsFilterBox({ onFilterChange }) {
                             checked={formState.age === age}
                             onChange={handleChange}
                         />
-                        {age}
+                        {age === '' ? '전체' : age}
                     </label>
                 ))}
             </div>
@@ -175,20 +178,20 @@ function ContentsFilterBox({ onFilterChange }) {
 
             {/* ✅ 러닝타임 */}
             <div className="filter-section">
-                <label>러닝타임</label>
+                <label>러닝타임 (분)</label>
                 <input
                     type="number"
                     name="runtimeMin"
                     value={formState.runtimeMin}
                     onChange={handleChange}
-                    placeholder="최소 분"
+                    placeholder="최소"
                 />
                 <input
                     type="number"
                     name="runtimeMax"
                     value={formState.runtimeMax}
                     onChange={handleChange}
-                    placeholder="최대 분"
+                    placeholder="최대"
                 />
             </div>
 

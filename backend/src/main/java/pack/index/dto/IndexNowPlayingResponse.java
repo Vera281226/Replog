@@ -42,4 +42,6 @@ public class IndexNowPlayingResponse {
      * 예: "2025-06-01"
      */
     private String releaseDate;
+
+    private Float rating;
 }

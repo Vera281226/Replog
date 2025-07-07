@@ -1,0 +1,78 @@
+/** ====================================
+ * 🎬 MovieCard 전용 스타일
+ * ==================================== */
+
+/** ✅ 카드 전체 박스 */
+.movie-card {
+    width: 200px;
+    height: 390px;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+.movie-card:hover {
+    transform: translateY(-6px); /* ✅ 호버 시 위로 뜨는 효과 */
+}
+
+/** ✅ 포스터 영역 (로고 포함) */
+.poster-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+}
+.poster-wrapper .poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/** ✅ 플랫폼 로고 (넷플릭스 / 디즈니+) */
+.platform-logo {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 36px;
+    height: auto;
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+/** ✅ 영화 정보 영역 */
+.movie-info {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 4px;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.movie-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    word-break: break-word;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* ✅ 최대 2줄 말줄임 */
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+.movie-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.movie-rating {
+    font-size: 12px;
+    color: var(--text-secondary);
+}

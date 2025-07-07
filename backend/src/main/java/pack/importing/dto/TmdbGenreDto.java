@@ -3,13 +3,23 @@ package pack.importing.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- *  TMDB 장르 응답 중 한 개의 장르 항목을 담는 DTO
- * 예: { "id": 28, "name": "액션" }
- */
+// ==========================================
+// TMDB 장르 DTO
+// - TMDB API의 단일 장르 응답을 매핑
+// - 사용 위치: /genre/movie/list, /genre/tv/list
+// - 예시 응답: { "id": 28, "name": "액션" }
+// ==========================================
 @Getter
 @Setter
 public class TmdbGenreDto {
-    private int id;        // TMDB 장르 ID
-    private String name;   // 장르 이름
+
+    // 장르 고유 ID
+    // - JSON 키: "id"
+    // - 예: 28
+    private int id;
+
+    // 장르 이름
+    // - JSON 키: "name"
+    // - 예: "액션", "코미디", "드라마"
+    private String name;
 }
