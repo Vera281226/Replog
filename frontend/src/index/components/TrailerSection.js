@@ -1,7 +1,7 @@
 // src/index/components/TrailerSection.jsx
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../../error/api/interceptor';
 import TrailerCard from './TrailerCard'; // ✅ 예고편 카드 컴포넌트
 
 /**
@@ -20,7 +20,7 @@ const TrailerSection = () => {
   useEffect(() => {
     const fetchTrailers = async () => {
       try {
-        const response = await axios.get('/api/index/trailers');
+        const response = await axios.get('/index/trailers');
         setTrailers(response.data);
       } catch (err) {
         console.error('❌ 예고편 호출 실패:', err);

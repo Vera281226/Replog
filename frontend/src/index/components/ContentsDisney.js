@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../../error/api/interceptor';
 import MovieCard from './MovieCard'; // 공통 카드 컴포넌트 import
 
 /**
@@ -15,7 +15,7 @@ const ContentsDisney = () => {
   useEffect(() => {
     const fetchDisneyContent = async () => {
       try {
-        const response = await axios.get('/api/index/disney');
+        const response = await axios.get('/index/disney');
         console.log("🎬 디즈니 응답 데이터:", response.data);
         setMovies(response.data);
       } catch (error) {

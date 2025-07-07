@@ -1,7 +1,7 @@
 // src/index/components/NowPlayingSection.jsx
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../../error/api/interceptor';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 
@@ -18,7 +18,7 @@ const NowPlayingSection = () => {
   useEffect(() => {
     const fetchNowPlaying = async () => {
       try {
-        const res = await axios.get('/api/index/now-playing');
+        const res = await axios.get('/index/now-playing');
         setMovies(res.data);
       } catch (err) {
         console.error('현재 상영작 데이터를 불러오는 데 실패했습니다:', err);

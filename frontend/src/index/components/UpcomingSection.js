@@ -1,7 +1,7 @@
 // src/index/components/UpcomingSection.js
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../../error/api/interceptor';
 import MovieCard from './MovieCard'; // ✅ 공통 카드 컴포넌트 import
 
 /**
@@ -20,7 +20,7 @@ const UpcomingSection = () => {
   useEffect(() => {
     const fetchUpcoming = async () => {
       try {
-        const response = await axios.get('/api/index/upcoming');
+        const response = await axios.get('/index/upcoming');
         console.log('🎬 개봉 예정 응답 데이터:', response.data);
         setMovies(response.data);
       } catch (error) {

@@ -1,7 +1,7 @@
 // src/index/components/ContentsNetflix.js
 
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../../error/api/interceptor';
 import MovieCard from './MovieCard'; // 공통 카드 컴포넌트 import
 
 /**
@@ -19,7 +19,7 @@ const ContentsNetflix = () => {
   useEffect(() => {
     const fetchNetflixContent = async () => {
       try {
-        const response = await axios.get('/api/index/netflix');
+        const response = await axios.get('/index/netflix');
         console.log('🎬 넷플릭스 응답 데이터:', response.data);
         setMovies(response.data);
       } catch (error) {
