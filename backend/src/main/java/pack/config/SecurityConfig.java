@@ -53,10 +53,10 @@ public class SecurityConfig {
                         "/", 
                         "/api/auth/login", 
                         "/api/member/signup", 
-                        "/api/auth/logout"
+                        "/api/auth/logout",
+                        "/api/index/**"
                     )
             )
-
 
             // 4. 예외 처리 (401/403 핸들러)
             .exceptionHandling(eh -> eh
@@ -74,7 +74,7 @@ public class SecurityConfig {
                     "/api/email/**",
                     "/api/genres",
                     "/api/contents/**",
-                    "/api/index"
+                    "/api/index/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
