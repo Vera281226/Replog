@@ -57,7 +57,8 @@ public class SecurityConfig {
                         "/api/member/signup", 
                         "/api/auth/logout",
                         "/api/index/**",
-                        "/api/import/**"
+                        "/api/import/**",
+                        "/api/email/**"
                     )
             )
 
