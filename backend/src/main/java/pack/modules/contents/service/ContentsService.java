@@ -129,15 +129,6 @@ public class ContentsService {
     }
 
     // ---------------------------------------------------------------------
-    // ✅ 예능(tv) 콘텐츠 조회 (media_type = 'tv')
-    // ---------------------------------------------------------------------
-    public List<ContentsResponse> getVarietyShows() {
-        return contentsRepository.findVarietyShows().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    // ---------------------------------------------------------------------
     // 콘텐츠 단건 조회
     // ---------------------------------------------------------------------
     public ContentsResponse getContentById(Integer contentId) {

@@ -1,27 +1,51 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "../error/redux/authSlice";
 import axios from "../error/api/interceptor";
 import TheaterMap from "../components/TheaterMap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import WritePartyModal from "../components/WritePartyModal";
+import LoginRequiredModal from "../components/LoginRequiredModel";
+import { ErrorModal } from "../error/components/ErrorModal";
+import "./css/TheaterPage.css";
 
 const formatDate = (date) => date.toISOString().slice(0, 10);
+
+const groupTheatersByBrand = (theaters) => {
+  const grouped = { CGV: [], "롯데시네마": [], "메가박스": [], 기타: [] };
+  theaters.forEach((theater) => {
+    if (theater.name.includes("CGV")) grouped.CGV.push(theater);
+    else if (theater.name.includes("롯데시네마")) grouped["롯데시네마"].push(theater);
+    else if (theater.name.includes("메가박스")) grouped["메가박스"].push(theater);
+    else grouped["기타"].push(theater);
+  });
+  return grouped;
+};
+
+const getVisibleTheaters = (list, isExpanded) => isExpanded ? list : list.slice(0, 3);
 
 const TheaterPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [theaters, setTheaters] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [filteredTheaters, setFilteredTheaters] = useState([]);
   const [postCounts, setPostCounts] = useState({});
-
   const [searchStartDate, setSearchStartDate] = useState("");
   const [searchEndDate, setSearchEndDate] = useState("");
   const [searchMovie, setSearchMovie] = useState("");
-
   const [partyPosts, setPartyPosts] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+
+  const openErrorModal = (message) => {
+    setErrorModalMessage(message);
+    setErrorModalOpen(true);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -36,21 +60,18 @@ const TheaterPage = () => {
     const defaultStart = formatDate(today);
     const defaultEnd = formatDate(twoWeeksLater);
 
-    const appliedStart = start || defaultStart;
-    const appliedEnd = end || defaultEnd;
-
-    setSearchStartDate(appliedStart);
-    setSearchEndDate(appliedEnd);
+    setSearchStartDate(start || defaultStart);
+    setSearchEndDate(end || defaultEnd);
     setSearchMovie(movie);
     setSelectedIds(ids);
 
     const fetchPosts = async () => {
-      const query = new URLSearchParams(location.search).toString();
       try {
+        const query = new URLSearchParams(location.search).toString();
         const res = await axios.get(`/partyposts/theaters?${query}`);
         setPartyPosts(res.data);
-      } catch (err) {
-        console.error("뒤로가기 후 모집글 다시 불러오기 실패", err);
+      } catch {
+        openErrorModal("모집글을 불러오지 못했습니다.");
         setPartyPosts([]);
       }
     };
@@ -63,11 +84,12 @@ const TheaterPage = () => {
       .then((res) => {
         setTheaters(res.data);
         setFilteredTheaters(res.data);
-      });
+      })
+      .catch(() => openErrorModal("영화관 목록을 불러오지 못했습니다."));
 
     axios.get("/partyposts/theaters/count")
       .then((res) => setPostCounts(res.data))
-      .catch((err) => console.error("모집글 개수 불러오기 실패", err));
+      .catch(() => openErrorModal("모집글 수를 불러오지 못했습니다."));
   }, []);
 
   useEffect(() => {
@@ -77,17 +99,15 @@ const TheaterPage = () => {
       const query = selectedIds.join(",");
       axios.get(`/theaters?ids=${query}`)
         .then((res) => setFilteredTheaters(res.data))
-        .catch((err) => console.error("선택 영화관 조회 실패", err));
+        .catch(() => openErrorModal("선택한 영화관 정보를 불러오지 못했습니다."));
     }
   }, [selectedIds, theaters]);
 
   const toggleTheater = (id) => {
-    let newSelected;
-    if (selectedIds.includes(id)) {
-      newSelected = selectedIds.filter((v) => v !== id);
-    } else {
-      newSelected = [...selectedIds, id];
-    }
+    const newSelected = selectedIds.includes(id)
+      ? selectedIds.filter((v) => v !== id)
+      : [...selectedIds, id];
+
     setSelectedIds(newSelected);
 
     const params = new URLSearchParams();
@@ -114,89 +134,134 @@ const TheaterPage = () => {
     if (searchStartDate) params.append("start", searchStartDate);
     if (searchEndDate) params.append("end", searchEndDate);
     if (searchMovie) params.append("movie", searchMovie);
-
     navigate({ pathname: "/theaters", search: params.toString() });
   };
 
-  const visibleTheaters = isExpanded ? theaters : theaters.slice(0, 5);
+  const handleWriteClick = () => {
+    if (!isAuthenticated) {
+      setLoginModalOpen(true);
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  const grouped = groupTheatersByBrand(theaters);
+  const brandLinks = {
+    CGV: "https://www.cgv.co.kr/",
+    "메가박스": "https://www.megabox.co.kr/",
+    "롯데시네마": "https://www.lottecinema.co.kr/",
+    기타: null,
+  };
 
   return (
-    <div style={{ width: "1200px", margin: "0 auto", padding: "20px" }}>
-      <h2 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        🎬 영화관 선택
-        <a href="https://www.cgv.co.kr/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "#E71A0F" }}>CGV</a>
-        <a href="https://www.megabox.co.kr/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "#503396" }}>메가박스</a>
-        <a href="https://www.lottecinema.co.kr/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "#8B1E1D" }}>롯데시네마</a>
-      </h2>
+    <div className="theater-container">
 
-      <div style={{ marginBottom: "10px", display: "flex", justifyContent: "space-between" }}>
-        <button onClick={selectAll}>전체</button>
-        {theaters.length > 5 && (
-          <button onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? "▲ 접기" : "▼ 더보기"}
-          </button>
-        )}
+      <div className="theater-buttons">
+        <div className="left-buttons">
+          <button onClick={selectAll}>전체</button>
+        </div>
+        <div className="right-buttons">
+          {theaters.length > 5 && (
+            <button onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? "▲ 접기" : "▼ 더보기"}
+            </button>
+          )}
+        </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "10px", marginBottom: "20px" }}>
-        {visibleTheaters.map((theater) => (
-          <label key={theater.theaterId} style={{ cursor: "pointer" }}>
-            <input
-              type="checkbox"
-              checked={selectedIds.includes(theater.theaterId)}
-              onChange={() => toggleTheater(theater.theaterId)}
-            />
-            {theater.name} ({postCounts[theater.theaterId] ?? 0}건)
-          </label>
+      <div className="theater-brand-columns">
+        {Object.entries(grouped).map(([brand, list]) => (
+          <div key={brand} className="theater-column">
+<h4 className="brand-title">
+  {brandLinks[brand] ? (
+    <a
+      href={brandLinks[brand]}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={brand.toLowerCase()}
+    >
+      <img
+        src={`/images/logo-${brand === "롯데시네마" ? "lotte" : brand === "메가박스" ? "megabox" : "cgv"}.png`}
+        alt={brand}
+        className="brand-logo"
+      />
+    </a>
+  ) : (
+    <span className="brand-text">[{brand}]</span>
+  )}
+</h4>
+            {getVisibleTheaters(list, isExpanded).map((theater) => (
+              <label key={theater.theaterId} className="theater-item">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(theater.theaterId)}
+                  onChange={() => toggleTheater(theater.theaterId)}
+                />
+                {theater.name} ({postCounts[theater.theaterId] ?? 0}건)
+              </label>
+            ))}
+          </div>
         ))}
       </div>
 
       <TheaterMap theaterList={filteredTheaters} />
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "20px 0" }}>
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <label>
-            시작일: <input type="date" value={searchStartDate} onChange={(e) => setSearchStartDate(e.target.value)} />
-          </label>
-          <label>
-            종료일: <input type="date" value={searchEndDate} onChange={(e) => setSearchEndDate(e.target.value)} />
-          </label>
+      <div className="theater-controls">
+        <div className="search-group">
+<label>
+  시작일: 
+  <input
+    type="date"
+    value={searchStartDate}
+    min={formatDate(new Date())}  // 오늘 이전 선택 불가
+    onChange={(e) => setSearchStartDate(e.target.value)}
+  />
+</label>
+<label>
+  종료일: 
+  <input
+    type="date"
+    value={searchEndDate}
+    min={formatDate(new Date())}  // 종료일도 마찬가지로 오늘 이전 선택 불가
+    onChange={(e) => setSearchEndDate(e.target.value)}
+  />
+</label>
           <label>
             영화명: <input type="text" value={searchMovie} onChange={(e) => setSearchMovie(e.target.value)} placeholder="검색할 영화명 입력" />
           </label>
           <button onClick={handleSearchClick}>검색</button>
         </div>
-        <button onClick={() => setIsModalOpen(true)}>글쓰기</button>
+        <button onClick={handleWriteClick}>글쓰기</button>
       </div>
 
       <h3>📋 모집글 목록</h3>
       {partyPosts.length === 0 ? (
         <p>조건에 맞는 모집글이 없습니다.</p>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table className="party-table">
           <thead>
             <tr>
-              <th style={th}>제목</th>
-              <th style={th}>영화명</th>
-              <th style={th}>일시</th>
-              <th style={th}>영화관</th>
-              <th style={th}>모집성별</th>
-              <th style={th}>모집인원</th>
+              <th>제목</th>
+              <th>영화명</th>
+              <th>일시</th>
+              <th>영화관</th>
+              <th>모집성별</th>
+              <th>모집인원</th>
             </tr>
           </thead>
           <tbody>
             {partyPosts.map((post) => (
               <tr key={post.partyPostNo}>
-                <td style={td}>
-                  <Link to={`/theaters/${post.partyPostNo}`} style={{ textDecoration: "none", color: "blue" }}>
+                <td>
+                  <Link to={`/theaters/${post.partyPostNo}`} className="party-title-link">
                     {post.title}
                   </Link>
                 </td>
-                <td style={td}>{post.movie}</td>
-                <td style={td}>{new Date(post.partyDeadline).toLocaleString()}</td>
-                <td style={td}>{post.theaterName}</td>
-                <td style={td}>{post.gender || "무관"}</td>
-                <td style={td}>{post.partyLimit}명</td>
+                <td>{post.movie}</td>
+                <td>{new Date(post.partyDeadline).toLocaleString()}</td>
+                <td>{post.theaterName}</td>
+                <td>{post.gender || "무관"}</td>
+                <td>{post.partyLimit}명</td>
               </tr>
             ))}
           </tbody>
@@ -210,22 +275,25 @@ const TheaterPage = () => {
           const params = new URLSearchParams(location.search);
           axios.get(`/partyposts/theaters?${params.toString()}`)
             .then((res) => setPartyPosts(res.data))
-            .catch((err) => console.error("모집글 다시 불러오기 실패", err));
+            .catch(() => openErrorModal("모집글을 다시 불러오는 데 실패했습니다."));
+
+          axios.get("/partyposts/theaters/count")
+            .then((res) => setPostCounts(res.data))
+            .catch(() => openErrorModal("모집글 수를 다시 불러오는 데 실패했습니다."));
         }}
+      />
+
+      <LoginRequiredModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
+
+      <ErrorModal
+        isOpen={errorModalOpen}
+        title="오류"
+        message={errorModalMessage}
+        onConfirm={() => setErrorModalOpen(false)}
+        onCancel={() => setErrorModalOpen(false)}
       />
     </div>
   );
-};
-
-const th = {
-  borderBottom: "1px solid #ccc",
-  padding: "8px",
-  textAlign: "left",
-};
-
-const td = {
-  borderBottom: "1px solid #eee",
-  padding: "8px",
 };
 
 export default TheaterPage;

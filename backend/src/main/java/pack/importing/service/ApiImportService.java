@@ -1,27 +1,16 @@
-// ========================================
-// ApiImportService.java
-// - TMDB API 데이터를 1회만 호출하여 MariaDB에 저장
-// - 이후 프론트는 오직 Axios로 DB 조회만 수행함
-// - TMDB API는 이 클래스 외 어디서도 호출하지 않음
-// ========================================
-
 package pack.importing.service;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.server.ResponseStatusException;
-
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import pack.config.TmdbProperties;
 import pack.importing.dto.TmdbContentDto;
 import pack.importing.dto.TmdbContentResponse;
@@ -29,8 +18,11 @@ import pack.importing.dto.TmdbCreditsDto;
 import pack.importing.dto.TmdbGenreDto;
 import pack.importing.dto.TmdbGenreResponse;
 import pack.importing.dto.TmdbProviderDto;
+import pack.importing.dto.TmdbProviderResponse;
+import pack.importing.dto.TmdbReleaseDateDto;
+import pack.importing.dto.TmdbTvContentRatingDto;
+import pack.importing.dto.TmdbWatchProviderRegion;
 import pack.importing.dto.TmdbWatchProviderResponse;
-
 import pack.modules.contentgenre.model.ContentGenres;
 import pack.modules.contentgenre.repository.ContentGenresRepository;
 import pack.modules.contentpeople.model.ContentPeople;
@@ -45,15 +37,19 @@ import pack.modules.people.model.People;
 import pack.modules.people.repository.PeopleRepository;
 import pack.modules.provides.model.Providers;
 import pack.modules.provides.repository.ProvidersRepository;
-
-import org.springframework.http.HttpStatus;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class ApiImportService {
 
-    // ✅ 외부 API 호출 및 저장에 필요한 모든 Repository 주입
     private final RestTemplate restTemplate;
+    private final TmdbProperties tmdbProperties;
     private final GenresRepository genresRepository;
     private final ProvidersRepository providersRepository;
     private final ContentsRepository contentsRepository;
@@ -61,200 +57,584 @@ public class ApiImportService {
     private final ContentProvidersRepository contentProvidersRepository;
     private final PeopleRepository peopleRepository;
     private final ContentPeopleRepository contentPeopleRepository;
-    private final TmdbProperties tmdbProperties;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    // ✅ 1. TMDB 장르 API → genres 테이블 저장
+    private HttpHeaders getHeaders() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + tmdbProperties.getToken());
+        headers.set("Accept", "application/json");
+        return headers;
+    }
+
+    // =====================================================================
+    // /api/import/all 에서 사용되는 핵심 메서드들
+    // =====================================================================
+
+    /**
+     * 장르 데이터 수집 (Movie + TV 통합)
+     */
     public void importGenresFromTmdb() {
-        try {
-            String url = tmdbProperties.getBaseUrl() + "/genre/movie/list?language=ko";
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + tmdbProperties.getToken());
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<TmdbGenreResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, TmdbGenreResponse.class);
-            List<TmdbGenreDto> genreList = response.getBody().getGenres();
-            for (TmdbGenreDto dto : genreList) {
-                if (!genresRepository.existsById(dto.getId())) {
-                    Genres genre = new Genres();
-                    genre.setGenreId(dto.getId());
-                    genre.setName(dto.getName());
-                    genresRepository.save(genre);
-                }
+        // Movie 장르
+        String movieUrl = tmdbProperties.getBaseUrl() + "/genre/movie/list?language=ko";
+        ResponseEntity<TmdbGenreResponse> movieResponse = restTemplate.exchange(
+                movieUrl, HttpMethod.GET, new HttpEntity<>(getHeaders()), TmdbGenreResponse.class);
+
+        if (movieResponse.getBody() != null) {
+            List<TmdbGenreDto> movieGenres = movieResponse.getBody().getGenres();
+            for (TmdbGenreDto dto : movieGenres) {
+                saveGenreIfNotExists(dto);
             }
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "TMDB 장르 데이터를 가져오는 중 오류 발생");
+        }
+
+        // TV 장르
+        String tvUrl = tmdbProperties.getBaseUrl() + "/genre/tv/list?language=ko";
+        ResponseEntity<TmdbGenreResponse> tvResponse = restTemplate.exchange(
+                tvUrl, HttpMethod.GET, new HttpEntity<>(getHeaders()), TmdbGenreResponse.class);
+
+        if (tvResponse.getBody() != null) {
+            List<TmdbGenreDto> tvGenres = tvResponse.getBody().getGenres();
+            for (TmdbGenreDto dto : tvGenres) {
+                saveGenreIfNotExists(dto);
+            }
         }
     }
 
-    // ✅ 2. TMDB 플랫폼 API → providers 테이블 저장
+    /**
+     * 플랫폼 데이터 수집
+     */
     public void importProvidersFromTmdb() {
-        try {
-            String sampleMovieId = "872585";
-            String url = tmdbProperties.getBaseUrl() + "/movie/" + sampleMovieId + "/watch/providers";
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + tmdbProperties.getToken());
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
-            ResponseEntity<TmdbWatchProviderResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, TmdbWatchProviderResponse.class);
-            List<TmdbProviderDto> list = response.getBody().getResults().get("KR").getFlatrate();
-            if (list == null) return;
-            for (TmdbProviderDto dto : list) {
-                if (!providersRepository.existsById(dto.getProviderId())) {
-                    Providers provider = new Providers();
-                    provider.setProviderId(dto.getProviderId());
-                    provider.setName(dto.getProviderName());
-                    provider.setLogoPath(dto.getLogoPath());
-                    providersRepository.save(provider);
-                }
+        String url = tmdbProperties.getBaseUrl() + "/watch/providers/movie?language=ko&watch_region=KR";
+        ResponseEntity<TmdbProviderResponse> response = restTemplate.exchange(url, HttpMethod.GET,
+                new HttpEntity<>(getHeaders()), TmdbProviderResponse.class);
+
+        List<TmdbProviderDto> providers = response.getBody().getResults();
+        for (TmdbProviderDto p : providers) {
+            if (!providersRepository.existsById(p.getProviderId())) {
+                if (p.getProviderName() == null) continue;
+                Providers provider = new Providers();
+                provider.setProviderId(p.getProviderId());
+                provider.setName(p.getProviderName());
+                provider.setLogoPath(p.getLogoPath());
+                providersRepository.save(provider);
             }
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "TMDB 플랫폼 데이터를 가져오는 중 오류 발생");
         }
     }
 
-    // ✅ 3. TMDB 예능(tv) 콘텐츠 수집
-    public void importKoreanVarietyShowsFromTmdb() {
-        try {
-            String base = tmdbProperties.getBaseUrl() + "/discover/tv?language=ko&sort_by=popularity.desc&with_origin_country=KR&first_air_date.gte=2006-01-01&page=";
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + tmdbProperties.getToken());
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
-            Set<Integer> processedTmdbIds = new HashSet<>();
-
-            for (int page = 1; page <= 10; page++) {
-                ResponseEntity<TmdbContentResponse> response = restTemplate.exchange(base + page, HttpMethod.GET, entity, TmdbContentResponse.class);
-                List<TmdbContentDto> contents = response.getBody().getResults();
-                for (TmdbContentDto dto : contents) {
-                    if (processedTmdbIds.contains(dto.getId()) || contentsRepository.findByTmdbId(dto.getId()).isPresent()) continue;
-
-                    Contents content = new Contents();
-                    content.setTmdbId(dto.getId());
-                    content.setTitle(dto.getName());
-                    content.setOverview(dto.getOverview());
-                    content.setPosterPath(dto.getPosterPath());
-                    content.setBackdropPath(dto.getBackdropPath());
-                    content.setRating((float) dto.getVoteAverage());
-                    content.setMediaType("tv");
-                    if (dto.getFirstAirDate() != null && !dto.getFirstAirDate().isEmpty()) {
-                        content.setReleaseDate(LocalDate.parse(dto.getFirstAirDate()));
-                    }
-                    contentsRepository.save(content);
-                    processedTmdbIds.add(dto.getId());
-
-                    for (int genreId : dto.getGenreIds()) {
-                        if (genresRepository.existsById(genreId)) {
-                            ContentGenres cg = new ContentGenres();
-                            cg.setContentId(content.getContentId());
-                            cg.setGenreId(genreId);
-                            contentGenresRepository.save(cg);
-                        }
-                    }
-
-                    String providerUrl = tmdbProperties.getBaseUrl() + "/tv/" + dto.getId() + "/watch/providers";
-                    ResponseEntity<TmdbWatchProviderResponse> providerResponse = restTemplate.exchange(providerUrl, HttpMethod.GET, entity, TmdbWatchProviderResponse.class);
-                    if (providerResponse.getBody().getResults().get("KR") != null) {
-                        List<TmdbProviderDto> providers = providerResponse.getBody().getResults().get("KR").getFlatrate();
-                        if (providers != null) {
-                            for (TmdbProviderDto p : providers) {
-                                if (!providersRepository.existsById(p.getProviderId())) {
-                                    Providers provider = new Providers();
-                                    provider.setProviderId(p.getProviderId());
-                                    provider.setName(p.getProviderName());
-                                    provider.setLogoPath(p.getLogoPath());
-                                    providersRepository.save(provider);
-                                }
-                                ContentProviders cp = new ContentProviders();
-                                cp.setContentId(content.getContentId());
-                                cp.setProviderId(p.getProviderId());
-                                contentProvidersRepository.save(cp);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "TMDB 예능 데이터를 가져오는 중 오류 발생");
-        }
+    /**
+     * 통합 콘텐츠 수집 (Movie + TV)
+     */
+    @Transactional
+    public void importAllContentsFromTmdb(LocalDate startDate) {
+        // Movie 콘텐츠 수집
+        importContentsByMediaType("movie", startDate);
+        // TV 콘텐츠 수집
+        importContentsByMediaType("tv", startDate);
     }
 
-    // ✅ TMDB 인물 정보 수집
+    /**
+     * People 및 Credits 정보 수집 (Movie + TV 통합) - 트랜잭션 분리 적용
+     */
     public void importPeopleAndCredits() {
+        List<Contents> contentsList = contentsRepository.findAll();
+        
+        for (Contents content : contentsList) {
+            // 각 콘텐츠별로 독립적인 트랜잭션으로 처리
+            processContentCreditsInSeparateTransaction(content);
+        }
+    }
+
+    /**
+     * 개별 콘텐츠의 Credits 정보를 독립적인 트랜잭션에서 처리
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processContentCreditsInSeparateTransaction(Contents content) {
         try {
-            List<Contents> contentsList = contentsRepository.findAll();
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "Bearer " + tmdbProperties.getToken());
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            HttpHeaders headers = getHeaders();
             Set<String> savedMappings = new HashSet<>();
+            
+            // 미디어 타입에 따른 API 엔드포인트 분기
+            String creditsUrl;
+            if ("tv".equals(content.getMediaType())) {
+                creditsUrl = tmdbProperties.getBaseUrl() + "/tv/" + content.getTmdbId() + "/aggregate_credits";
+            } else {
+                creditsUrl = tmdbProperties.getBaseUrl() + "/movie/" + content.getTmdbId() + "/credits";
+            }
 
-            for (Contents content : contentsList) {
-                int tmdbId = content.getTmdbId();
-                String mediaType = content.getMediaType();
-                String url = tmdbProperties.getBaseUrl() + "/" + mediaType + "/" + tmdbId + "/credits";
-                ResponseEntity<TmdbCreditsDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, TmdbCreditsDto.class);
-                TmdbCreditsDto dto = response.getBody();
-                if (dto == null) continue;
+            ResponseEntity<TmdbCreditsDto> response = restTemplate.exchange(
+                    creditsUrl, HttpMethod.GET, new HttpEntity<>(headers), TmdbCreditsDto.class);
 
-                for (TmdbCreditsDto.Cast cast : dto.getCast()) {
-                    if (cast.getId() == 0 || cast.getName() == null) continue;
-                    People person = peopleRepository.findByTmdbId(cast.getId()).orElseGet(() -> {
-                        People newPerson = new People();
-                        newPerson.setTmdbId(cast.getId());
-                        newPerson.setName(cast.getName());
-                        newPerson.setProfilePath(cast.getProfilePath());
-                        newPerson.setKnownForDepartment("Acting");
-                        return peopleRepository.save(newPerson);
-                    });
-                    String key = content.getContentId() + "-" + person.getPersonId() + "-actor";
-                    if (!savedMappings.contains(key)) {
-                        ContentPeople mapping = new ContentPeople();
-                        mapping.setContentId(content.getContentId());
-                        mapping.setPersonId(person.getPersonId());
-                        mapping.setRole("actor");
-                        mapping.setCharacterName(cast.getCharacter());
-                        contentPeopleRepository.save(mapping);
-                        savedMappings.add(key);
+            TmdbCreditsDto creditsDto = response.getBody();
+            if (creditsDto == null) {
+                System.out.println("Credits 정보 없음: contentId=" + content.getContentId() +
+                        ", mediaType=" + content.getMediaType());
+                return;
+            }
+
+            // TV/Movie에 따른 Credits 처리
+            if ("tv".equals(content.getMediaType())) {
+                processAggregateCredits(content, creditsDto, savedMappings);
+            } else {
+                processMovieCredits(content, creditsDto, savedMappings);
+            }
+
+        } catch (Exception e) {
+            // 예외 발생 시 세션 정리
+            handleExceptionCleanup();
+            System.err.println("Credits 처리 실패: contentId=" + content.getContentId() +
+                    ", mediaType=" + content.getMediaType() + ", 오류: " + e.getMessage());
+            // 개별 콘텐츠 실패는 전체 프로세스를 중단시키지 않음
+        }
+    }
+
+    /**
+     * 예외 발생 시 세션 정리
+     */
+    private void handleExceptionCleanup() {
+        try {
+            entityManager.clear(); // 영속성 컨텍스트 초기화
+        } catch (Exception e) {
+            System.err.println("세션 정리 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    // =====================================================================
+    // 내부 헬퍼 메서드들
+    // =====================================================================
+
+    private void saveGenreIfNotExists(TmdbGenreDto dto) {
+        if (!genresRepository.existsById(dto.getId())) {
+            Genres genre = new Genres();
+            genre.setGenreId(dto.getId());
+            genre.setName(dto.getName());
+            genresRepository.save(genre);
+            System.out.println("장르 저장: " + dto.getName() + " (ID: " + dto.getId() + ")");
+        }
+    }
+
+    private void importContentsByMediaType(String mediaType, LocalDate startDate) {
+        Set<Integer> processedTmdbIds = new HashSet<>();
+        HttpHeaders headers = getHeaders();
+        String dateField = "movie".equals(mediaType) ? "primary_release_date" : "first_air_date";
+
+        for (int page = 1; page <= 10; page++) {
+            String url = tmdbProperties.getBaseUrl() + "/discover/" + mediaType + "?language=ko"
+                    + "&sort_by=popularity.desc&include_adult=false"
+                    + "&with_watch_monetization_types=flatrate"
+                    + "&" + dateField + ".gte=" + startDate
+                    + "&" + dateField + ".lte=" + LocalDate.now()
+                    + "&region=KR&page=" + page;
+
+            try {
+                ResponseEntity<TmdbContentResponse> response = restTemplate.exchange(
+                        url, HttpMethod.GET, new HttpEntity<>(headers), TmdbContentResponse.class);
+
+                List<TmdbContentDto> results = Optional.ofNullable(response.getBody())
+                        .map(TmdbContentResponse::getResults)
+                        .orElse(Collections.emptyList());
+
+                if (results.isEmpty()) break;
+
+                for (TmdbContentDto dto : results) {
+                    if (processedTmdbIds.contains(dto.getId()) ||
+                            contentsRepository.findByTmdbId(dto.getId()).isPresent()) continue;
+
+                    try {
+                        TmdbContentDto detailedDto = getContentDetails(dto.getId(), mediaType, headers);
+                        if (!dto.getGenreIds().isEmpty()) {
+                            detailedDto.setGenreIds(dto.getGenreIds());
+                        }
+
+                        String certification = getContentCertification(dto.getId(), mediaType, headers);
+                        detailedDto.setAgeRating(certification);
+
+                        Contents saved = saveUnifiedContent(detailedDto, mediaType);
+                        processedTmdbIds.add(dto.getId());
+
+                        saveContentGenres(saved.getContentId(), detailedDto);
+                        saveContentProviders(saved.getContentId(), detailedDto, headers, mediaType);
+
+                    } catch (Exception e) {
+                        System.err.println("콘텐츠 저장 실패: TMDB ID = " + dto.getId() + ", mediaType = " + mediaType);
                     }
                 }
 
-                for (TmdbCreditsDto.Crew crew : dto.getCrew()) {
-                    if (!"Director".equalsIgnoreCase(crew.getJob())) continue;
-                    if (crew.getId() == 0 || crew.getName() == null) continue;
-                    People director = peopleRepository.findByTmdbId(crew.getId()).orElseGet(() -> {
-                        People newPerson = new People();
-                        newPerson.setTmdbId(crew.getId());
-                        newPerson.setName(crew.getName());
-                        newPerson.setProfilePath(crew.getProfilePath());
-                        newPerson.setKnownForDepartment("Directing");
-                        return peopleRepository.save(newPerson);
-                    });
-                    String key = content.getContentId() + "-" + director.getPersonId() + "-director";
-                    if (!savedMappings.contains(key)) {
-                        ContentPeople mapping = new ContentPeople();
-                        mapping.setContentId(content.getContentId());
-                        mapping.setPersonId(director.getPersonId());
-                        mapping.setRole("director");
-                        mapping.setCharacterName(null);
-                        contentPeopleRepository.save(mapping);
-                        savedMappings.add(key);
+            } catch (Exception e) {
+                System.err.println("페이지 " + page + " 처리 실패 (mediaType: " + mediaType + ")");
+            }
+        }
+    }
+
+    private TmdbContentDto getContentDetails(int contentId, String mediaType, HttpHeaders headers) {
+        String detailUrl = tmdbProperties.getBaseUrl() + "/" + mediaType + "/" + contentId + "?language=ko";
+        try {
+            ResponseEntity<TmdbContentDto> response = restTemplate.exchange(
+                    detailUrl, HttpMethod.GET, new HttpEntity<>(headers), TmdbContentDto.class);
+            return response.getBody() != null ? response.getBody() : new TmdbContentDto();
+        } catch (Exception e) {
+            TmdbContentDto emptyDto = new TmdbContentDto();
+            emptyDto.setId(contentId);
+            return emptyDto;
+        }
+    }
+
+    private String getContentCertification(int contentId, String mediaType, HttpHeaders headers) {
+        try {
+            if ("movie".equals(mediaType)) {
+                return getMovieCertification(contentId, headers);
+            } else {
+                return getTvCertification(contentId, headers);
+            }
+        } catch (Exception e) {
+            return "미정";
+        }
+    }
+
+    private Contents saveUnifiedContent(TmdbContentDto dto, String mediaType) {
+        Contents content = new Contents();
+        content.setTmdbId(dto.getId());
+        content.setTitle(dto.getUnifiedTitle());
+        content.setOverview(dto.getOverview());
+        content.setPosterPath(dto.getPosterPath());
+        content.setBackdropPath(dto.getBackdropPath());
+        content.setRating((float) dto.getVoteAverage());
+        content.setMediaType(mediaType);
+
+        Integer unifiedRuntime = dto.getUnifiedRuntime();
+        if (unifiedRuntime != null && unifiedRuntime > 0) {
+            content.setRuntime(unifiedRuntime);
+        }
+
+        if (dto.getAgeRating() != null && !dto.getAgeRating().isEmpty()) {
+            content.setAgeRating(dto.getAgeRating());
+        }
+
+        String unifiedReleaseDate = dto.getUnifiedReleaseDate();
+        if (unifiedReleaseDate != null && !unifiedReleaseDate.isEmpty()) {
+            try {
+                content.setReleaseDate(LocalDate.parse(unifiedReleaseDate));
+            } catch (Exception e) {
+                System.err.println("날짜 파싱 실패: " + unifiedReleaseDate);
+            }
+        }
+
+        return contentsRepository.save(content);
+    }
+
+    private void saveContentProviders(Integer contentId, TmdbContentDto dto, HttpHeaders headers, String mediaType) {
+        try {
+            String providerUrl = tmdbProperties.getBaseUrl() + "/" + mediaType + "/" + dto.getId() + "/watch/providers";
+            ResponseEntity<TmdbWatchProviderResponse> providerResponse = restTemplate.exchange(
+                    providerUrl, HttpMethod.GET, new HttpEntity<>(headers), TmdbWatchProviderResponse.class);
+
+            if (providerResponse.getBody() != null &&
+                    providerResponse.getBody().getResults().containsKey("KR")) {
+                TmdbWatchProviderRegion krRegion = providerResponse.getBody().getResults().get("KR");
+                List<TmdbProviderDto> providers = Optional.ofNullable(krRegion.getFlatrate())
+                        .orElse(Collections.emptyList());
+
+                for (TmdbProviderDto provider : providers) {
+                    if (provider.getProviderName() == null || provider.getProviderName().isEmpty()) continue;
+
+                    if (!providersRepository.existsById(provider.getProviderId())) {
+                        Providers newProvider = new Providers();
+                        newProvider.setProviderId(provider.getProviderId());
+                        newProvider.setName(provider.getProviderName());
+                        newProvider.setLogoPath(provider.getLogoPath());
+                        providersRepository.save(newProvider);
+                    }
+
+                    if (!contentProvidersRepository.existsByContentIdAndProviderId(
+                            contentId, provider.getProviderId())) {
+                        ContentProviders mapping = new ContentProviders();
+                        mapping.setContentId(contentId);
+                        mapping.setProviderId(provider.getProviderId());
+                        contentProvidersRepository.save(mapping);
                     }
                 }
             }
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "TMDB 인물 및 크레딧 정보를 가져오는 중 오류 발생");
+            System.err.println("플랫폼 정보 수집 실패: contentId=" + contentId + ", mediaType=" + mediaType);
         }
     }
 
-    // 🔒 향후 영화(movie) 콘텐츠 수집용 (현재 미사용)
-    /*
-    public void importContentsFromTmdb() {
-        // 미사용: 영화 수집 로직은 추후 필요 시 복원
-    }
-    */
+    @Transactional
+    private void saveContentGenres(Integer contentId, TmdbContentDto dto) {
+        List<Integer> allGenreIds = dto.getAllGenreIds();
+        System.out.println("=== 장르 매핑 시작 ===");
+        System.out.println("컨텐츠 ID: " + contentId);
+        System.out.println("TMDB ID: " + dto.getId());
+        System.out.println("장르 ID 목록: " + allGenreIds);
+        System.out.println("장르 ID 개수: " + allGenreIds.size());
 
-    // ✅ 전체 수집 통합 메서드
-    public void importAllFromTmdbSince(LocalDate startDate) {
-        importGenresFromTmdb();
-        importProvidersFromTmdb();
-        // importContentsFromTmdb(); // 🔒 영화용 주석 대기
-        importPeopleAndCredits();
-        importKoreanVarietyShowsFromTmdb();
+        if (allGenreIds.isEmpty()) {
+            System.out.println("경고: 장르 ID가 없습니다. TMDB 응답을 확인하세요.");
+            return;
+        }
+
+        for (Integer genreId : allGenreIds) {
+            try {
+                boolean genreExists = genresRepository.existsById(genreId);
+                System.out.println("장르 ID " + genreId + " 존재 여부: " + genreExists);
+
+                if (genreExists) {
+                    boolean mappingExists = contentGenresRepository.existsByContentIdAndGenreId(contentId, genreId);
+                    System.out.println("매핑 존재 여부 (contentId=" + contentId + ", genreId=" + genreId + "): " + mappingExists);
+
+                    if (!mappingExists) {
+                        ContentGenres mapping = new ContentGenres();
+                        mapping.setContentId(contentId);
+                        mapping.setGenreId(genreId);
+                        ContentGenres saved = contentGenresRepository.save(mapping);
+                        System.out.println("✅ 장르 매핑 저장 성공: " + saved.getContentId() + " - " + saved.getGenreId());
+                    } else {
+                        System.out.println("⚠️ 이미 존재하는 매핑: contentId=" + contentId + ", genreId=" + genreId);
+                    }
+                } else {
+                    System.out.println("❌ 존재하지 않는 장르 ID: " + genreId);
+                }
+            } catch (Exception e) {
+                System.err.println("❌ 장르 매핑 저장 실패: contentId=" + contentId + ", genreId=" + genreId);
+                System.err.println("오류 메시지: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        System.out.println("=== 장르 매핑 완료 ===\n");
+    }
+
+    // Movie Certification 처리
+    private String getMovieCertification(int movieId, HttpHeaders headers) {
+        String releaseDateUrl = tmdbProperties.getBaseUrl() + "/movie/" + movieId + "/release_dates";
+        try {
+            ResponseEntity<TmdbReleaseDateDto> response = restTemplate.exchange(
+                    releaseDateUrl, HttpMethod.GET, new HttpEntity<>(headers), TmdbReleaseDateDto.class);
+
+            TmdbReleaseDateDto releaseDates = response.getBody();
+            if (releaseDates != null && releaseDates.getResults() != null) {
+                String krCertification = extractCertificationByCountry(releaseDates, "KR");
+                if (krCertification != null && !krCertification.isEmpty()) {
+                    return krCertification;
+                }
+
+                String usCertification = extractCertificationByCountry(releaseDates, "US");
+                if (usCertification != null && !usCertification.isEmpty()) {
+                    return usCertification;
+                }
+
+                for (TmdbReleaseDateDto.TmdbReleaseDateResult result : releaseDates.getResults()) {
+                    if (result.getReleaseDates() != null && !result.getReleaseDates().isEmpty()) {
+                        String firstCertification = result.getReleaseDates().get(0).getCertification();
+                        if (firstCertification != null && !firstCertification.isEmpty()) {
+                            return firstCertification;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // 예외 로깅만 하고 계속 진행
+        }
+        return "미정";
+    }
+
+    private String extractCertificationByCountry(TmdbReleaseDateDto releaseDates, String countryCode) {
+        return releaseDates.getResults().stream()
+                .filter(result -> countryCode.equals(result.getCountryCode()))
+                .flatMap(result -> result.getReleaseDates().stream())
+                .filter(release -> release.getCertification() != null && !release.getCertification().isEmpty())
+                .map(TmdbReleaseDateDto.TmdbReleaseInfo::getCertification)
+                .findFirst()
+                .orElse(null);
+    }
+
+    // TV Certification 처리
+    private String getTvCertification(int tvId, HttpHeaders headers) {
+        String url = tmdbProperties.getBaseUrl() + "/tv/" + tvId + "/content_ratings";
+        try {
+            ResponseEntity<TmdbTvContentRatingDto> response = restTemplate.exchange(
+                    url, HttpMethod.GET, new HttpEntity<>(headers), TmdbTvContentRatingDto.class);
+
+            TmdbTvContentRatingDto ratings = response.getBody();
+            if (ratings != null && ratings.getResults() != null) {
+                String kr = ratings.getCertificationByCountry("KR");
+                if (kr != null) return kr;
+
+                String us = ratings.getCertificationByCountry("US");
+                if (us != null) return us;
+
+                return ratings.getFirstCertification();
+            }
+        } catch (Exception e) {}
+        return "미정";
+    }
+
+    // People Credits 처리
+    private void processAggregateCredits(Contents content, TmdbCreditsDto creditsDto, Set<String> savedMappings) {
+        List<TmdbCreditsDto.Cast> castList = Optional.ofNullable(creditsDto.getCast())
+                .orElse(Collections.emptyList());
+
+        for (TmdbCreditsDto.Cast cast : castList) {
+            if (cast.getId() == 0 || cast.getName() == null || cast.getName().isEmpty()) {
+                continue;
+            }
+
+            try {
+                People person = saveOrGetPersonSafely(cast.getId(), cast.getName(),
+                        cast.getProfilePath(), "Acting");
+                if (person == null) continue; // 저장 실패 시 건너뛰기
+
+                String characterName = extractTvCharacterName(cast);
+                String mappingKey = content.getContentId() + "-" + person.getPersonId() + "-actor";
+
+                if (!savedMappings.contains(mappingKey)) {
+                    ContentPeople cp = new ContentPeople();
+                    cp.setContentId(content.getContentId());
+                    cp.setPersonId(person.getPersonId());
+                    cp.setRole("actor");
+                    cp.setCharacterName(characterName);
+                    contentPeopleRepository.save(cp);
+                    savedMappings.add(mappingKey);
+                    System.out.println("✅ TV 출연진 매핑 저장: " + person.getName() + " - " + content.getTitle());
+                }
+            } catch (Exception e) {
+                System.err.println("TV Cast 저장 실패: " + e.getMessage());
+                // 개별 실패는 무시하고 계속 진행
+            }
+        }
+
+        List<TmdbCreditsDto.Crew> crewList = Optional.ofNullable(creditsDto.getCrew())
+                .orElse(Collections.emptyList());
+
+        for (TmdbCreditsDto.Crew crew : crewList) {
+            if (!"Executive Producer".equalsIgnoreCase(crew.getJob()) &&
+                    !"Creator".equalsIgnoreCase(crew.getJob()) ||
+                    crew.getId() == 0 || crew.getName() == null) {
+                continue;
+            }
+
+            try {
+                People producer = saveOrGetPersonSafely(crew.getId(), crew.getName(),
+                        crew.getProfilePath(), crew.getDepartment());
+                if (producer == null) continue; // 저장 실패 시 건너뛰기
+
+                String mappingKey = content.getContentId() + "-" + producer.getPersonId() + "-producer";
+
+                if (!savedMappings.contains(mappingKey)) {
+                    ContentPeople cp = new ContentPeople();
+                    cp.setContentId(content.getContentId());
+                    cp.setPersonId(producer.getPersonId());
+                    cp.setRole("producer");
+                    contentPeopleRepository.save(cp);
+                    savedMappings.add(mappingKey);
+                }
+            } catch (Exception e) {
+                System.err.println("TV Crew 저장 실패: " + e.getMessage());
+                // 개별 실패는 무시하고 계속 진행
+            }
+        }
+    }
+
+    private void processMovieCredits(Contents content, TmdbCreditsDto creditsDto, Set<String> savedMappings) {
+        List<TmdbCreditsDto.Cast> castList = Optional.ofNullable(creditsDto.getCast())
+                .orElse(Collections.emptyList());
+
+        for (TmdbCreditsDto.Cast cast : castList) {
+            if (cast.getId() == 0 || cast.getName() == null || cast.getName().isEmpty()) {
+                continue;
+            }
+
+            try {
+                People person = saveOrGetPersonSafely(cast.getId(), cast.getName(),
+                        cast.getProfilePath(), "Acting");
+                if (person == null) continue; // 저장 실패 시 건너뛰기
+
+                String mappingKey = content.getContentId() + "-" + person.getPersonId() + "-actor";
+
+                if (!savedMappings.contains(mappingKey)) {
+                    ContentPeople cp = new ContentPeople();
+                    cp.setContentId(content.getContentId());
+                    cp.setPersonId(person.getPersonId());
+                    cp.setRole("actor");
+                    cp.setCharacterName(cast.getCharacter());
+                    contentPeopleRepository.save(cp);
+                    savedMappings.add(mappingKey);
+                }
+            } catch (Exception e) {
+                System.err.println("Movie Cast 저장 실패: " + e.getMessage());
+                // 개별 실패는 무시하고 계속 진행
+            }
+        }
+
+        List<TmdbCreditsDto.Crew> crewList = Optional.ofNullable(creditsDto.getCrew())
+                .orElse(Collections.emptyList());
+
+        for (TmdbCreditsDto.Crew crew : crewList) {
+            if (!"Director".equalsIgnoreCase(crew.getJob()) ||
+                    crew.getId() == 0 || crew.getName() == null) {
+                continue;
+            }
+
+            try {
+                People director = saveOrGetPersonSafely(crew.getId(), crew.getName(),
+                        crew.getProfilePath(), "Directing");
+                if (director == null) continue; // 저장 실패 시 건너뛰기
+
+                String mappingKey = content.getContentId() + "-" + director.getPersonId() + "-director";
+
+                if (!savedMappings.contains(mappingKey)) {
+                    ContentPeople cp = new ContentPeople();
+                    cp.setContentId(content.getContentId());
+                    cp.setPersonId(director.getPersonId());
+                    cp.setRole("director");
+                    contentPeopleRepository.save(cp);
+                    savedMappings.add(mappingKey);
+                }
+            } catch (Exception e) {
+                System.err.println("Movie Director 저장 실패: " + e.getMessage());
+                // 개별 실패는 무시하고 계속 진행
+            }
+        }
+    }
+
+    private String extractTvCharacterName(TmdbCreditsDto.Cast cast) {
+        if (cast.getCharacter() != null && !cast.getCharacter().isEmpty()) {
+            return cast.getCharacter();
+        }
+        return "Unknown Character";
+    }
+
+    /**
+     * 안전한 Person 저장/조회 메서드 - 유효성 검증 및 예외 처리 강화
+     */
+    private People saveOrGetPersonSafely(int tmdbId, String name, String profilePath, String department) {
+        // 입력값 유효성 검증
+        if (tmdbId <= 0 || name == null || name.trim().isEmpty()) {
+            System.err.println("유효하지 않은 Person 데이터: tmdbId=" + tmdbId + ", name=" + name);
+            return null;
+        }
+
+        try {
+            return peopleRepository.findByTmdbId(tmdbId).orElseGet(() -> {
+                try {
+                    People person = new People();
+                    person.setTmdbId(tmdbId);
+                    person.setName(name.trim());
+                    person.setProfilePath(profilePath);
+                    person.setKnownForDepartment(department);
+                    return peopleRepository.save(person);
+                } catch (Exception e) {
+                    System.err.println("Person 저장 실패: tmdbId=" + tmdbId + ", name=" + name + ", 오류=" + e.getMessage());
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            System.err.println("Person 조회/저장 중 예외 발생: tmdbId=" + tmdbId + ", 오류=" + e.getMessage());
+            return null;
+        }
+    }
+
+    // 기존 메서드는 호환성을 위해 유지
+    private People saveOrGetPerson(int tmdbId, String name, String profilePath, String department) {
+        return saveOrGetPersonSafely(tmdbId, name, profilePath, department);
     }
 }

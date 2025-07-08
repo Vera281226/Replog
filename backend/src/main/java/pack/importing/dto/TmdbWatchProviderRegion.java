@@ -1,28 +1,50 @@
 package pack.importing.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
-// ==========================================================
-// TMDB 국가별 OTT 제공 정보 DTO
-// - /movie/{id}/watch/providers 또는 /tv/{id}/watch/providers 응답 구조 중
-//   특정 국가(KR 등)에 대한 지역 단위 제공자 목록을 매핑
-// - 예시:
-//   {
-//     "KR": {
-//       "flatrate": [
-//         { "provider_id": 337, "provider_name": "Disney Plus", "logo_path": "/abc.png" }
-//       ]
-//     }
-//   }
-// ==========================================================
+/**
+ * TmdbWatchProviderRegion
+ * -------------------------------------------------------------
+ * ✅ TMDB 국가별 OTT 제공자 목록을 매핑하는 DTO 클래스입니다.
+ *
+ * ✅ 사용 API: /movie/{id}/watch/providers
+ * ❌ /tv/{id}/watch/providers (예능/TV용)는 사용하지 않습니다.
+ *
+ * ✅ 특정 국가(KR 등)의 제공자 정보를 지역 단위로 처리합니다.
+ *
+ * 예시 응답:
+ * {
+ *   "KR": {
+ *     "flatrate": [
+ *       {
+ *         "provider_id": 337,
+ *         "provider_name": "Disney Plus",
+ *         "logo_path": "/abc.png"
+ *       }
+ *     ]
+ *   }
+ * }
+ * -------------------------------------------------------------
+ */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TmdbWatchProviderRegion {
-
-    // 구독형(정액제) OTT 플랫폼 리스트
-    // - JSON 키: "flatrate"
-    // - 예: List<TmdbProviderDto>
-    private List<TmdbProviderDto> flatrate;
+    @JsonProperty("flatrate")
+    private List<TmdbProviderDto> flatrate = new ArrayList<>();  // 제네릭 명시
+    
+    @JsonProperty("rent")
+    private List<TmdbProviderDto> rent = new ArrayList<>();
+    
+    @JsonProperty("buy")
+    private List<TmdbProviderDto> buy = new ArrayList<>();
+    
+    private String link;
 }

@@ -1,0 +1,95 @@
+.detail-container {
+  min-height: 100vh;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.detail-card {
+  background-color: #fff;
+  width: 800px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.detail-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 8px;
+  color: #222;
+}
+
+.detail-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+.detail-table th {
+  background-color: #f9f9f9;
+  padding: 10px;
+  text-align: left;
+  width: 160px;
+  border-bottom: 1px solid #e0e0e0;
+  color: #444;
+}
+
+.detail-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.detail-content {
+  margin-bottom: 30px;
+}
+
+.detail-text {
+  background-color: #f0f0f0;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: #333;
+}
+
+.detail-join-button {
+  padding: 8px 16px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.detail-back {
+  text-align: right;
+}
+
+.detail-back-button {
+  background-color: #6C4D9A;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.detail-back-button:hover {
+  background-color: #5A3E85; /* ✅ 호버 시 더 진한 보라색 */
+}

@@ -1,91 +1,65 @@
 package pack.importing.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * TmdbCreditsDto
- * - TMDB Credits API 응답 구조
- * - 출연진(Cast), 제작진(Crew) 정보를 포함
+ * -------------------------------------------------------------
+ * ✅ TMDB Credits API 응답 구조
+ * ✅ 출연진(Cast), 제작진(Crew) 정보를 포함합니다.
+ * ✅ 영화(movie) 콘텐츠 전용 구조입니다.
+ * ❌ 예능(tv) 관련 필드는 포함되지 않습니다.
+ * ✅ snake_case → camelCase 자동 매핑으로 구성됨
+ * -------------------------------------------------------------
  */
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TmdbCreditsDto {
-
-    // TMDB 콘텐츠 ID
-    // - JSON 키: "id"
-    // - 예: 123456
     private int id;
-
-    // 출연진 리스트
-    // - JSON 키: "cast"
-    // - 각 항목은 Cast 클래스에 매핑됨
-    private List<Cast> cast;
-
-    // 제작진 리스트
-    // - JSON 키: "crew"
-    // - 각 항목은 Crew 클래스에 매핑됨
-    private List<Crew> crew;
-
-    // --------------------------
-    // 출연진(Cast) 정보 클래스
-    // --------------------------
+    private List<Cast> cast = new ArrayList<>();  // 제네릭 명시
+    private List<Crew> crew = new ArrayList<>();  // 제네릭 명시
+    
     @Getter
     @Setter
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Cast {
-
-        // 출연진 인물 ID
-        // - JSON 키: "id"
         private int id;
-
-        // 이름
-        // - JSON 키: "name"
         private String name;
-
-        // 배역 이름
-        // - JSON 키: "character"
         private String character;
-
-        // 주요 활동 부서
-        // - JSON 키: "known_for_department"
+        
+        @JsonProperty("known_for_department")
         private String knownForDepartment;
-
-        // 프로필 이미지 경로
-        // - JSON 키: "profile_path"
+        
+        @JsonProperty("profile_path")
         private String profilePath;
+        
+        @JsonProperty("cast_id")
+        private Integer castId;
+        
+        private Integer order;
     }
-
-    // --------------------------
-    // 제작진(Crew) 정보 클래스
-    // --------------------------
+    
     @Getter
     @Setter
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Crew {
-
-        // 제작진 인물 ID
-        // - JSON 키: "id"
         private int id;
-
-        // 이름
-        // - JSON 키: "name"
         private String name;
-
-        // 맡은 직무
-        // - JSON 키: "job"
         private String job;
-
-        // 부서
-        // - JSON 키: "department"
         private String department;
-
-        // 주요 활동 부서
-        // - JSON 키: "known_for_department"
+        
+        @JsonProperty("known_for_department")
         private String knownForDepartment;
-
-        // 프로필 이미지 경로
-        // - JSON 키: "profile_path"
+        
+        @JsonProperty("profile_path")
         private String profilePath;
     }
 }

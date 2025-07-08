@@ -1,6 +1,5 @@
 import React from 'react';
 import { useReviewApi } from '../../hooks/useReviewApi';
-import './ReplyForm.css';
 
 function ReplyForm({ show, setShow, replyText, setReplyText, parentId, onCommentAdded, memberId }) {
   const { postReply } = useReviewApi();
@@ -25,26 +24,21 @@ function ReplyForm({ show, setShow, replyText, setReplyText, parentId, onComment
     }
   };
 
-  if (show === false) return null;
+  if (!show) return null;
 
   return (
     <div className="mt-2">
       <textarea
-  className="reply-textarea"
-  value={replyText}
-  onChange={(e) => setReplyText(e.target.value)}
-  onInput={(e) => {
-    e.target.style.height = 'auto';
-    e.target.style.height = e.target.scrollHeight + 'px';
-  }}
-  placeholder="댓글을 입력하세요"
-  rows={1}
-/>
-<div className="reply-actions">
-  <button onClick={handleSubmit} className="reply-btn">등록</button>
-  <button onClick={() => setShow(false)} className="reply-btn cancel">취소</button>
-</div>
-
+        className="w-full border p-2 rounded"
+        value={replyText}
+        onChange={(e) => setReplyText(e.target.value)}
+        rows={2}
+        placeholder="댓글을 입력하세요"
+      />
+      <div className="mt-1 flex justify-end gap-2">
+        <button onClick={handleSubmit} className="bg-blue-500 text-white px-3 py-1 rounded">등록</button>
+        <button onClick={() => setShow(false)} className="border px-3 py-1 rounded">취소</button>
+      </div>
     </div>
   );
 }

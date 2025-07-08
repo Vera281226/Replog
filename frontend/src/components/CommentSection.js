@@ -3,14 +3,12 @@ import axios from "../error/api/interceptor";
 import { ErrorModal } from "../error/components/ErrorModal";
 import BannedWordFilterModal, { checkBannedWords } from "../components/BannedWordFilterModal";
 
-
 export default function CommentSection({
   postNo,
   userId,
   nickname,
   comments,
   setComments,
-  showMessage,
   isAuthenticated,
 }) {
   const [newComment, setNewComment] = useState("");
@@ -20,9 +18,18 @@ export default function CommentSection({
   const [bannedModalOpen, setBannedModalOpen] = useState(false);
   const [bannedWordsMatched, setBannedWordsMatched] = useState([]);
 
+  // 추가된 에러 모달 상태
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+
+  const openErrorModal = (message) => {
+    setErrorModalMessage(message);
+    setErrorModalOpen(true);
+  };
+
   const handleCommentSubmit = async () => {
     if (!isAuthenticated) {
-      showMessage("로그인 후 댓글 작성이 가능합니다.", "error");
+      openErrorModal("로그인 후 댓글 작성이 가능합니다.");
       return;
     }
     if (!newComment.trim()) return;
@@ -44,7 +51,7 @@ export default function CommentSection({
       setComments((prev) => [...prev, { ...res.data, likes: 0, isLiked: false }]);
       setNewComment("");
     } catch {
-      showMessage("댓글 작성에 실패했습니다.", "error");
+      openErrorModal("댓글 작성에 실패했습니다.");
     }
   };
 
@@ -53,7 +60,7 @@ export default function CommentSection({
       await axios.delete(`/comments/${commentToDelete}`);
       setComments((prev) => prev.filter((c) => c.commentNo !== commentToDelete));
     } catch {
-      showMessage("댓글 삭제에 실패했습니다.", "error");
+      openErrorModal("댓글 삭제에 실패했습니다.");
     } finally {
       setCommentToDelete(null);
     }
@@ -81,9 +88,8 @@ export default function CommentSection({
       );
       setEditingCommentNo(null);
       setEditingContent("");
-      showMessage("댓글이 수정되었습니다.", "success");
     } catch {
-      showMessage("댓글 수정에 실패했습니다.", "error");
+      openErrorModal("댓글 수정에 실패했습니다.");
     }
   };
 
@@ -101,7 +107,7 @@ export default function CommentSection({
         )
       );
     } catch {
-      showMessage("댓글 좋아요 처리 실패", "error");
+      openErrorModal("댓글 좋아요 처리 실패");
     }
   };
 
@@ -194,6 +200,14 @@ export default function CommentSection({
         isOpen={bannedModalOpen}
         matchedWords={bannedWordsMatched}
         onClose={() => setBannedModalOpen(false)}
+      />
+
+      <ErrorModal
+        isOpen={errorModalOpen}
+        title="오류"
+        message={errorModalMessage}
+        onConfirm={() => setErrorModalOpen(false)}
+        onCancel={() => setErrorModalOpen(false)}
       />
     </div>
   );

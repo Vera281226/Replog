@@ -35,14 +35,7 @@ const TheaterMap = ({ theaterList }) => {
   }, [theaterList]);
 
   return (
-    <div
-      id="map"
-      style={{
-        width: "1200px",
-        height: "600px",
-        margin: "20px auto",
-      }}
-    ></div>
+  <div id="map" className="theater-map"></div>
   );
 };
 

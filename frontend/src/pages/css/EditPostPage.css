@@ -1,81 +1,91 @@
-.edit-post-wrapper { 
+.edit-post-wrapper {
   padding: 40px 20px;
   max-width: 800px;
   margin: 0 auto;
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: #f9fafb;
+  min-height: 100vh;
 }
 
 .edit-post-container {
   background-color: #ffffff;
-  border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .edit-post-title {
   margin-bottom: 24px;
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 12px;
 }
 
 .edit-post-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .edit-post-input,
 .edit-post-select {
-  padding: 10px 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
   background-color: #fff;
-  transition: border-color 0.2s ease-in-out;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+
+.edit-post-input:focus,
+.edit-post-select:focus {
+  border-color: #6C4D9A;
 }
 
 .edit-post-editor {
-  border: 1px solid #ddd;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
-  padding: 12px;
-  min-height: 250px;
-  background-color: #fafafa;
+  padding: 14px;
+  min-height: 300px;
+  background-color: #ffffff;
+  cursor: text;
 }
 
 .edit-post-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
+  margin-top: 20px;
 }
 
-.edit-post-submit {
-  flex: 1;
-  padding: 12px;
-  background-color: #28a745;
+.btn {
+  padding: 8px 16px; /* 기존 10px 20px → 일치 */
+  border-radius: 4px; /* 기존 8px → 일치 */
+  font-size: 14px;    /* 기존 16px → 일치 */
+  cursor: pointer;
+  font-weight: bold;  /* 기존 600 → 일치 */
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #6C4D9A;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
 }
 
-.edit-post-submit:hover {
-  background-color: #218838;
+.btn-primary:hover {
+  background-color: #5A3E85;
 }
 
-.edit-post-cancel {
-  flex: 1;
-  padding: 12px;
-  background-color: #6c757d;
-  color: white;
+.btn-secondary {
+  background-color: #e5e7eb;
+  color: #111827;
   border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
 }
 
-.edit-post-cancel:hover {
-  background-color: #5a6268;
+.btn-secondary:hover {
+  background-color: #d1d5db;
 }

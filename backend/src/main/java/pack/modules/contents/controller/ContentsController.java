@@ -120,14 +120,4 @@ public class ContentsController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * ✅ 예능(tv) 콘텐츠 조회 API
-     * [GET] /api/contents/variety
-     * - mediaType = 'tv' 조건에 해당하는 콘텐츠만 조회
-     * - 장르/플랫폼 정보 포함한 DTO로 응답
-     */
-    @GetMapping("/variety")
-    public ResponseEntity<List<ContentsResponse>> getVarietyShows() {
-        return ResponseEntity.ok(contentsService.getVarietyShows());
-    }
 }

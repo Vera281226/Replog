@@ -4,7 +4,7 @@ import ReviewItem from './ReviewItem';
 import LoadingSpinner from '../common/LoadingSpinner';
 import './ReviewList.css';
 
-function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
+function ReviewList({ contentId, memberId, onCommentAdded }) {
   const [reviews, setReviews] = useState([]);
   const [sortType, setSortType] = useState('LATEST');
   const [page, setPage] = useState(0);
@@ -39,6 +39,7 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
       }
 
       onCommentAdded?.();
+
     } catch (err) {
       console.error('리뷰 불러오기 실패:', err);
     } finally {
@@ -94,14 +95,18 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
 
   return (
     <div className="review-list">
+      {/* 헤더 */}
       <div className="review-list-header">
         <h2>리뷰 목록</h2>
-        <div className="review-controls">
-          <button className="btn-create-review" onClick={openModal}>리뷰 작성</button>
-          <select value={sortType} onChange={(e) => setSortType(e.target.value)} className="sort-dropdown">
+        <div className="review-list-controls">
+          <select
+            value={sortType}
+            onChange={(e) => setSortType(e.target.value)}
+          >
             <option value="LATEST">최신순</option>
             <option value="RATING">별점 높은 순</option>
           </select>
+          <button onClick={fetchReviews}>새로 고침</button>
         </div>
       </div>
 
@@ -119,6 +124,7 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
 
       {isLoading && <LoadingSpinner />}
       <div ref={loaderRef} style={{ height: '1px' }} />
+
     </div>
   );
 }

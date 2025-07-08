@@ -115,14 +115,4 @@ public interface ContentsRepository extends JpaRepository<Contents, Integer> {
             @Param("platforms") List<String> platforms
     );
 
-    // -------------------------------------------------------
-    // ✅ 예능(tv) 콘텐츠 조회 (media_type = 'tv')
-    // - 프론트 예능 전용 섹션에 사용
-    // -------------------------------------------------------
-    @Query("""
-        SELECT c FROM Contents c
-        WHERE c.mediaType = 'tv'
-        ORDER BY c.rating DESC
-    """)
-    List<Contents> findVarietyShows();
 }

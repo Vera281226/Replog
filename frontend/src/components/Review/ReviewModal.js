@@ -1,27 +1,18 @@
 // src/components/Review/ReviewModal.jsx
 import React, { useState, useEffect } from 'react';
-import './ReviewModal.css';
+import './ReviewModal.css';  // 추가
 import api from '../../error/api/interceptor';
 import StarSelector from './StarSelector';
 
-export default function ReviewModal({
-  contentId,
-  memberId,
-  onClose,
-  onReviewCreated,
-  isEdit = false,
-  initialData = null
-}) {
-  const [rating, setRating] = useState(initialData?.rating || 0);
-  const [cont, setCont] = useState(initialData?.cont || '');
-  const [isSpoiler, setIsSpoiler] = useState(initialData?.isSpoiler || false);
+export default function ReviewModal({ contentId, memberId, onClose, onReviewCreated }) {
+  const [rating, setRating] = useState(0);
+  const [cont, setCont] = useState('');
+  const [isSpoiler, setIsSpoiler] = useState(false);
 
   // 모달 오픈 시 스크롤 잠금
   useEffect(() => {
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, []);
 
   const handleSubmit = async () => {
@@ -29,35 +20,17 @@ export default function ReviewModal({
     if (!cont.trim()) return alert('내용을 입력하세요.');
 
     try {
-      if (isEdit && initialData?.reviewId) {
-        // 수정 요청
-        await api.patch(`/reviews/${initialData.reviewId}`, {
-          memberId,
-          cont,
-          rating,
-          isSpoiler
-        });
-      } else {
-        // 등록 요청
-        await api.post('/reviews', {
-          contentId,
-          memberId,
-          rating,
-          cont,
-          isSpoiler
-        });
-      }
-
-      onReviewCreated(); // 수정이든 등록이든 성공 후 처리
-    } catch (e) {
-      alert(isEdit ? '수정 실패' : '등록 실패');
+      await api.post('/reviews', { contentId, memberId, rating, cont, isSpoiler });
+      onReviewCreated();
+    } catch {
+      alert('등록 실패');
     }
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={e => e.stopPropagation()} tabIndex={-1}>
-        <h2 className="modal-title">{isEdit ? '리뷰 수정' : '리뷰 쓰기'}</h2>
+        <h2 className="modal-title">리뷰 쓰기</h2>
         <textarea
           value={cont}
           onChange={e => setCont(e.target.value)}
@@ -76,9 +49,7 @@ export default function ReviewModal({
         </label>
         <div className="btn-row">
           <button className="btn-cancel" onClick={onClose}>취소</button>
-          <button className="btn-submit" onClick={handleSubmit}>
-            {isEdit ? '수정' : '등록'}
-          </button>
+          <button className="btn-submit" onClick={handleSubmit}>등록</button>
         </div>
       </div>
     </div>

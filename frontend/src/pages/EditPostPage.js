@@ -8,6 +8,7 @@ import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import TiptapToolbar from "../components/TiptapToolbar";
 import BannedWordFilterModal, { checkBannedWords } from "../components/BannedWordFilterModal";
+import { ErrorModal } from "../error/components/ErrorModal";
 import {
   selectCurrentUser,
   selectIsAuthenticated,
@@ -25,6 +26,15 @@ export default function EditPostPage() {
   const [bannedModalOpen, setBannedModalOpen] = useState(false);
   const [bannedWordsMatched, setBannedWordsMatched] = useState([]);
 
+  // ✅ 추가: 에러 모달 상태
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+
+  const openErrorModal = (message) => {
+    setErrorModalMessage(message);
+    setErrorModalOpen(true);
+  };
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -36,7 +46,7 @@ export default function EditPostPage() {
 
   useEffect(() => {
     if (!postNo) {
-      alert("잘못된 접근입니다.");
+      openErrorModal("잘못된 접근입니다.");
       navigate("/boards");
       return;
     }
@@ -47,7 +57,7 @@ export default function EditPostPage() {
         const post = res.data;
 
         if (!isAuthenticated || currentUser?.memberId !== post.memberId) {
-          alert("수정 권한이 없습니다.");
+          openErrorModal("수정 권한이 없습니다.");
           navigate(`/boards/${postNo}`);
           return;
         }
@@ -59,9 +69,8 @@ export default function EditPostPage() {
         });
 
         editor?.commands.setContent(post.content);
-      } catch (err) {
-        console.error(err);
-        alert("게시글을 불러오지 못했습니다.");
+      } catch {
+        openErrorModal("게시글을 불러오지 못했습니다.");
         navigate("/boards");
       } finally {
         setLoading(false);
@@ -78,8 +87,13 @@ export default function EditPostPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.category || !form.title.trim()) {
-      alert("카테고리와 제목을 모두 입력해주세요.");
+    if (!form.title.trim()) {
+      openErrorModal("제목을 입력해주세요.");
+      return;
+    }
+
+    if (!editor?.getText().trim()) {
+      openErrorModal("내용을 입력해주세요.");
       return;
     }
 
@@ -100,9 +114,8 @@ export default function EditPostPage() {
         memberId: currentUser?.memberId,
       });
       navigate(`/boards/${postNo}`);
-    } catch (err) {
-      console.error(err);
-      alert("글 수정에 실패했습니다.");
+    } catch {
+      openErrorModal("글 수정에 실패했습니다.");
     }
   };
 
@@ -126,7 +139,6 @@ export default function EditPostPage() {
             name="category"
             value={form.category}
             onChange={handleChange}
-            required
             className="edit-post-select"
           >
             <option value="" disabled hidden>카테고리를 선택하세요</option>
@@ -141,28 +153,29 @@ export default function EditPostPage() {
             name="title"
             value={form.title}
             onChange={handleChange}
-            required
             className="edit-post-input"
           />
 
           <TiptapToolbar editor={editor} />
-
-          <div className="edit-post-editor">
+          <div
+            className="editor-wrapper"
+            onClick={() => editor?.commands.focus()}
+          >
             <EditorContent editor={editor} />
           </div>
 
-          <div className="edit-post-buttons">
-            <button type="submit" className="edit-post-submit">
-              수정 완료
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate(`/boards/${postNo}`)}
-              className="edit-post-cancel"
-            >
-              취소
-            </button>
-          </div>
+<div className="edit-post-buttons">
+  <button type="submit" className="btn btn-primary">
+    수정 완료
+  </button>
+  <button
+    type="button"
+    onClick={() => navigate(`/boards/${postNo}`)}
+    className="btn btn-secondary"
+  >
+    취소
+  </button>
+</div>
         </form>
       </div>
 
@@ -170,6 +183,14 @@ export default function EditPostPage() {
         isOpen={bannedModalOpen}
         matchedWords={bannedWordsMatched}
         onClose={() => setBannedModalOpen(false)}
+      />
+
+      <ErrorModal
+        isOpen={errorModalOpen}
+        title="오류"
+        message={errorModalMessage}
+        onConfirm={() => setErrorModalOpen(false)}
+        onCancel={() => setErrorModalOpen(false)}
       />
     </div>
   );

@@ -20,6 +20,7 @@ import PostDetailPage from './pages/PostDetailPage';
 import PartyPostDetailPage from './pages/PartyPostDetailPage';
 import ReportAdminPage from './pages/ReportAdminPage';
 import MemberForm from './components/member/MemberForm';
+import EditPostPage from './pages/EditPostPage';
 
 export default function RootRouter() {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ export default function RootRouter() {
             <Route path="/boards"    element={<BoardPage />} />
             <Route path="/boards/:postNo" element={<PostDetailPage />} />
             <Route path="/boards/write"    element={<WritePostPage/>} />
+            <Route path="/boards/edit/:postNo"    element={<EditPostPage/>} />
             <Route path="/theaters"      element={<TheaterPage />} />
             <Route path="/theaters/:partyPostNo" element={<PartyPostDetailPage />} />
             <Route path="/login"      element={<LoginForm />} />

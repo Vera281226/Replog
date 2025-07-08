@@ -1,7 +1,5 @@
-// src/main/java/pack/service/member/MyPageServiceImpl.java
 package pack.service.member;
 
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -23,8 +21,8 @@ public class MyPageServiceImpl implements MyPageService {
 
     private final MemberRepository   memberRepository;
     private final ProfileRepository  profileRepository;
-    private final PostRepository     postRepository;     // 작성했다면 주입
-    private final CommentRepository  commentRepository;  // 작성했다면 주입
+    private final PostRepository     postRepository;
+    private final CommentRepository  commentRepository;
 
     @Override
     public MyPageDto getMyPageInfo(String memberId) {

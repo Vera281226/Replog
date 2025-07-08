@@ -81,8 +81,17 @@ public class MemberServiceImpl implements MemberService {
 			throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
 		}
 		
+		member.setPwd(null);
+	    member.setName(null);
+	    member.setEmail(null);
+	    member.setPhone(null);
+	    member.setAddress(null);
+	    member.setBirthdate(null);
+	    member.setGender(null);
+		
 		member.setIsDeleted(true);
 		member.setDeletedAt(LocalDateTime.now());
+		
 		memberRepository.save(member);
 		
 		return true;
