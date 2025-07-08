@@ -1,41 +1,46 @@
-// package pack.index.repository;
-//
-// import org.springframework.data.jpa.repository.JpaRepository;
-// import org.springframework.data.jpa.repository.Query;
-// import org.springframework.stereotype.Repository;
-// import pack.index.dto.IndexHotReviewResponse;
-// import pack.review.entity.Review;
-//
-// import java.util.List;
-//
-// /**
-//  * IndexReviewRepository 인터페이스
-//  * - index.html에서 사용하는 리뷰 목록 조회용 쿼리 정의 (JPQL 기반)
-//  * - review, member, contents 테이블을 조인하여 인기 리뷰 목록 반환
-//  */
-// @Repository
-// public interface IndexReviewRepository extends JpaRepository<Review, Integer> {
-//
-//     /**
-//      * 지금 뜨는 리뷰 목록을 반환 (최신순 10개)
-//      * - review + member + contents 테이블을 JOIN
-//      * - IndexHotReviewResponse DTO 생성자 기반 매핑
-//      *
-//      * @return IndexHotReviewResponse 리스트
-//      */
-//     @Query("""
-//         SELECT new pack.index.dto.IndexHotReviewResponse(
-//             r.num,
-//             c.title,
-//             m.nickname,
-//             r.rating,
-//             r.cont,
-//             FUNCTION('DATE_FORMAT', r.createdAt, '%Y-%m-%d')
-//         )
-//         FROM pack.review.entity.Review r
-//         JOIN pack.model.member.Member m ON r.memberId = m.memberId
-//         JOIN pack.modules.contents.model.Contents c ON r.contentId = c.contentId
-//         ORDER BY r.createdAt DESC
-//         """)
-//     List<IndexHotReviewResponse> findHotReviews();
-// }
+package pack.index.repository;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.Repository;
+import pack.entity.review.Review;
+import pack.index.dto.IndexHotReviewResponse;
+
+import java.util.List;
+
+/**
+ * IndexReviewRepository
+ * -------------------------------------------------------------
+ * ○ index.html의 "지금 뜨는 리뷰" 섹션 전용 Repository
+ * ○ 좋아요 수 기준으로 상위 리뷰 조회 (Review + Contents + ReviewLike)
+ * ○ Pageable로 상위 N개 제한
+ * ○ 대댓글 제외 → gnum = reviewId인 원본 리뷰만 포함
+ */
+public interface IndexReviewRepository extends Repository<Review, Integer> {
+
+    /**
+     * 지금 뜨는 리뷰 상위 N개 조회
+     * - 좋아요 수 기준 내림차순 정렬
+     * - IndexHotReviewResponse로 직접 DTO 매핑
+     * - 대댓글 제외 (gnum = reviewId 조건으로 원본만 조회)
+     */
+    @Query("""
+        SELECT new pack.index.dto.IndexHotReviewResponse(
+            r.reviewId,
+            r.memberId,
+            c.title,
+            c.posterPath,
+            r.cont,
+            r.rating,
+            COUNT(rl.reviewId),
+            c.contentId
+        )
+        FROM Review r
+        JOIN Contents c ON r.contentId = c.contentId
+        LEFT JOIN ReviewLike rl ON rl.reviewId = r.reviewId
+        WHERE r.gnum = r.reviewId
+        GROUP BY r.reviewId, r.memberId, c.title, c.posterPath, r.cont, r.rating, c.contentId
+        ORDER BY COUNT(rl.reviewId) DESC
+    """)
+    List<IndexHotReviewResponse> findTopReviews(Pageable pageable);
+}
