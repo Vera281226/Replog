@@ -1,26 +1,96 @@
-// src/components/Review/ReviewList.jsx
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import api from '../../error/api/interceptor';
 import ReviewItem from './ReviewItem';
+import LoadingSpinner from '../common/LoadingSpinner';
 import './ReviewList.css';
 
 function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
   const [reviews, setReviews] = useState([]);
   const [sortType, setSortType] = useState('LATEST');
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const loaderRef = useRef(null);
 
-  const fetchReviews = useCallback(async () => {
+  const fetchReviews = useCallback(async (currentPage = page) => {
+    if (isLoading || !hasMore) return;
+
+    setIsLoading(true);
+    const start = Date.now();
     try {
       const res = await api.get('/reviews', {
-        params: { contentId: contentId || 1, memberId: memberId || 'testUser1', sortType },
+        params: {
+          contentId,
+          memberId,
+          sortType,
+          page: currentPage,
+          size: 5,
+        },
       });
-      setReviews(res.data);
+
+      const newReviews = res.data;
+
+      setReviews((prev) => [...prev, ...newReviews]);
+
+      if (newReviews.length < 5) {
+        setHasMore(false);
+      } else {
+        setPage(currentPage + 1);
+      }
+
       onCommentAdded?.();
     } catch (err) {
-      console.error('리뷰 목록 불러오기 실패:', err);
+      console.error('리뷰 불러오기 실패:', err);
+    } finally {
+      const elapsed = Date.now() - start;
+  const delay = Math.max(1000 - elapsed, 0); // 최소 800ms 유지
+  setTimeout(() => setIsLoading(false), delay);
     }
-  }, [contentId, memberId, sortType, onCommentAdded]);
+  }, [contentId, memberId, sortType, page, isLoading, hasMore, onCommentAdded]);
 
-  useEffect(() => { fetchReviews(); }, [fetchReviews]);
+  // 정렬 바뀌면 초기화 + 첫 페이지 로딩
+  useEffect(() => {
+    const init = async () => {
+      setReviews([]);
+      setPage(0);
+      setHasMore(true);
+      setIsLoading(true);
+      try {
+        const res = await api.get('/reviews', {
+          params: { contentId, memberId, sortType, page: 0, size: 5 }
+        });
+        setReviews(res.data);
+        if (res.data.length < 5) {
+          setHasMore(false);
+        } else {
+          setPage(1);
+        }
+      } catch (err) {
+        console.error('리뷰 초기 로딩 실패:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    init();
+  }, [contentId, sortType]);
+
+  // 무한 스크롤 감지
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore && !isLoading) {
+        fetchReviews(); // 현재 page로
+      }
+    }, { threshold: 1 });
+
+    if (loaderRef.current) {
+      observer.observe(loaderRef.current);
+    }
+
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    };
+  }, [fetchReviews, hasMore, isLoading]);
 
   return (
     <div className="review-list">
@@ -35,27 +105,20 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
         </div>
       </div>
 
-      <div>
-        {reviews
-          .filter((r) => r.gnum === r.reviewId)
-          .sort((a, b) => {
-            if (a.memberId === memberId && b.memberId !== memberId) return -1;
-            if (a.memberId !== memberId && b.memberId === memberId) return 1;
-            return sortType === 'RATING'
-              ? (b.rating || 0) - (a.rating || 0)
-              : new Date(b.createdAt) - new Date(a.createdAt);
-          })
-          .map((review) => (
-            <div key={review.reviewId}>
-              <ReviewItem
-                review={review}
-                allReviews={reviews}
-                onCommentAdded={fetchReviews}
-                memberId={memberId}
-              />
-            </div>
-          ))}
-      </div>
+      {reviews
+        .filter((r) => r.gnum === r.reviewId)
+        .map((review) => (
+          <ReviewItem
+            key={`review-${review.reviewId}`} // ✅ 중복 key 방지
+            review={review}
+            allReviews={reviews}
+            onCommentAdded={() => {}}
+            memberId={memberId}
+          />
+        ))}
+
+      {isLoading && <LoadingSpinner />}
+      <div ref={loaderRef} style={{ height: '1px' }} />
     </div>
   );
 }

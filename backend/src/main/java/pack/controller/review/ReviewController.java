@@ -35,12 +35,15 @@ public class ReviewController {
     public ResponseEntity<List<ReviewResponse>> getReviews(
             @RequestParam(name = "contentId") Integer contentId,
             @RequestParam(name = "sortType", required = false, defaultValue = "LATEST") String sortType,
-            @RequestParam(name = "memberId", required = false) String memberId
+            @RequestParam(name = "memberId", required = false) String memberId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "5") int size
     ) {
         return ResponseEntity.ok(
-            reviewService.getReviewsByContentId(contentId, sortType, memberId)
+                reviewService.getReviewsByContentId(contentId, sortType, memberId, page, size)
         );
     }
+
 
     // 3️⃣ 리뷰 수정
     @PatchMapping(path = "/{id}")
