@@ -28,7 +28,7 @@ public class ApiImportController {
     @PostMapping("/all")
     public ResponseEntity<String> importAllFromTmdb() {
         try {
-            LocalDate startDate = LocalDate.now().minusMonths(1);
+            LocalDate startDate = LocalDate.now().minusYears(10);
             
             // 1단계: 메타데이터 우선 적재 (Movie + TV 장르 포함)
             apiImportService.importGenresFromTmdb();
