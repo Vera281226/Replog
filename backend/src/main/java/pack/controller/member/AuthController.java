@@ -2,6 +2,7 @@ package pack.controller.member;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,12 @@ public class AuthController {
         UserInfoResponse userInfo = memberService.getUserInfo(memberId);
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
+    
+    @GetMapping("/admin-only")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<String>> adminOnly() {
+        return ResponseEntity.ok(ApiResponse.success("관리자 접근 성공"));
+    } 
 
     
     // 로그아웃 엔드포인트는 SecurityConfig에서 자동 처리하므로 삭제(필요시 안내만)
