@@ -9,6 +9,7 @@ import pack.dto.common.ApiResponse;
 import pack.dto.member.UserInfoResponse;
 import pack.service.member.CustomUserDetails;
 import pack.service.member.MemberService;
+import pack.util.AuthUtil;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -19,15 +20,8 @@ public class AuthController {
 
     @GetMapping("/current-user")
     public ResponseEntity<ApiResponse<UserInfoResponse>> getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()
-                || authentication.getPrincipal().equals("anonymousUser")) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error("로그인이 필요합니다.", "AUTH_REQUIRED"));
-        }
-        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-        String memberId = user.getMemberId();
-        String nickname = user.getNickname();
+
+        String memberId = AuthUtil.getCurrentMemberId(); 
         UserInfoResponse userInfo = memberService.getUserInfo(memberId);
         return ResponseEntity.ok(ApiResponse.success(userInfo));
     }
