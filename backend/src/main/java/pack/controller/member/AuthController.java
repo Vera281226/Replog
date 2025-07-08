@@ -31,7 +31,7 @@ public class AuthController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<String>> adminOnly() {
         return ResponseEntity.ok(ApiResponse.success("관리자 접근 성공"));
-    }
+    } 
 
     
     // 로그아웃 엔드포인트는 SecurityConfig에서 자동 처리하므로 삭제(필요시 안내만)

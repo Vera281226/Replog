@@ -25,7 +25,7 @@ import pack.service.member.CustomUserDetailsService;
 import java.util.List;
 
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true) 
 public class SecurityConfig {
 
     @Autowired
