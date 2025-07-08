@@ -123,6 +123,7 @@ public class MemberServiceImpl implements MemberService {
 	        .memberId(member.getMemberId())
 	        .nickname(member.getNickname())
 	        .email(member.getEmail())
+	        .role(member.getRole())
 	        .build();
 	}
 	

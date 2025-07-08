@@ -10,4 +10,5 @@ public class UserInfoResponse {
     private String memberId;
     private String nickname;
     private String email;
+    private String role;
 }
