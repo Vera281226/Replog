@@ -2,6 +2,7 @@ package pack.controller.member;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,12 @@ public class AuthController {
         String memberId = AuthUtil.getCurrentMemberId(); 
         UserInfoResponse userInfo = memberService.getUserInfo(memberId);
         return ResponseEntity.ok(ApiResponse.success(userInfo));
+    }
+    
+    @GetMapping("/admin-only")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<String>> adminOnly() {
+        return ResponseEntity.ok(ApiResponse.success("관리자 접근 성공"));
     }
 
     
