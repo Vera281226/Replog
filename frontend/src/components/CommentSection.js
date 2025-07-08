@@ -116,7 +116,8 @@ export default function CommentSection({
       <h3>댓글</h3>
 
       {comments.map((comment) => {
-        const isEdited = comment.updatedAt !== null;
+        const isValidDate = (date) => date && !isNaN(new Date(date).getTime());
+        const isEdited = isValidDate(comment.updatedAt);
         const timeLabel = isEdited ? comment.updatedAt : comment.createdAt;
 
         return (
