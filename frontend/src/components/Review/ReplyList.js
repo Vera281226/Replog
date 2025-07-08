@@ -38,12 +38,12 @@ function ReplyList({
       ))}
 
       {sortedReplies.length > 1 && !showAll && (
-        <div style={{ textAlign: 'center', marginTop: '8px' }}>
-          <button onClick={() => setShowAll(true)} className="reply-btn">
-            더 보기
-          </button>
-        </div>
-      )}
+  <div style={{ textAlign: 'center', marginTop: '8px' }}>
+    <button onClick={() => setShowAll(true)} className="reply-btn">
+      더 보기
+    </button>
+  </div>
+)}
 
 
     </div>

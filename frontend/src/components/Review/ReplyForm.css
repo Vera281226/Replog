@@ -2,23 +2,24 @@
   width: 100%;
   resize: none;
   border: none;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1.5px solid #bbb;
   outline: none;
-  font-size: 14px;
-  padding: 6px 0;
+  font-size: 15px;
+  padding: 6px 4px;
   background-color: transparent;
+  color: #222;
   transition: border-color 0.2s;
+  line-height: 1.4;
 }
 
 .reply-textarea:focus {
-  border-bottom: 1px solid #000;
+  border-bottom: 1.5px solid #333;
 }
 
 .reply-textarea::placeholder {
   color: #999;
 }
 
-/* 버튼 영역 */
 .reply-actions {
   margin-top: 8px;
   text-align: right;

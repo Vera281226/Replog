@@ -40,10 +40,10 @@ function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
         onCommentAdded={onCommentAdded}
         onEditClick={handleEditClick}
         replies={replies}
-        editingReplyId={editingReplyId}     
-        setEditingReplyId={setEditingReplyId} 
-        replyEdits={replyEdits}        
-        setReplyEdits={setReplyEdits}    
+        editingReplyId={editingReplyId}      // 💡 추가
+        setEditingReplyId={setEditingReplyId} // 💡 추가
+        replyEdits={replyEdits}              // 💡 추가
+        setReplyEdits={setReplyEdits}        // 💡 추가
       />
 
       {showEditModal && (
