@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import ReviewContent from './ReviewContent';
-import ReplyForm from './ReplyForm';
-import ReplyList from './ReplyList';
+import ReviewModal from './ReviewModal';
 
 function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
   const [liked, setLiked] = useState(review.liked || false);
   const [likeCount, setLikeCount] = useState(review.likeCount || 0);
-  const [showReplyInput, setShowReplyInput] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  const [editMode, setEditMode] = useState(false);
-  const [editedContent, setEditedContent] = useState(review.cont);
-  const [editedRating, setEditedRating] = useState(review.rating || 0);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  // ✅ 추가: 대댓글 수정용 상태
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [replyEdits, setReplyEdits] = useState({});
 
@@ -18,8 +15,21 @@ function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
     r => r.gnum === review.reviewId && r.reviewId !== r.gnum
   ) || [];
 
+  const handleEditClick = () => {
+    setShowEditModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowEditModal(false);
+  };
+
+  const handleReviewUpdated = () => {
+    setShowEditModal(false);
+    onCommentAdded(); // 수정 후 리스트 갱신
+  };
+
   return (
-    <li className="p-4 border rounded shadow-sm">
+    <div className="p-4 border rounded shadow-sm">
       <ReviewContent
         review={review}
         liked={liked}
@@ -28,30 +38,30 @@ function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
         setLikeCount={setLikeCount}
         memberId={memberId}
         onCommentAdded={onCommentAdded}
-        setShowReplyInput={setShowReplyInput}
-      />
-
-
-      <ReplyForm
-        show={showReplyInput}
-        setShow={setShowReplyInput}
-        replyText={replyText}
-        setReplyText={setReplyText}
-        parentId={review.reviewId}
-        onCommentAdded={onCommentAdded}
-        memberId={memberId}
-      />
-
-      <ReplyList
+        onEditClick={handleEditClick}
         replies={replies}
-        editingReplyId={editingReplyId}
-        setEditingReplyId={setEditingReplyId}
-        replyEdits={replyEdits}
-        setReplyEdits={setReplyEdits}
-        onCommentAdded={onCommentAdded}
-        memberId={memberId}
+        editingReplyId={editingReplyId}     
+        setEditingReplyId={setEditingReplyId} 
+        replyEdits={replyEdits}        
+        setReplyEdits={setReplyEdits}    
       />
-    </li>
+
+      {showEditModal && (
+        <ReviewModal
+          isEdit={true}
+          initialData={{
+            reviewId: review.reviewId,
+            cont: review.cont,
+            rating: review.rating,
+            isSpoiler: review.isSpoiler
+          }}
+          contentId={review.contentId}
+          memberId={memberId}
+          onClose={handleModalClose}
+          onReviewCreated={handleReviewUpdated}
+        />
+      )}
+    </div>
   );
 }
 
