@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../error/api/interceptor";
 import { ErrorModal } from "../error/components/ErrorModal"; // ✅ 추가
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "../error/redux/authSlice";
+import ReportButton from "../components/common/ReportButton";
 import "./css/PartyPostDetailPage.css";
 
 const PartyPostDetailPage = () => {
   const { partyPostNo } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   // ✅ 에러 모달 상태
   const [errorModalOpen, setErrorModalOpen] = useState(false);
@@ -54,6 +58,18 @@ const PartyPostDetailPage = () => {
   return (
     <div className="detail-container">
       <div className="detail-card">
+
+{isAuthenticated && (
+  <div className="report-button-wrapper" style={{ marginTop: "10px", textAlign: "right" }}>
+    <ReportButton
+      targetType="PARTY_POST"
+      targetId={String(post.partyPostNo)}
+      buttonStyle="text"
+      buttonText="🚨 신고"
+    />
+  </div>
+)}
+        
         <h2 className="detail-title">{post.title}</h2>
 
         <div className="detail-meta">

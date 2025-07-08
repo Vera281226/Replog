@@ -5,7 +5,7 @@ import axios from "../error/api/interceptor";
 import TheaterMap from "../components/TheaterMap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import WritePartyModal from "../components/WritePartyModal";
-import LoginRequiredModal from "../components/LoginRequiredModel";
+import LoginRequiredModal from "../components/LoginRequiredModal";
 import { ErrorModal } from "../error/components/ErrorModal";
 import "./css/TheaterPage.css";
 

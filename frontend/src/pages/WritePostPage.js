@@ -17,6 +17,7 @@ import BannedWordFilterModal, {
 import { ErrorModal } from "../error/components/ErrorModal"; // ✅ 추가
 import "./css/WritePostPage.css";
 
+
 export default function WritePostPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,10 +45,10 @@ export default function WritePostPage() {
 
   const [bannedModalOpen, setBannedModalOpen] = useState(false);
   const [bannedWordsMatched, setBannedWordsMatched] = useState([]);
-
-  // ✅ 에러 모달 상태
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+
+  const [isAdmin, setIsAdmin] = useState(false); // ✅ 관리자 여부 상태
 
   const openErrorModal = (message) => {
     setErrorModalMessage(message);
@@ -66,6 +67,18 @@ export default function WritePostPage() {
       memberId: currentUser?.memberId || "",
       nickname: currentUser?.nickname || "",
     }));
+
+    // ✅ 관리자 여부 확인
+    const checkAdmin = async () => {
+      try {
+        await axios.get("/auth/admin-only");
+        setIsAdmin(true);
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdmin();
   }, [currentUser, isAuthenticated, navigate]);
 
   const handleChange = (e) => {
@@ -144,7 +157,7 @@ export default function WritePostPage() {
             </option>
             <option value="자유게시판">자유게시판</option>
             <option value="스포">스포</option>
-            <option value="공지사항">공지사항</option>
+            {isAdmin && <option value="공지사항">공지사항</option>}
             <option value="개봉예정작">개봉예정작</option>
           </select>
 
