@@ -15,19 +15,19 @@ function ReviewEditPopup() {
   console.log('🔥 reviewId:', reviewId, 'rating:', rating);
 
   useEffect(() => {
-  const r = Number(params.get('rating'));
-  const decodedCont = decodeURIComponent(params.get('cont') || '');
-  const spoiler = params.get('isSpoiler') === 'true';
+    const r = Number(params.get('rating'));
+    const decodedCont = decodeURIComponent(params.get('cont') || '');
+    const spoiler = params.get('isSpoiler') === 'true';
 
-  setCont(decodedCont);
-  setRating(!isNaN(r) && r >= 1 && r <= 5 ? r : 1); // ✅ 기본값 1로 보정
-  setIsSpoiler(spoiler);
-}, [params]);
+    setCont(decodedCont);
+    setRating(!isNaN(r) && r >= 1 && r <= 5 ? r : 1); // 기본값 1로 보정
+    setIsSpoiler(spoiler);
+  }, [params]);
 
 
   if (!reviewId) {
-  return <div className="text-center mt-10 text-gray-500">잘못된 접근입니다.</div>;
-}
+    return <div className="text-center mt-10 text-gray-500">잘못된 접근입니다.</div>;
+  }
 
 
   const handleSubmit = async () => {

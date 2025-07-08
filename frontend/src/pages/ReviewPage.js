@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from '../error/api/interceptor';
-import './ReviewPage.css'; 
+import './ReviewPage.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ContentDetail from '../components/ContentDetail';
@@ -56,40 +56,27 @@ export default function ReviewPage() {
           <>
             <ContentDetail
               title={content.title}
-              releaseDate={content.releaseDate?.toString()||''}
-              genres={content.genres||[]}
-              cast={content.cast||[]}
-              rating={content.rating||0}
+              releaseDate={content.releaseDate?.toString() || ''}
+              genres={content.genres || []}
+              cast={content.cast || []}
+              rating={content.rating || 0}
               description={content.overview}
               posterUrl={content.posterPath
                 ? `https://image.tmdb.org/t/p/w500${content.posterPath}`
                 : '/assets/default-poster.png'}
             />
 
-            {/* 리뷰 작성 버튼 */}
-            <div style={{ textAlign: 'center', margin: '20px 0' }}>
-              <button
-                onClick={openModal}
-                style={{
-                  backgroundColor: '#282828',
-                  color: 'white',
-                  padding: '10px 20px',
-                  fontSize: 16,
-                  border: 'none',
-                  borderRadius: 4,
-                  cursor: 'pointer'
-                }}
-              >
-                리뷰 작성
-              </button>
-            </div>
+            
+
 
             {/* 리뷰 리스트 */}
             <ReviewList
               contentId={Number(contentId)}
               memberId={memberId}
-              onCommentAdded={() => {/* fetchReviews를 호출하도록 ReviewList 내부 구현 */}
-              }
+              onCommentAdded={() => {
+                // fetchReviews() 다시 호출하는 로직
+              }}
+              openModal={openModal} // ✅ 이거 추가
             />
           </>
         )}

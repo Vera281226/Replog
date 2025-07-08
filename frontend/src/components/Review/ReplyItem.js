@@ -40,16 +40,16 @@ function ReplyItem({
   return (
     <div className="mt-2 ml-4 p-2 border-l border-gray-300">
       <div className="flex justify-between items-center">
-        <span className="font-semibold text-sm">{reply.memberId}</span>
+        <span className="font-semibold text-sm">{reply.memberId}</span>{' '}
         <span className="text-xs text-gray-500">
           {reply.createdAt
             ? new Date(reply.createdAt).toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-              })
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
             : ''}
         </span>
       </div>
@@ -73,10 +73,12 @@ function ReplyItem({
           <>
             <p className="mt-1">{reply.cont}</p>
             {reply.memberId === memberId && (
-              <div className="mt-1 space-x-2 text-xs">
-                <button onClick={() => setEditingReplyId(reply.reviewId)} className="text-blue-500">수정</button>
-                <button onClick={handleDelete} className="text-red-500">삭제</button>
+              <div className="reply-buttons text-sm mt-1 space-x-3" style={{ marginBottom: '10px' }}>
+                <button className="reply-btn" onClick={() => setEditingReplyId(reply.reviewId)}>수정</button>
+                <button className="reply-btn" onClick={handleDelete}>삭제</button>
               </div>
+
+
             )}
           </>
         )}
