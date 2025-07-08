@@ -1,6 +1,9 @@
 /** ====================================
- * ✅ 기본 레이아웃 설정
+ * 🧩 IndexPage 전용 스타일
+ * - 섹션 간 여백, 제목 스타일, 슬라이드 등 포함
  * ==================================== */
+
+/** ✅ 기본 레이아웃 설정 */
 html, body {
   height: 100%;
   margin: 0;
@@ -8,12 +11,10 @@ html, body {
   transition: background-color 0.3s, color 0.3s;
   display: flex;
   flex-direction: column;
-  padding-bottom: 100px; /* ⚠️ FAB가 가려지지 않도록 여유 공간 확보 */
+  padding-bottom: 100px;  /* ⚠️ FAB가 가려지지 않도록 여유 공간 확보 */
 }
 
-/** ====================================
- * ✅ 다크/라이트 모드 색상 변수
- * ==================================== */
+/** ✅ 다크/라이트 모드 색상 변수 */
 body.light-mode {
   --card-bg: #f5f5f5;
   --text-primary: #000000;
@@ -29,17 +30,13 @@ body.dark-mode {
   color: #ffffff;
 }
 
-/** ====================================
- * ✅ 메인 콘텐츠 영역
- * ==================================== */
+/** ✅ 메인 콘텐츠 영역 */
 main {
   flex: 1;
   padding: 30px 0;
 }
 
-/** ====================================
- * ✅ 섹션 제목 및 내부 레이아웃
- * ==================================== */
+/** ✅ 섹션 레이아웃 */
 .section-inner {
   max-width: 1280px;
   margin: 0 auto;
@@ -54,9 +51,7 @@ main {
   color: var(--text-primary);
 }
 
-/** ====================================
- * ✅ 검색창 스타일
- * ==================================== */
+/** ✅ 검색창 */
 .search-bar {
   display: flex;
   align-items: center;
@@ -88,23 +83,20 @@ main {
   cursor: pointer;
 }
 
-/** ====================================
- * ✅ 카드 슬라이더 (수평 스크롤)
- * ==================================== */
+/** ✅ 카드 슬라이더 (수평 스크롤) */
 .card-slider {
   display: flex;
   overflow-x: auto;
   gap: 20px;
   padding-bottom: 10px;
+  scroll-behavior: smooth;
   scrollbar-width: none;
 }
 .card-slider::-webkit-scrollbar {
   display: none;
 }
 
-/** ====================================
- * ✅ 카드 그리드 (수평)
- * ==================================== */
+/** ✅ 카드 그리드 (수평) */
 .card-grid {
   display: flex;
   flex-wrap: nowrap;
@@ -119,13 +111,55 @@ main {
   display: none;
 }
 
-/** ====================================
- * ✅ Swiper 내비게이션 버튼
- * ==================================== */
+/** ✅ Swiper 전체 영역 */
 .swiper {
   padding-bottom: 20px;
+  position: relative;     /* ✅ 버튼 위치 기준 */
+  overflow: visible;      /* ✅ 버튼 잘림 방지 */
+  z-index: 0;
 }
-.swiper-button-next,
+
+/** ✅ Swiper 내비게이션 버튼 스타일 (자연스럽고 얇은 버튼) */
+.swiper-button-prev,
+.swiper-button-next {
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  background-color: rgba(255, 255, 255, 0.8);  /* ✅ 반투명 흰 배경 */
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  position: absolute;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/** ✅ 호버 시 강조 효과 */
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #aaa;
+}
+
+/** ✅ 왼쪽 버튼 위치 */
 .swiper-button-prev {
-  color: var(--text-primary);
+  left: -34px;
+}
+
+/** ✅ 오른쪽 버튼 위치 */
+.swiper-button-next {
+  right: -34px;
+}
+
+/** ✅ 왼쪽 버튼: 비활성 시 숨김 */
+.swiper-button-prev.swiper-button-disabled {
+  display: none !important;
 }
