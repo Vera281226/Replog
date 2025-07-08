@@ -44,4 +44,6 @@ public class IndexNowPlayingResponse {
     private String releaseDate;
 
     private Float rating;
+
+	private Long contentId;
 }

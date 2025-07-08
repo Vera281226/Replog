@@ -53,6 +53,7 @@ const UpcomingSection = () => {
                       releaseDate={movie.releaseDate}
                       voteAverage={movie.rating}
                       platform="upcoming" // ✔ 플랫폼은 없지만 용도 구분용
+                      contentId={movie.contentId}
                   />
               );
             })}

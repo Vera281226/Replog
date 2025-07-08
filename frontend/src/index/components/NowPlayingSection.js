@@ -75,6 +75,7 @@ const NowPlayingSection = () => {
                           releaseDate={movie.releaseDate}
                           voteAverage={movie.rating}
                           platform={null}  // ✅ 현재 상영작에는 OTT 정보 없음
+                          contentId={movie.contentId}
                       />
                     </SwiperSlide>
                 ))}

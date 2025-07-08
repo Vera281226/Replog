@@ -53,6 +53,7 @@ const ContentsNetflix = () => {
                       voteAverage={movie.rating}
                       voteCount={movie.voteCount}
                       platform="netflix" // ✅ 플랫폼 로고 출력용
+                      contentId={movie.contentId}
                   />
               );
             })}

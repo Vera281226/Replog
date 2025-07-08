@@ -35,6 +35,7 @@ const UpcomingMixSection = () => {
                     posterPath={content.posterPath}
                     releaseDate={content.releaseDate}
                     platform={content.platform} // ✅ 로고 출력용
+                    contentId={content.contentId}
                 />
             ))}
           </div>

@@ -55,6 +55,7 @@ public class IndexService {
 
         for (Contents c : contentsList) {
             IndexNowPlayingResponse dto = new IndexNowPlayingResponse();
+            dto.setContentId(c.getContentId().longValue());
             dto.setTitle(c.getTitle());
             dto.setOverview(c.getOverview());
             dto.setPosterPath(c.getPosterPath());

@@ -49,6 +49,7 @@ const ContentsDisney = () => {
                       voteAverage={movie.rating}
                       voteCount={movie.voteCount}
                       platform="disney" // ✅ 디즈니 로고 출력용
+                      contentId={movie.contentId}
                   />
               );
             })}
