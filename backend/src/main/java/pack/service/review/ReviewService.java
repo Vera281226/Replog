@@ -61,7 +61,10 @@ public class ReviewService {
         reviewRepository.deleteByGnum(reviewId);
     }
 
-    public List<ReviewResponse> getReviewsByContentId(Integer contentId, String sortType, String memberId) {
+    public List<ReviewResponse> getReviewsByContentId(
+            Integer contentId, String sortType, String memberId,
+            int page, int size
+    ) {
         if (sortType == null || sortType.isBlank()) {
             sortType = "LATEST";
         }
@@ -70,7 +73,6 @@ public class ReviewService {
 
         switch (sortType.toUpperCase()) {
             case "RATING":
-                // ✅ 전체 리뷰 + 댓글 포함 정렬
                 reviews = reviewRepository.findByContentIdOrderByRatingDesc(contentId);
                 break;
             case "LATEST":
@@ -79,10 +81,19 @@ public class ReviewService {
                 break;
         }
 
-        return reviews.stream()
+        // ✅ 페이징 적용 (subList)
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, reviews.size());
+
+        if (fromIndex >= reviews.size()) {
+            return List.of(); // 더 이상 데이터 없을 때 빈 리스트 반환
+        }
+
+        return reviews.subList(fromIndex, toIndex).stream()
                 .map(review -> toResponse(review, memberId))
                 .toList();
     }
+
 
 
     @Transactional
