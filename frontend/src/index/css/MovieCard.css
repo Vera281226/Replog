@@ -1,77 +1,77 @@
 /** ====================================
- * 🎬 MovieCard 전용 스타일
+ * 🎬 MovieCard 전용 스타일 (최종 개선 버전)
+ * - 구조: 포스터 → 제목 · 연도 → 평점
+ * - UI 개선: 제목 1줄, 로고 위치 개선
  * ==================================== */
 
 /** ✅ 카드 전체 박스 */
 .movie-card {
-    width: 200px;
-    height: 390px;
+    width: 180px;                          /* ✅ 카드 너비 */
+    height: 340px;                         /* ✅ 전체 높이 */
     background-color: var(--card-bg);
     border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.25s ease;
     display: flex;
     flex-direction: column;
+    position: relative;
+    transition: transform 0.25s ease;
 }
 .movie-card:hover {
-    transform: translateY(-6px); /* ✅ 호버 시 위로 뜨는 효과 */
+    transform: translateY(-6px);
 }
 
-/** ✅ 포스터 영역 (로고 포함) */
+/** ✅ 포스터 영역 */
 .poster-wrapper {
-    position: relative;
     width: 100%;
-    height: 280px;
+    height: 260px;
+    position: relative;
 }
-.poster-wrapper .poster {
+.poster {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-/** ✅ 플랫폼 로고 (넷플릭스 / 디즈니+) */
+/** ✅ OTT 플랫폼 로고 (텍스트: N / D) */
 .platform-logo {
     position: absolute;
-    bottom: 8px;
+    top: 8px;
     right: 8px;
-    width: 36px;
-    height: auto;
-    opacity: 0.9;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     pointer-events: none;
 }
 
-/** ✅ 영화 정보 영역 */
+/** ✅ 정보 영역 */
 .movie-info {
-    padding: 10px;
+    padding: 10px 8px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    gap: 4px;
-    flex-grow: 1;
-    overflow: hidden;
+    gap: 3px;
 }
 
+/** ✅ 제목 + 연도 */
 .movie-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
-    line-height: 1.3;
-    word-break: break-word;
+    white-space: nowrap;
     overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2; /* ✅ 최대 2줄 말줄임 */
-    -webkit-box-orient: vertical;
     text-overflow: ellipsis;
 }
 
-.movie-sub {
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
+/** ✅ 평점 */
 .movie-rating {
     font-size: 12px;
     color: var(--text-secondary);
