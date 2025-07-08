@@ -36,7 +36,7 @@ public class ApiImportController {
     @PostMapping("/all")
     public ResponseEntity<String> importAllFromTmdb() {
         try {
-            // ✅ 수집 시작일 기준: 2023년 1월 1일부터 오늘까지
+
             LocalDate startDate = LocalDate.of(2023, 1, 1);
 
             // 1단계: 메타데이터 우선 적재 (Movie + TV 장르 포함)
