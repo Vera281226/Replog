@@ -1,10 +1,10 @@
-import { useEffect, useState, useCallback } from "react"; 
+import { useEffect, useState, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../error/redux/authSlice";
 import axios from "../error/api/interceptor";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import LoginRequiredModal from "../components/LoginRequiredModel";
-import { ErrorModal } from "../error/components/ErrorModal"; // ✅ 추가
+import LoginRequiredModal from "../components/LoginRequiredModal";
+import { ErrorModal } from "../error/components/ErrorModal";
 import "./css/BoardPage.css";
 
 function useQuery() {
@@ -32,14 +32,29 @@ export default function BoardPage() {
     searchKeyword: ""
   });
 
-  // ✅ 에러 모달 상태
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const openErrorModal = (message) => {
     setErrorModalMessage(message);
     setErrorModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const checkAdmin = async () => {
+      try {
+        await axios.get("/auth/admin-only");
+        setIsAdmin(true);
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdmin();
+  }, [isAuthenticated]);
 
   const fetchPosts = useCallback(async () => {
     try {
@@ -82,6 +97,12 @@ export default function BoardPage() {
       setLoginModalOpen(true);
       return;
     }
+
+    if (category === "공지사항" && !isAdmin) {
+      openErrorModal("공지사항은 관리자만 작성할 수 있습니다.");
+      return;
+    }
+
     const target =
       category === "ALL"
         ? "/boards/write"
@@ -210,14 +231,17 @@ export default function BoardPage() {
             {">"}
           </button>
         </div>
-        <button className="write-button" onClick={handleWriteClick}>
-          글쓰기
-        </button>
+
+        {/* 공지사항일 경우 관리자만 버튼 보이기 */}
+        {(category !== "공지사항" || isAdmin) && (
+          <button className="write-button" onClick={handleWriteClick}>
+            글쓰기
+          </button>
+        )}
       </div>
 
       <LoginRequiredModal isOpen={loginModalOpen} />
 
-      {/* 에러 모달 */}
       <ErrorModal
         isOpen={errorModalOpen}
         title="오류"

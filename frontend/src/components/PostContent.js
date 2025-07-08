@@ -8,6 +8,7 @@ export default function PostContent({
   onEdit,
   onDelete,
   isAuthor,
+  isAdmin,
   isAuthenticated,
 }) {
   const navigate = useNavigate();
@@ -63,11 +64,13 @@ export default function PostContent({
           목록
         </button>
 
-        {isAuthor && (
+        {(isAuthor || isAdmin) && (
           <div className="post-author-actions">
-            <button onClick={onEdit} className="post-edit-button">
-              수정
-            </button>
+            {isAuthor && ( // ✅ 수정 버튼은 작성자만
+              <button onClick={onEdit} className="post-edit-button">
+                수정
+              </button>
+            )}
             <button onClick={onDelete} className="post-delete-button">
               삭제
             </button>

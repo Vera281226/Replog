@@ -25,10 +25,9 @@ export default function EditPostPage() {
   const [loading, setLoading] = useState(true);
   const [bannedModalOpen, setBannedModalOpen] = useState(false);
   const [bannedWordsMatched, setBannedWordsMatched] = useState([]);
-
-  // ✅ 추가: 에러 모달 상태
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false); // ✅ 관리자 여부 상태
 
   const openErrorModal = (message) => {
     setErrorModalMessage(message);
@@ -77,7 +76,17 @@ export default function EditPostPage() {
       }
     };
 
+    const checkAdmin = async () => {
+      try {
+        await axios.get("/auth/admin-only");
+        setIsAdmin(true);
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+
     fetchPost();
+    checkAdmin();
   }, [postNo, currentUser, isAuthenticated, navigate, editor]);
 
   const handleChange = (e) => {
@@ -144,7 +153,7 @@ export default function EditPostPage() {
             <option value="" disabled hidden>카테고리를 선택하세요</option>
             <option value="자유게시판">자유게시판</option>
             <option value="스포">스포</option>
-            <option value="공지사항">공지사항</option>
+            {isAdmin && <option value="공지사항">공지사항</option>}
             <option value="개봉예정작">개봉예정작</option>
           </select>
 
@@ -164,18 +173,18 @@ export default function EditPostPage() {
             <EditorContent editor={editor} />
           </div>
 
-<div className="edit-post-buttons">
-  <button type="submit" className="btn btn-primary">
-    수정 완료
-  </button>
-  <button
-    type="button"
-    onClick={() => navigate(`/boards/${postNo}`)}
-    className="btn btn-secondary"
-  >
-    취소
-  </button>
-</div>
+          <div className="edit-post-buttons">
+            <button type="submit" className="btn btn-primary">
+              수정 완료
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate(`/boards/${postNo}`)}
+              className="btn btn-secondary"
+            >
+              취소
+            </button>
+          </div>
         </form>
       </div>
 

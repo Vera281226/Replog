@@ -103,6 +103,7 @@ export default function PostDetailPage() {
   if (!post) return <div>로딩 중...</div>;
 
   const categoryList = ["ALL", "자유게시판", "스포", "공지사항", "개봉예정작"];
+  const isAdmin = currentUser?.role === "ROLE_ADMIN"; // 관리자 여부
   const isAuthor = userId === post.memberId;
 
   return (
@@ -141,6 +142,7 @@ export default function PostDetailPage() {
         onEdit={() => navigate(`/boards/edit/${post.postNo}`, { state: { post } })}
         onDelete={() => setShowConfirm(true)}
         isAuthor={isAuthor}
+        isAdmin={isAdmin} // ✅ 추가
         isAuthenticated={isAuthenticated}
       />
 

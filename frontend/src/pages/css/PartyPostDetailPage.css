@@ -67,12 +67,17 @@
 
 .detail-join-button {
   padding: 8px 16px;
-  background-color: #28a745;
+  background-color: #6C4D9A;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-bottom: 16px;
+  transition: background-color 0.3s;
+}
+
+.detail-join-button:hover {
+  background-color: #5A3E85; /* 더 진한 보라색 */
 }
 
 .detail-back {
