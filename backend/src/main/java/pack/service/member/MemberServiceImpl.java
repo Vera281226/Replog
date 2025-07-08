@@ -83,11 +83,11 @@ public class MemberServiceImpl implements MemberService {
 		
 		member.setPwd(null);
 	    member.setName(null);
-	    member.setEmail(null);
 	    member.setPhone(null);
 	    member.setAddress(null);
 	    member.setBirthdate(null);
 	    member.setGender(null);
+	    member.setRole(null);
 		
 		member.setIsDeleted(true);
 		member.setDeletedAt(LocalDateTime.now());
