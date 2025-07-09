@@ -14,6 +14,7 @@ import pack.repository.review.ReviewRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +82,7 @@ public class ReviewService {
                 break;
         }
 
-        // ✅ 페이징 적용 (subList)
+        // 페이징 적용 (subList)
         int fromIndex = page * size;
         int toIndex = Math.min(fromIndex + size, reviews.size());
 
@@ -181,4 +182,20 @@ public class ReviewService {
         int likeCount = reviewLikeRepository.countByReviewId(reviewId);
         return new LikeResponse(isLiked, likeCount);
     }
+
+    public double getAverageRating(Integer contentId) {
+        List<Review> reviews = reviewRepository.findByContentId(contentId);
+
+        // 본 리뷰만 (gnum == reviewId) + 평점 있는 것만
+        List<Review> valid = reviews.stream()
+                .filter(r -> r.getGnum() != null && r.getGnum().equals(r.getReviewId()))
+                .filter(r -> r.getRating() != null)
+                .collect(Collectors.toList());
+
+        if (valid.isEmpty()) return 0.0;
+
+        double sum = valid.stream().mapToDouble(Review::getRating).sum();
+        return sum / valid.size();
+    }
+
 }
