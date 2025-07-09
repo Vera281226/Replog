@@ -14,4 +14,6 @@ public interface PartyPostService {
     
     PartyResponse updatePartyPost(Integer partyPostNo, PartyPostRequest dto);
 	void deletePartyPost(Integer partyPostNo);
+	
+	List<PartyResponse> getPartyPostsByMemberId(String memberId);
 }

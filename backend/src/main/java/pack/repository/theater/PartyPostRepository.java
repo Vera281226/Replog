@@ -48,4 +48,6 @@ public interface PartyPostRepository extends JpaRepository<PartyPost, Integer> {
            "WHERE p.partyDeadline > :now " +
            "GROUP BY p.theaterId")
     List<Object[]> countPostsGroupedByTheater(@Param("now") LocalDateTime now);
+    
+    List<PartyPost> findByMemberIdOrderByCreatedAtDesc(String memberId);
 }
