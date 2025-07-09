@@ -89,3 +89,55 @@
 .btn-secondary:hover {
   background-color: #d1d5db;
 }
+
+/* ✅ EditPostPage 다크모드 */
+.dark-mode .edit-post-wrapper {
+  background-color: #1e1e1e;
+  color: var(--text-primary, #f5f5f5);
+}
+
+.dark-mode .edit-post-container {
+  background-color: #2a2a2a;
+  box-shadow: none;
+}
+
+.dark-mode .edit-post-title {
+  color: #f5f5f5;
+  border-bottom: 2px solid #444;
+}
+
+.dark-mode .edit-post-input,
+.dark-mode .edit-post-select {
+  background-color: #2b2b2b;
+  color: #f5f5f5;
+  border: 1px solid #555;
+}
+
+.dark-mode .edit-post-input:focus,
+.dark-mode .edit-post-select:focus {
+  border-color: #8C74BD;
+}
+
+.dark-mode .edit-post-editor {
+  background-color: #2b2b2b;
+  border: 1px solid #555;
+  color: #f5f5f5;
+}
+
+.dark-mode .btn-primary {
+  background-color: #8C74BD;
+  color: white;
+}
+
+.dark-mode .btn-primary:hover {
+  background-color: #7A61A9;
+}
+
+.dark-mode .btn-secondary {
+  background-color: #2c2c2c;
+  color: #eee;
+}
+
+.dark-mode .btn-secondary:hover {
+  background-color: #444;
+}

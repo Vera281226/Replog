@@ -1,0 +1,213 @@
+.custom-datepicker {
+  position: relative;
+  width: 100%;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.custom-datepicker.datepicker {
+  position: relative;
+  width: 200px;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.datepicker-floating-group {
+  position: relative;
+}
+
+.datepicker-input {
+  width: 100%;
+  padding: 14px 12px 4px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.datepicker-input:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+.datepicker-floating-label {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #999;
+  pointer-events: none;
+  transition: 0.2s ease all;
+}
+
+.datepicker-floating-label.filled,
+.datepicker-input:focus + .datepicker-floating-label {
+  top: 1px;
+  font-size: 11px;
+  color: #1976d2;
+  background: #fff;
+  padding: 0 4px;
+}
+
+.calendar-popup {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  z-index: 999;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 240px;
+  padding: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.calendar-header button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day {
+  text-align: center;
+  padding: 6px 0;
+  font-size: 13px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.calendar-day:hover {
+  background-color: #eee;
+}
+
+.calendar-day.selected {
+  background-color: #1976d2;
+  color: white;
+  font-weight: bold;
+}
+
+.calendar-day.disabled {
+  color: #ccc;
+  pointer-events: none;
+}
+
+.calendar-day.header {
+  font-weight: bold;
+  color: #555;
+}
+
+.calendar-day.empty {
+  pointer-events: none;
+  background: transparent;
+}
+
+.time-picker {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.time-picker label {
+  flex-shrink: 0;
+}
+
+.time-picker select {
+  padding: 4px 6px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 🌙 다크 모드일 때 배경색 변경 */
+.dark-mode .datepicker-floating-label.filled,
+.dark-mode .datepicker-input:focus + .datepicker-floating-label {
+  background: #1e1e1e; /* 또는 원하는 다크 배경색 */
+  color: #90caf9;
+}
+
+/* 🌙 다크 모드 전체 대응 */
+.dark-mode .custom-datepicker {
+  color: #e0e0e0;
+}
+
+.dark-mode .datepicker-input {
+  background: #121212;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+.dark-mode .datepicker-input:focus {
+  border-color: #90caf9;
+}
+
+.dark-mode .datepicker-floating-label {
+  color: #aaa;
+}
+
+.dark-mode .calendar-popup {
+  background: #1e1e1e;
+  border-color: #444;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.dark-mode .calendar-header {
+  color: #e0e0e0;
+}
+
+.dark-mode .calendar-header button {
+  color: #e0e0e0;
+}
+
+.dark-mode .calendar-day {
+  color: #e0e0e0;
+}
+
+.dark-mode .calendar-day:hover {
+  background-color: #333;
+}
+
+.dark-mode .calendar-day.selected {
+  background-color: #90caf9;
+  color: #000;
+}
+
+.dark-mode .calendar-day.disabled {
+  color: #666;
+}
+
+.dark-mode .calendar-day.header {
+  color: #bbb;
+}
+
+.dark-mode .time-picker label {
+  color: #ccc;
+}
+
+.dark-mode .time-picker select {
+  background: #121212;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+.dark-mode .datepicker-floating-label.filled,
+.dark-mode .datepicker-input:focus + .datepicker-floating-label {
+  background: #1e1e1e;
+  color: #90caf9;
+}

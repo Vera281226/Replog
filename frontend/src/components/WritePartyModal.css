@@ -1,3 +1,4 @@
+/* 모달 오버레이 및 콘텐츠 */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -31,6 +32,7 @@
   color: #666;
 }
 
+/* 폼 구조 */
 .write-form {
   display: flex;
   flex-direction: column;
@@ -53,6 +55,7 @@
   margin-top: 4px;
 }
 
+/* 에디터 */
 .editor-section {
   display: flex;
   flex-direction: column;
@@ -68,8 +71,15 @@
   cursor: text;
 }
 
+/* 모집 마감일시 */
+.date-picker-wrapper {
+  width: 100%;
+}
+
+/* 영화관 선택 input */
 .theater-input-wrapper {
   position: relative;
+  width: 100%;
 }
 
 .theater-select-input {
@@ -91,6 +101,25 @@
   color: #666;
 }
 
+/* 인원 수 input */
+.party-limit-wrapper {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  width: 100%;
+}
+
+.party-limit-wrapper input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+/* 성별 */
 .gender-options {
   display: flex;
   align-items: center;
@@ -104,6 +133,7 @@
   gap: 6px;
 }
 
+/* 연령대 */
 .age-group-checkboxes {
   display: flex;
   flex-wrap: wrap;
@@ -111,6 +141,7 @@
   font-size: 14px;
 }
 
+/* 제출 버튼 */
 .write-form button[type="submit"] {
   background-color: #6C4D9A;
   color: white;
@@ -184,4 +215,45 @@
 
 .theater-option:hover {
   background-color: #f2f2f2;
+}
+
+/* 🌙 다크모드 스타일 */
+.dark-mode .modal-content,
+.dark-mode .sub-modal-content {
+  background-color: #2c2c2c;
+  color: #f0f0f0;
+}
+
+.dark-mode .modal-close-button {
+  color: #aaa;
+}
+
+.dark-mode .write-form input,
+.dark-mode .write-form input[type="datetime-local"],
+.dark-mode .theater-select-input,
+.dark-mode .sub-search-bar input[type="text"],
+.dark-mode .party-limit-wrapper input {
+  background-color: #3a3a3a;
+  color: #f0f0f0;
+  border-color: #555;
+}
+
+.dark-mode .editor-wrapper {
+  background-color: #3a3a3a;
+  border-color: #555;
+  color: #f0f0f0;
+}
+
+.dark-mode .sub-search-bar button,
+.dark-mode .write-form button[type="submit"] {
+  background-color: #8C74BD;
+}
+
+.dark-mode .theater-option {
+  background-color: #333;
+  border-color: #444;
+}
+
+.dark-mode .theater-option:hover {
+  background-color: #444;
 }
