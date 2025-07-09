@@ -22,6 +22,22 @@ public class PartyPostController {
 
     private final PartyPostService partyPostService;
     
+    // 본인이 작성한 모집글 조회
+    @GetMapping("/my")
+    public ResponseEntity<List<PartyResponse>> getMyPartyPosts() {
+        String memberId = AuthUtil.getCurrentMemberId();
+
+        if (memberId == null) {
+            log.warn("본인 모집글 조회 요청에서 사용자 인증 실패");
+            return ResponseEntity.status(401)
+                    .body(null);
+        }
+
+        List<PartyResponse> myPosts = partyPostService.getPartyPostsByMemberId(memberId);
+
+        return ResponseEntity.ok(myPosts);
+    }
+    
     // 모집글 상세 조회 + 조회수 증가
     @GetMapping("/{partyPostNo}")
     public ResponseEntity<PartyResponse> getPartyPostByNo(

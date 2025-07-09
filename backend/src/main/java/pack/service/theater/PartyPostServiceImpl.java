@@ -147,6 +147,15 @@ public class PartyPostServiceImpl implements PartyPostService {
 
         return toDto(partyPostRepository.save(post));
     }
+    
+    @Override
+    public List<PartyResponse> getPartyPostsByMemberId(String memberId) {
+        List<PartyPost> posts = partyPostRepository.findByMemberIdOrderByCreatedAtDesc(memberId);
+
+        return posts.stream()
+                    .map(this::toDto)
+                    .collect(Collectors.toList());
+    }
 
 
     private PartyResponse toDto(PartyPost post) {
