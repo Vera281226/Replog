@@ -2,40 +2,44 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { selectCurrentUser } from '../../error/redux/authSlice.js';
 
 /**
  * ReviewCard 컴포넌트
  * -------------------------------------------------------------------
  * ○ 지금 뜨는 리뷰 섹션에서 사용하는 카드 컴포넌트
- * ○ 작성자, 별점, 콘텐츠 포스터, 제목, 리뷰 본문, 좋아요 수, 댓글 이동 포함
- * ○ 포스터가 없거나 깨질 경우 기본 이미지로 대체
- * ○ 좋아요 클릭 시 API 호출
- * ○ 비로그인 시 좋아요 차단 + 로그인 유도 알림
+ * ○ Redux의 authSlice에서 로그인 사용자 정보 사용
+ * ○ 좋아요 누르면 서버에 POST 요청 + 상태 반영
  * -------------------------------------------------------------------
  */
 const ReviewCard = ({ review }) => {
     const navigate = useNavigate();
-    const loginUserId = localStorage.getItem('userId'); // 로그인 사용자 ID
+
+    // ✅ Redux 상태에서 로그인 사용자 정보 가져오기
+    const currentUser = useSelector(selectCurrentUser);
+    const loginUserId = currentUser?.memberId;
+
     const [liked, setLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(review.likeCount || 0);
 
     // ✅ 좋아요 버튼 클릭
     const handleLikeClick = async () => {
-        // 비로그인 유저는 차단
         if (!loginUserId) {
             alert('로그인 후 이용해 주세요.');
             return;
         }
 
         try {
-            await axios.post(`/api/reviews/${review.reviewId}/like`, {
-                memberId: loginUserId
-            });
+            await axios.post(
+                `/api/reviews/${review.reviewId}/like`,
+                { memberId: loginUserId },
+                { withCredentials: true }
+            );
             setLiked(!liked);
-            setLikeCount((prev) => liked ? prev - 1 : prev + 1);
+            setLikeCount(prev => liked ? prev - 1 : prev + 1);
         } catch (err) {
-            console.error('❌ 좋아요 실패:', err);
             alert('좋아요 요청 중 오류가 발생했습니다.');
         }
     };
@@ -72,7 +76,7 @@ const ReviewCard = ({ review }) => {
             </div>
 
             {/* 리뷰 코멘트 */}
-            <div className="comment">"{review.cont}"</div>
+            <div className="comment">{review.cont}</div>
 
             {/* 하단: 좋아요 + 댓글 */}
             <div className="review-footer">

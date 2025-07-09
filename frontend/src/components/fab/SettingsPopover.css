@@ -1,0 +1,61 @@
+/* ✅ 팝업 전체 박스 */
+.settings-popover {
+    position: fixed;
+    bottom: 90px;            /* ⚙ 버튼 위로 뜸 (60px + 여유 30px) */
+    right: 90px;             /* ⚙ 버튼 위치와 일치 */
+    width: 200px;
+    background-color: var(--card-bg, #ffffff);
+    color: var(--text-primary, #000000);
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    z-index: 1000;
+    font-size: 14px;
+}
+
+/* ✅ 섹션 제목 */
+.section-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--text-secondary, #444);
+}
+
+/* ✅ 버튼 리스트 */
+.option-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+.option-list button {
+    all: unset;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.option-list button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* ✅ 현재 선택된 항목 표시 */
+.option-list button.active {
+    font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ 닫기 버튼 영역 */
+.close-area {
+    text-align: right;
+}
+.close-area button {
+    all: unset;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-secondary, #666);
+}
+.close-area button:hover {
+    text-decoration: underline;
+}

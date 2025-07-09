@@ -1,13 +1,17 @@
-/** ====================================
- * 🎬 MovieCard 전용 스타일 (최종 개선 버전)
- * - 구조: 포스터 → 제목 · 연도 → 평점
- * - UI 개선: 제목 1줄, 로고 위치 개선
- * ==================================== */
+/** ============================================
+ * ✅ MovieCard 전용 스타일 (리뷰와 완전 격리 버전)
+ * ============================================ */
 
-/** ✅ 카드 전체 박스 */
-.movie-card {
-    width: 180px;                          /* ✅ 카드 너비 */
-    height: 340px;                         /* ✅ 전체 높이 */
+/* ✅ 최상위 래퍼: 외부 리뷰 스타일로부터 보호 */
+.card-wrapper {
+    all: initial;
+    all: unset; /* 일부 브라우저 fallback */
+    display: inline-block;
+}
+
+/* ✅ 카드 전체 박스 */
+.card-wrapper .movie-card {
+    width: 180px;
     background-color: var(--card-bg);
     border-radius: 12px;
     overflow: hidden;
@@ -18,25 +22,25 @@
     position: relative;
     transition: transform 0.25s ease;
 }
-.movie-card:hover {
+.card-wrapper .movie-card:hover {
     transform: translateY(-6px);
 }
 
-/** ✅ 포스터 영역 */
-.poster-wrapper {
+/* ✅ 포스터 영역 */
+.card-wrapper .poster-wrapper {
     width: 100%;
-    height: 260px;
+    aspect-ratio: 2 / 3;
     position: relative;
 }
-.poster {
+.card-wrapper .poster {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-/** ✅ OTT 플랫폼 로고 (텍스트: N / D) */
-.platform-logo {
+/* ✅ OTT 플랫폼 로고 */
+.card-wrapper .platform-logo {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -53,17 +57,18 @@
     pointer-events: none;
 }
 
-/** ✅ 정보 영역 */
-.movie-info {
+/* ✅ 정보 영역 */
+.card-wrapper .movie-info {
     padding: 10px 8px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
+    background-color: var(--card-bg);
 }
 
-/** ✅ 제목 + 연도 */
-.movie-title {
-    font-size: 13px;
+/* ✅ 제목 */
+.card-wrapper .movie-title {
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
@@ -71,8 +76,14 @@
     text-overflow: ellipsis;
 }
 
-/** ✅ 평점 */
-.movie-rating {
-    font-size: 12px;
+/* ✅ 연도 */
+.card-wrapper .movie-release-year {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* ✅ 평점 */
+.card-wrapper .movie-rating {
+    font-size: 13px;
     color: var(--text-secondary);
 }

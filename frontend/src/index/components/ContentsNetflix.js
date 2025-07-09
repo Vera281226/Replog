@@ -2,20 +2,33 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from '../../error/api/interceptor';
-import MovieCard from './MovieCard'; // 공통 카드 컴포넌트 import
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+
+import MovieCard from './MovieCard'; // ✅ 공통 카드 컴포넌트
+
+import 'swiper/css';
+import 'swiper/css/navigation';
 
 /**
  * ContentsNetflix 컴포넌트
- * --------------------------------------------------------------------
- * ○ 넷플릭스 인기 콘텐츠 출력
- * ○ 백엔드 API: GET /api/index/netflix
- * --------------------------------------------------------------------
+ * -------------------------------------------------------------
+ * ✅ 넷플릭스 인기 콘텐츠 슬라이더 섹션
+ * ✅ 백엔드 API: GET /api/index/netflix
+ * ✅ MovieCard 컴포넌트 재사용
+ * ✅ Swiper 내장 navigation 사용 (좌우 버튼 포함)
+ * -------------------------------------------------------------
  */
 const ContentsNetflix = () => {
+  // ⬛ 콘텐츠 목록 상태
   const [movies, setMovies] = useState([]);
+
+  // ⬛ 에러 상태
   const [error, setError] = useState(null);
 
-  // ✅ 넷플릭스 인기 콘텐츠 호출
+  // -------------------------------------------------------------
+  // ✅ 컴포넌트 마운트 시 넷플릭스 콘텐츠 불러오기
+  // -------------------------------------------------------------
   useEffect(() => {
     const fetchNetflixContent = async () => {
       try {
@@ -31,35 +44,54 @@ const ContentsNetflix = () => {
     fetchNetflixContent();
   }, []);
 
+  // -------------------------------------------------------------
+  // ✅ 렌더링
+  // -------------------------------------------------------------
   return (
-      <section>
+      <div className="contents-netflix-section" style={{ position: 'relative', padding: '0 60px' }}>
         <div className="section-inner">
+
+          {/* ✅ 섹션 제목 */}
           <h2 className="section-title">넷플릭스 인기 콘텐츠</h2>
 
-          {/* 오류 메시지 출력 */}
+          {/* ✅ 에러 메시지 출력 */}
           {error && <p className="error-message">{error}</p>}
 
-          {/* ✅ 카드 리스트 출력 */}
-          <div className="card-grid">
-            {movies.map((movie, index) => {
-              if (!movie.posterPath) return null;
+          {/* ✅ 콘텐츠 없음 안내 */}
+          {!error && movies.length === 0 && (
+              <p>콘텐츠를 불러오지 못했습니다.</p>
+          )}
 
-              return (
-                  <MovieCard
-                      key={`${movie.contentId}-${index}`}
-                      title={`${index + 1}. ${movie.title}`}
-                      posterPath={movie.posterPath}
-                      releaseDate={movie.releaseDate}
-                      voteAverage={movie.rating}
-                      voteCount={movie.voteCount}
-                      platform="netflix" // ✅ 플랫폼 로고 출력용
-                      contentId={movie.contentId}
-                  />
-              );
-            })}
-          </div>
+          {/* ✅ 슬라이더 출력 */}
+          {!error && movies.length > 0 && (
+              <Swiper
+                  modules={[Navigation]}
+                  slidesPerView={6}               // ✅ 한 화면에 6개 표시
+                  slidesPerGroup={6}              // ✅ 6개씩 이동
+                  spaceBetween={20}
+                  navigation={true}               // ✅ 기본 내장 내비게이션 사용
+              >
+                {movies.map((movie, index) => {
+                  if (!movie.posterPath) return null;
+
+                  return (
+                      <SwiperSlide key={`${movie.contentId}-${index}`}>
+                        <MovieCard
+                            title={`${index + 1}. ${movie.title}`}
+                            posterPath={movie.posterPath}
+                            releaseDate={movie.releaseDate}
+                            voteAverage={movie.rating}
+                            voteCount={movie.voteCount}
+                            platform="netflix" // ✅ 넷플릭스 플랫폼 로고 출력
+                            contentId={movie.contentId}
+                        />
+                      </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+          )}
         </div>
-      </section>
+      </div>
   );
 };
 

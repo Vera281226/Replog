@@ -2,25 +2,18 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from '../../error/api/interceptor';
-import MovieCard from './MovieCard'; // ✅ 공통 카드 컴포넌트 import
+import MovieCard from './MovieCard';
 
-/**
- * UpcomingSection 컴포넌트
- * --------------------------------------------------------------------
- * ○ '개봉 예정 영화' 콘텐츠 섹션 출력
- * ○ 백엔드 API: GET /api/index/upcoming
- * ○ TMDB 직접 호출이 아닌 DB 저장된 데이터 기반으로 렌더링
- * --------------------------------------------------------------------
- */
 const UpcomingSection = () => {
-  const [movies, setMovies] = useState([]);      // 영화 데이터 상태
-  const [error, setError] = useState(null);      // 에러 상태
+  const [movies, setMovies] = useState([]);
+  const [error, setError] = useState(null);
 
-  // ✅ 컴포넌트 마운트 시 개봉 예정 영화 데이터 호출
   useEffect(() => {
     const fetchUpcoming = async () => {
       try {
-        const response = await axios.get('/index/upcoming');
+        const response = await axios.get('/index/upcoming', {
+          withCredentials: false, // ✅ 인증 제거
+        });
         console.log('🎬 개봉 예정 응답 데이터:', response.data);
         setMovies(response.data);
       } catch (error) {
@@ -36,24 +29,19 @@ const UpcomingSection = () => {
       <section>
         <div className="section-inner">
           <h2 className="section-title">개봉 예정 영화</h2>
-
-          {/* 오류 메시지 출력 */}
           {error && <p className="error-message">{error}</p>}
-
-          {/* ✅ 카드 리스트 출력 */}
           <div className="card-grid">
             {movies.map((movie, index) => {
               if (!movie.posterPath) return null;
-
               return (
                   <MovieCard
-                      key={`${movie.contentId}-${index}`}
+                      key={`${movie.title}-${index}`} // ✅ contentId 제거
                       title={`${index + 1}. ${movie.title}`}
                       posterPath={movie.posterPath}
                       releaseDate={movie.releaseDate}
                       voteAverage={movie.rating}
-                      platform="upcoming" // ✔ 플랫폼은 없지만 용도 구분용
-                      contentId={movie.contentId}
+                      platform="upcoming" // ✔ 플랫폼 구분용으로 유지
+                      contentId={null} // ✅ 명시적으로 null
                   />
               );
             })}
