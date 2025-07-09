@@ -10,6 +10,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.stereotype.Controller;
 import pack.dto.chat.ChatMessageRequest;
 import pack.dto.chat.ChatMessageResponse;
+import pack.dto.chat.ChatRoomResponse;
 import pack.service.chat.ChatMessageService;
 import pack.service.chat.ChatRoomService;
 
@@ -56,12 +57,29 @@ public class WebSocketChatController {
 
     @MessageMapping("/chat/leave/{chatRoomId}")
     public void leaveRoom(@DestinationVariable("chatRoomId") Integer chatRoomId,
-                          @Payload Map<String, Object> payload,
-                          SimpMessageHeaderAccessor headerAccessor) {
+                         @Payload Map<String, Object> payload,
+                         SimpMessageHeaderAccessor headerAccessor) {
         String memberId = extractAndValidateMemberId(payload, headerAccessor);
-        chatRoomService.leaveChatRoom(chatRoomId, memberId);
-        ChatMessageResponse leaveMessage = createSystemMessage(chatRoomId, memberId + "님이 채팅방에서 퇴장했습니다.");
-        messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomId, leaveMessage);
+        
+        try {
+            // 채팅방 나가기 처리
+            chatRoomService.removeParticipant(chatRoomId, memberId);
+            
+            // 퇴장 메시지 전송
+            ChatMessageResponse leaveMessage = createSystemMessage(chatRoomId, memberId + "님이 채팅방에서 나갔습니다.");
+            messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomId, leaveMessage);
+            
+            // 방이 비활성화되었는지 확인
+            ChatRoomResponse room = chatRoomService.getChatRoom(chatRoomId);
+            if (!room.getIsActive()) {
+                // 방 종료 메시지 전송
+                ChatMessageResponse closeMessage = createSystemMessage(chatRoomId, "채팅방이 종료되었습니다.");
+                messagingTemplate.convertAndSend("/topic/chat/room/" + chatRoomId, closeMessage);
+            }
+            
+        } catch (Exception e) {
+            log.error("채팅방 나가기 처리 중 오류 발생: ", e);
+        }
     }
 
     // 이하 입력 검증, 세션 속성, 시스템 메시지 메서드는 기존 코드와 동일하게 사용
@@ -129,4 +147,7 @@ public class WebSocketChatController {
                 .sentAt(LocalDateTime.now())
                 .build();
     }
+    
+    
+    
 }

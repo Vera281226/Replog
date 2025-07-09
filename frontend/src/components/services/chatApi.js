@@ -24,6 +24,45 @@ function setCached(key, value) {
 }
 
 const chatApiService = {
+
+// 채팅방 나가기
+async leaveChatRoom(roomId) {
+    if (!roomId) throw new Error('채팅방 ID가 필요합니다.');
+    try {
+        await api.delete(`/chat/rooms/${roomId}/participants`);
+        // 채팅방 관련 캐시 무효화
+        cache.delete('chatRooms');
+        cache.forEach((_, key) => {
+            if (key.startsWith(`msgs_${roomId}_`)) {
+                cache.delete(key);
+            }
+        });
+        return { success: true };
+    } catch (error) {
+        console.error('채팅방 나가기 실패:', error);
+        throw new Error(error.response?.data?.message || '채팅방 나가기에 실패했습니다.');
+    }
+},
+
+// 채팅방 참가자 정보 조회
+async getRoomParticipants(roomId) {
+  if (!roomId) throw new Error('채팅방 ID가 필요합니다.');
+  
+  const key = `participants_${roomId}`;
+  const cached = getCached(key);
+  if (cached) return cached;
+  
+  try {
+    const response = await api.get(`/chat/rooms/${roomId}/participants`);
+    const data = response.data || response;
+    
+    setCached(key, data);
+    return data;
+  } catch (error) {
+    console.error('참가자 정보 조회 실패:', error);
+    throw new Error(error.response?.data?.message || '참가자 정보를 가져올 수 없습니다.');
+  }
+},
   // 채팅방 목록 조회
   async getChatRooms() {
     const key = 'chatRooms';

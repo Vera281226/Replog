@@ -1,13 +1,13 @@
 // src/components/chat/ChatMessageArea.js
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, loading }) => {
+const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, onLeaveRoom, loading }) => {
   const [inputValue, setInputValue] = useState('');
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // 메시지 목록 끝으로 스크롤 (아래로)
+  // 메시지 목록 끝으로 스크롤
   const scrollToBottom = useCallback(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -26,7 +26,7 @@ const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, l
       await onSendMessage(messageText);
     } catch (error) {
       alert('메시지 전송에 실패했습니다.');
-      setInputValue(messageText); // 입력값 복원
+      setInputValue(messageText);
     } finally {
       setSending(false);
     }
@@ -40,7 +40,14 @@ const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, l
     }
   }, [handleSendMessage]);
 
-  // 메시지 변경 시 스크롤 (새 메시지가 아래로 추가됨)
+  // 채팅방 나가기 처리
+  const handleLeaveRoom = useCallback(() => {
+    if (selectedRoom && onLeaveRoom) {
+      onLeaveRoom(selectedRoom.chatRoomId);
+    }
+  }, [selectedRoom, onLeaveRoom]);
+
+  // 메시지 변경 시 스크롤
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
@@ -54,10 +61,10 @@ const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, l
 
   if (!selectedRoom) {
     return (
-      <div style={styles.noRoomSelected}>
+      <div style={styles.noRoomContainer}>
         <div style={styles.noRoomContent}>
-          <span style={{ fontSize: '48px', marginBottom: '10px' }}>💬</span>
-          <p>채팅방을 선택해주세요</p>
+          <h4>채팅방을 선택해주세요</h4>
+          <p>왼쪽 목록에서 채팅방을 선택하면 대화를 시작할 수 있습니다.</p>
         </div>
       </div>
     );
@@ -66,28 +73,36 @@ const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, l
   return (
     <div style={styles.container}>
       {/* 채팅방 헤더 */}
-      <div style={styles.roomHeader}>
-        <span style={styles.roomIcon}>
-          {selectedRoom.roomType === 'AI' ? '🤖' : '🎬'}
-        </span>
-        <span style={styles.roomTitle}>{selectedRoom.roomName}</span>
-        {selectedRoom.roomType === 'AI' && (
-          <span style={styles.aiBadge}>AI</span>
+      <div style={styles.header}>
+        <div style={styles.headerInfo}>
+          <h4 style={styles.roomTitle}>
+            {selectedRoom.roomType === 'AI' ? '🤖' : '🎬'} {selectedRoom.roomName}
+          </h4>
+          <span style={styles.participantCount}>
+            👥 {selectedRoom.participantCount || 0}명
+          </span>
+        </div>
+        
+        {/* 나가기 버튼 (AI 채팅방이 아닌 경우만) */}
+        {selectedRoom.roomType !== 'AI' && (
+          <button
+            style={styles.leaveButton}
+            onClick={handleLeaveRoom}
+            title="채팅방 나가기"
+          >
+            🚪 나가기
+          </button>
         )}
       </div>
 
-      {/* 메시지 목록 */}
-      <div style={styles.messageList}>
-        {loading && messages.length === 0 ? (
-          <div style={styles.loading}>
-            <div>⏳</div>
+      {/* 메시지 영역 */}
+      <div style={styles.messagesContainer}>
+        {loading ? (
+          <div style={styles.loadingContainer}>
             <p>메시지를 불러오는 중...</p>
           </div>
         ) : messages.length === 0 ? (
-          <div style={styles.noMessages}>
-            <div style={{ fontSize: '48px', marginBottom: '10px' }}>
-              {selectedRoom.roomType === 'AI' ? '🤖' : '🎬'}
-            </div>
+          <div style={styles.emptyContainer}>
             <p>
               {selectedRoom.roomType === 'AI' 
                 ? 'AI 어시스턴트와 대화를 시작해보세요!' 
@@ -95,227 +110,229 @@ const ChatMessageArea = ({ selectedRoom, messages, currentUser, onSendMessage, l
             </p>
           </div>
         ) : (
-          <>
+          <div style={styles.messagesList}>
             {messages.map((message, index) => (
-              <div 
-                key={message.chatMessagesId || index}
+              <div
+                key={index}
                 style={{
-                  ...styles.message,
-                  alignSelf: message.senderId === currentUser.memberId ? 'flex-end' : 'flex-start'
+                  ...styles.messageItem,
+                  ...(message.senderId === currentUser.memberId ? styles.myMessage : styles.otherMessage)
                 }}
               >
-                {message.senderId !== currentUser.memberId && (
-                  <div style={styles.senderName}>
+                <div style={styles.messageInfo}>
+                  <span style={styles.senderName}>
                     {getSenderDisplayName(message)}
-                  </div>
-                )}
-                <div style={{
-                  ...styles.messageText,
-                  backgroundColor: message.senderId === currentUser.memberId ? '#007bff' : '#f1f3f4',
-                  color: message.senderId === currentUser.memberId ? 'white' : '#333'
-                }}>
-                  {message.messageText}
+                  </span>
+                  <span style={styles.messageTime}>
+                    {new Date(message.sentAt).toLocaleTimeString()}
+                  </span>
                 </div>
-                <div style={styles.messageTime}>
-                  {new Date(message.sentAt).toLocaleTimeString('ko-KR', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
+                <div style={styles.messageContent}>
+                  {message.messageText}
                 </div>
               </div>
             ))}
-            {/* ✅ 스크롤 앵커 (맨 아래) */}
             <div ref={messagesEndRef} />
-          </>
+          </div>
         )}
       </div>
 
       {/* 입력 영역 */}
-      <div style={styles.inputArea}>
-        <div style={styles.inputWrapper}>
-          <textarea
-            ref={inputRef}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder={
-              selectedRoom.roomType === 'AI' 
-                ? "AI에게 질문하세요..." 
-                : "메시지를 입력하세요..."
-            }
-            disabled={sending}
-            rows={1}
-            style={{
-              ...styles.input,
-              opacity: sending ? 0.6 : 1
-            }}
-          />
-          <button
-            onClick={handleSendMessage}
-            disabled={sending || !inputValue.trim()}
-            style={{
-              ...styles.sendButton,
-              opacity: sending || !inputValue.trim() ? 0.5 : 1
-            }}
-          >
-            {sending ? '⏳' : '📤'}
-          </button>
-        </div>
-        <div style={styles.inputHint}>
-          Enter: 전송 | Shift + Enter: 줄바꿈
-        </div>
+      <div style={styles.inputContainer}>
+        <textarea
+          ref={inputRef}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="메시지를 입력하세요..."
+          style={styles.textInput}
+          disabled={sending}
+        />
+        <button
+          onClick={handleSendMessage}
+          disabled={sending || !inputValue.trim()}
+          style={{
+            ...styles.sendButton,
+            ...(sending || !inputValue.trim() ? styles.sendButtonDisabled : {})
+          }}
+        >
+          {sending ? '전송중...' : '전송'}
+        </button>
       </div>
     </div>
   );
 };
 
+// 스타일 정의
 const styles = {
   container: {
+    display: 'flex',
+    flexDirection: 'column',
     height: '100%',
-    display: 'flex',
-    flexDirection: 'column'
+    backgroundColor: '#fff'
   },
 
-  roomHeader: {
-    padding: '12px 15px',
+  header: {
+    padding: '15px 20px',
     borderBottom: '1px solid #eee',
+    backgroundColor: '#f8f9fa',
     display: 'flex',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa'
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
 
-  roomIcon: {
-    fontSize: '16px',
-    marginRight: '8px'
+  headerInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px'
   },
 
   roomTitle: {
-    fontSize: '14px',
-    fontWeight: '500',
-    flex: 1
+    margin: 0,
+    fontSize: '16px',
+    fontWeight: '600',
+    color: '#333'
   },
 
-  aiBadge: {
-    background: '#4caf50',
+  participantCount: {
+    fontSize: '12px',
+    color: '#666'
+  },
+
+  leaveButton: {
+    background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
+    border: 'none',
     color: 'white',
-    fontSize: '10px',
-    padding: '2px 6px',
-    borderRadius: '8px',
-    fontWeight: 'bold'
+    padding: '8px 12px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '12px',
+    fontWeight: '500',
+    transition: 'all 0.2s ease',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   },
 
-  messageList: {
+  messagesContainer: {
     flex: 1,
     overflowY: 'auto',
-    padding: '15px',
+    padding: '10px',
+    backgroundColor: '#f5f5f5'
+  },
+
+  messagesList: {
     display: 'flex',
     flexDirection: 'column',
     gap: '10px'
   },
 
-  noRoomSelected: {
-    height: '100%',
+  messageItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: '70%',
+    marginBottom: '5px'
+  },
+
+  myMessage: {
+    alignSelf: 'flex-end',
+    alignItems: 'flex-end'
+  },
+
+  otherMessage: {
+    alignSelf: 'flex-start',
+    alignItems: 'flex-start'
+  },
+
+  messageInfo: {
+    display: 'flex',
+    gap: '8px',
+    marginBottom: '4px',
+    fontSize: '11px',
+    color: '#666'
+  },
+
+  senderName: {
+    fontWeight: '500'
+  },
+
+  messageTime: {
+    color: '#999'
+  },
+
+  messageContent: {
+    background: '#fff',
+    padding: '10px 12px',
+    borderRadius: '12px',
+    fontSize: '14px',
+    lineHeight: '1.4',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+    wordBreak: 'break-word'
+  },
+
+  inputContainer: {
+    display: 'flex',
+    gap: '10px',
+    padding: '15px 20px',
+    borderTop: '1px solid #eee',
+    backgroundColor: '#fff'
+  },
+
+  textInput: {
+    flex: 1,
+    padding: '10px 12px',
+    border: '1px solid #ddd',
+    borderRadius: '6px',
+    fontSize: '14px',
+    resize: 'none',
+    minHeight: '40px',
+    maxHeight: '80px',
+    outline: 'none',
+    fontFamily: 'inherit'
+  },
+
+  sendButton: {
+    background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)',
+    border: 'none',
+    color: 'white',
+    padding: '10px 20px',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '500',
+    transition: 'all 0.2s ease'
+  },
+
+  sendButtonDisabled: {
+    background: '#ccc',
+    cursor: 'not-allowed'
+  },
+
+  noRoomContainer: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    height: '100%',
+    backgroundColor: '#f8f9fa'
   },
 
   noRoomContent: {
     textAlign: 'center',
-    color: '#999'
+    color: '#666'
   },
 
-  loading: {
+  loadingContainer: {
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
     color: '#666'
   },
 
-  noMessages: {
+  emptyContainer: {
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
-    color: '#999',
-    textAlign: 'center'
-  },
-
-  message: {
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '80%'
-  },
-
-  senderName: {
-    fontSize: '11px',
     color: '#666',
-    marginBottom: '3px',
-    fontWeight: '500'
-  },
-
-  messageText: {
-    padding: '10px 12px',
-    borderRadius: '12px',
-    wordWrap: 'break-word',
-    lineHeight: '1.4',
-    fontSize: '14px'
-  },
-
-  messageTime: {
-    fontSize: '10px',
-    color: '#999',
-    marginTop: '3px',
-    alignSelf: 'flex-end'
-  },
-
-  inputArea: {
-    padding: '15px',
-    borderTop: '1px solid #eee',
-    backgroundColor: '#fafafa'
-  },
-
-  inputWrapper: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'flex-end'
-  },
-
-  input: {
-    flex: 1,
-    padding: '10px 12px',
-    border: '1px solid #ddd',
-    borderRadius: '20px',
-    resize: 'none',
-    outline: 'none',
-    fontSize: '14px',
-    fontFamily: 'inherit',
-    maxHeight: '80px',
-    minHeight: '40px'
-  },
-
-  sendButton: {
-    width: '40px',
-    height: '40px',
-    borderRadius: '50%',
-    border: 'none',
-    backgroundColor: '#007bff',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '16px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transition: 'all 0.2s'
-  },
-
-  inputHint: {
-    fontSize: '11px',
-    color: '#999',
-    marginTop: '5px',
     textAlign: 'center'
   }
 };

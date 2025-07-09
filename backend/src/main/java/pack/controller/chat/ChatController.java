@@ -123,4 +123,19 @@ public class ChatController {
         ChatRoomResponse response = chatRoomService.getRoomByPartyPostNo(partyPostNo);
         return ResponseEntity.ok(response);
     }
+    
+    @DeleteMapping("/rooms/{roomId}/participants")
+    public ResponseEntity<String> removeParticipant(@PathVariable("roomId") Integer roomId) {
+        String memberId = AuthUtil.getCurrentMemberId();
+        if (memberId == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+        
+        try {
+            chatRoomService.removeParticipant(roomId, memberId);
+            return ResponseEntity.ok("채팅방에서 성공적으로 나갔습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("채팅방 나가기에 실패했습니다: " + e.getMessage());
+        }
+    }
 }

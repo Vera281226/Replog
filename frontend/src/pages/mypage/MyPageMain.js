@@ -29,7 +29,17 @@ export default function MyPageMain() {
 
   return (
     <section className="mypage">
-      {/* ...기존 내용 */}
+      {/* ① 프로필 영역 */}
+      <img
+        src={data.profileImage || '/img/default-profile.svg'}
+        alt="프로필"
+        className="profile-img"
+      />
+      <h2>{data.nickname || '닉네임 없음'}</h2>
+      <p className="intro">{data.introduction || '소개글이 없습니다.'}</p>
+      <p className="count">
+        게시글 {data.reviewCount ?? 0} | 댓글 {data.commentCount ?? 0}
+      </p>
       <div className="link-box">
         <Link to="#">내가 쓴 리뷰보기</Link>
         <Link to="#">내가 쓴 모집글 · 신청내역</Link>
