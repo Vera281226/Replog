@@ -2,11 +2,11 @@
 .fab-settings {
   position: fixed;
   bottom: 20px;
-  right: 90px; /* 챗봇은 right: 20px → 왼쪽으로 70px 여유 */
+  right: 90px;
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background-color: #333;
+  background-color: #3a3a3a; /* ✅ 기준에 맞게 수정 */
   color: white;
   border: none;
   font-size: 1.5em;
@@ -21,15 +21,26 @@
 
 .fab-settings:hover {
   transform: scale(1.1);
+  background-color: #3a3a3a; /* ✅ hover도 동일 기준 유지 */
 }
 
 /* ✅ 반응형: 모바일에서는 위치와 크기 조정 */
 @media (max-width: 768px) {
   .fab-settings {
     bottom: 80px;
-    right: 85px;  /* 챗봇이 right: 15px이므로 기준 맞춤 */
+    right: 85px;
     width: 50px;
     height: 50px;
     font-size: 1.2em;
   }
+}
+
+/* 🌙 다크모드 대응 */
+.dark-mode .fab-settings {
+  background-color: #2a2a2a; /* ✅ 기준 배경 */
+  color: #f5f5f5;            /* ✅ 기준 텍스트 */
+}
+
+.dark-mode .fab-settings:hover {
+  background-color: #3a3a3a; /* ✅ 기준 카드/hover */
 }

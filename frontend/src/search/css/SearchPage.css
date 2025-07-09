@@ -4,7 +4,7 @@
 .search-page-wrapper {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;       /* 전체 화면 높이 확보 */
+    min-height: 100vh;
     background-color: #fff;
 }
 
@@ -12,7 +12,7 @@
  * 메인 콘텐츠 영역
  * -------------------------------------------- */
 .search-page-container {
-    flex: 1;                  /* Footer를 아래로 밀어냄 */
+    flex: 1;
     padding: 20px 40px;
 }
 
@@ -38,14 +38,16 @@
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 6px;
+    background-color: #fff;
+    color: #333;
 }
 
 .search-button {
     padding: 8px 12px;
     font-size: 16px;
-    background-color: #222;
-    color: white;
-    border: none;
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
     border-radius: 6px;
     cursor: pointer;
 }
@@ -62,7 +64,7 @@
     margin-top: 4px;
     padding: 0;
     list-style: none;
-    background: white;
+    background: #fff;
     border: 1px solid #ccc;
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -85,6 +87,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    color: #333;
 }
 
 .suggestion-item:hover {
@@ -111,16 +114,17 @@
 }
 
 /* --------------------------------------------
- * 검색 결과 제목 (ex: "무빙" 검색 결과)
+ * 검색 결과 제목
  * -------------------------------------------- */
 .search-title {
     font-size: 24px;
     margin: 30px 0 20px;
     text-align: center;
+    color: #222;
 }
 
 /* --------------------------------------------
- * 대표 포스터 섹션 (SearchResultPoster)
+ * 대표 포스터 섹션
  * -------------------------------------------- */
 .poster-section {
     margin: 40px 0;
@@ -130,6 +134,7 @@
     font-size: 20px;
     margin-bottom: 16px;
     text-align: left;
+    color: #222;
 }
 
 .poster-slider {
@@ -157,6 +162,7 @@
 .poster-title {
     font-size: 14px;
     font-weight: bold;
+    color: #111;
 }
 
 .poster-meta {
@@ -165,7 +171,7 @@
 }
 
 /* --------------------------------------------
- * 콘텐츠 리스트 섹션 (SearchResultList)
+ * 콘텐츠 리스트 섹션
  * -------------------------------------------- */
 .result-list-section {
     margin-top: 50px;
@@ -199,6 +205,7 @@
     font-size: 16px;
     font-weight: bold;
     margin: 0 0 4px;
+    color: #222;
 }
 
 .content-sub {
@@ -211,4 +218,48 @@
     font-size: 14px;
     color: #444;
     line-height: 1.4;
+}
+
+/* --------------------------------------------
+ * 🌙 다크모드 스타일 (기준 반영)
+ * -------------------------------------------- */
+.dark-mode .search-page-wrapper {
+    background-color: var(--card-bg); /* #3a3a3a */
+}
+
+.dark-mode .poster-title,
+.dark-mode .poster-meta,
+.dark-mode .content-title,
+.dark-mode .content-sub,
+.dark-mode .content-overview,
+.dark-mode .search-title,
+.dark-mode .section-title {
+    color: var(--text-primary); /* #f5f5f5 */
+}
+
+.dark-mode .search-loading,
+.dark-mode .search-no-result {
+    color: var(--text-secondary); /* #aaaaaa */
+}
+
+/* ✅ 검색창은 라이트 스타일 그대로 유지 */
+.dark-mode .search-input {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #aaa;
+}
+
+.dark-mode .search-button {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.dark-mode .suggestion-list {
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+.dark-mode .suggestion-item {
+    color: #333;
 }
