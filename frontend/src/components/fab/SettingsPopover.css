@@ -1,17 +1,28 @@
-/* ✅ 팝업 전체 박스 */
+/* ✅ 팝업 전체 박스 (공통) */
 .settings-popover {
     position: fixed;
     bottom: 90px;            /* ⚙ 버튼 위로 뜸 (60px + 여유 30px) */
-    right: 90px;             /* ⚙ 버튼 위치와 일치 */
+    right: 90px;
     width: 200px;
-    background-color: var(--card-bg, #ffffff);
-    color: var(--text-primary, #000000);
-    border: 1px solid #ccc;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     padding: 16px;
     z-index: 1000;
     font-size: 14px;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* ✅ 라이트모드 */
+.light-mode .settings-popover {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* ✅ 다크모드 */
+.dark-mode .settings-popover {
+    background-color: #3a3a3a;
+    color: #f5f5f5;
 }
 
 /* ✅ 섹션 제목 */
@@ -19,7 +30,15 @@
     font-weight: bold;
     margin-bottom: 8px;
     font-size: 13px;
-    color: var(--text-secondary, #444);
+}
+
+/* ✅ 다크/라이트에 따른 부제목 색상 */
+.light-mode .section-title {
+    color: #444444;
+}
+
+.dark-mode .section-title {
+    color: #bbbbbb;
 }
 
 /* ✅ 버튼 리스트 */
@@ -29,6 +48,7 @@
     gap: 6px;
     margin-bottom: 14px;
 }
+
 .option-list button {
     all: unset;
     cursor: pointer;
@@ -36,26 +56,47 @@
     border-radius: 6px;
     transition: background-color 0.2s;
 }
-.option-list button:hover {
+
+.light-mode .option-list button:hover {
     background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .option-list button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ✅ 현재 선택된 항목 표시 */
 .option-list button.active {
     font-weight: bold;
+}
+
+.light-mode .option-list button.active {
     background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .option-list button.active {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* ✅ 닫기 버튼 영역 */
 .close-area {
     text-align: right;
 }
+
 .close-area button {
     all: unset;
     cursor: pointer;
     font-size: 13px;
-    color: var(--text-secondary, #666);
 }
+
+.light-mode .close-area button {
+    color: #666666;
+}
+
+.dark-mode .close-area button {
+    color: #bbbbbb;
+}
+
 .close-area button:hover {
     text-decoration: underline;
 }

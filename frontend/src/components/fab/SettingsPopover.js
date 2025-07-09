@@ -4,28 +4,58 @@ import React, { useState, useEffect } from 'react';
 import './SettingsPopover.css';
 
 const SettingsPopover = ({ onClose }) => {
-    const [theme, setTheme] = useState('light');
+    // ----------------------------
+    // 🌗 테마 상태: 'light', 'dark', null(자동)
+    // ----------------------------
+    const [theme, setTheme] = useState(null);
+
+    // 🔠 글자 크기 상태: 'small' | 'normal' | 'large'
     const [fontSize, setFontSize] = useState('normal');
 
+    // ----------------------------
     // ✅ 초기 설정 불러오기
+    // ----------------------------
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
         const savedFont = localStorage.getItem('fontSize');
 
-        if (savedTheme) setTheme(savedTheme);
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+            setTheme(savedTheme);
+        } else {
+            setTheme(null); // 자동 모드
+        }
+
         if (savedFont) setFontSize(savedFont);
     }, []);
 
-    // ✅ 테마 설정 핸들러
+    // ----------------------------
+    // 🌗 테마 변경 핸들러
+    // ----------------------------
     const handleThemeChange = (mode) => {
         setTheme(mode);
-        localStorage.setItem('theme', mode);
+        localStorage.setItem('theme', mode); // 사용자 수동 선택
 
-        document.body.classList.remove('light-mode', 'dark-mode');
-        document.body.classList.add(`${mode}-mode`);
+        const html = document.documentElement;
+        html.classList.remove('light-mode', 'dark-mode');
+        html.classList.add(`${mode}-mode`); // 'light-mode' or 'dark-mode'
     };
 
-    // ✅ 글자 크기 설정 핸들러 (html 태그 기준으로 수정됨)
+    // ⏱ 자동 모드: 시간 기준 적용 (오전 6시~18시 라이트 / 나머지 다크)
+    const handleAutoTheme = () => {
+        setTheme(null);
+        localStorage.removeItem('theme');
+
+        const currentHour = new Date().getHours();
+        const isNight = currentHour >= 18 || currentHour < 6;
+        const html = document.documentElement;
+
+        html.classList.remove('light-mode', 'dark-mode');
+        html.classList.add(isNight ? 'dark-mode' : 'light-mode');
+    };
+
+    // ----------------------------
+    // 🔠 글자 크기 변경 핸들러
+    // ----------------------------
     const handleFontChange = (size) => {
         setFontSize(size);
         localStorage.setItem('fontSize', size);
@@ -35,26 +65,37 @@ const SettingsPopover = ({ onClose }) => {
         html.classList.add(`font-${size}`);
     };
 
+    // ----------------------------
+    // ✅ 렌더링
+    // ----------------------------
     return (
         <div className="settings-popover">
+            {/* 🌗 테마 선택 섹션 */}
             <div className="section">
                 <div className="section-title">화면 스타일</div>
                 <div className="option-list">
                     <button
+                        className={theme === null ? 'active' : ''}
+                        onClick={handleAutoTheme}
+                    >
+                        ⏱ 자동 모드 {theme === null && '✓'}
+                    </button>
+                    <button
                         className={theme === 'light' ? 'active' : ''}
                         onClick={() => handleThemeChange('light')}
                     >
-                        라이트 모드 {theme === 'light' && '✓'}
+                        ☀️ 라이트 모드 {theme === 'light' && '✓'}
                     </button>
                     <button
                         className={theme === 'dark' ? 'active' : ''}
                         onClick={() => handleThemeChange('dark')}
                     >
-                        다크 모드 {theme === 'dark' && '✓'}
+                        🌙 다크 모드 {theme === 'dark' && '✓'}
                     </button>
                 </div>
             </div>
 
+            {/* 🔠 글자 크기 선택 섹션 */}
             <div className="section">
                 <div className="section-title">글자 크기</div>
                 <div className="option-list">
@@ -79,6 +120,7 @@ const SettingsPopover = ({ onClose }) => {
                 </div>
             </div>
 
+            {/* ❌ 닫기 버튼 */}
             <div className="close-area">
                 <button onClick={onClose}>닫기</button>
             </div>
