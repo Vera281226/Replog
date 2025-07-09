@@ -38,23 +38,31 @@ function ReplyItem({
   };
 
   return (
-    <div className="mt-2 ml-4 p-2 border-l border-gray-300">
-      <div className="flex justify-between items-center">
-        <span className="font-semibold text-sm">{reply.memberId}</span>{' '}
-        <span className="text-xs text-gray-500">
-          {reply.createdAt
-            ? new Date(reply.createdAt).toLocaleString('ko-KR', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-            : ''}
-        </span>
+    <div
+      style={{
+        marginLeft: '16px',
+        paddingLeft: '12px',
+        borderLeft: '2px solid #eee',
+        marginTop: '12px'
+      }}
+    >
+      <div className="review-header">
+        <div className="header-left">
+          <div className="review-writer">{reply.memberId}</div>
+          <div className="review-date">
+            {reply.createdAt &&
+              new Date(reply.createdAt).toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+          </div>
+        </div>
       </div>
 
-      <div className="text-sm mt-1 text-gray-800">
+      <div className="review-content">
         {isEditing ? (
           <>
             <textarea
@@ -69,24 +77,29 @@ function ReplyItem({
               }}
               rows={1}
               placeholder="댓글을 입력하세요"
+              style={{
+                width: '100%',
+                fontSize: '15px',
+                padding: '8px',
+                borderRadius: '6px',
+                border: '1px solid #ccc',
+                backgroundColor: '#f8f8f8'
+              }}
             />
 
-            <div className="reply-actions">
-              <button onClick={handleSave} className="reply-btn">등록</button>
-              <button onClick={() => setEditingReplyId(null)} className="reply-btn cancel">취소</button>
+            <div className="review-buttons">
+              <button className="edit-btn" onClick={handleSave}>등록</button>
+              <button className="delete-btn" onClick={() => setEditingReplyId(null)}>취소</button>
             </div>
-
           </>
         ) : (
           <>
-            <p className="mt-1">{reply.cont}</p>
+            <p style={{ marginTop: '4px' }}>{reply.cont}</p>
             {reply.memberId === memberId && (
-              <div className="reply-buttons text-sm mt-1 space-x-3" style={{ marginBottom: '10px' }}>
-                <button className="reply-btn" onClick={() => setEditingReplyId(reply.reviewId)}>수정</button>
-                <button className="reply-btn" onClick={handleDelete}>삭제</button>
+              <div className="review-buttons">
+                <button className="edit-btn" onClick={() => setEditingReplyId(reply.reviewId)}>수정</button>
+                <button className="delete-btn" onClick={handleDelete}>삭제</button>
               </div>
-
-
             )}
           </>
         )}

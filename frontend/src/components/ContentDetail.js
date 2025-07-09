@@ -14,14 +14,17 @@ export default function ContentDetail({
   return (
     <div className="content-detail-container">
       <img className="poster" src={posterUrl} alt={title} />
-      
+
       <div className="info-container">
         <h1 className="title">{title}</h1>
 
         <div className="detail-item"><span className="label">개봉일: </span>{releaseDate}</div>
         <div className="detail-item"><span className="label">장르: </span>{genres.join(', ')}</div>
-        <div className="detail-item"><span className="label">출연: </span>{cast.join(', ')}</div>
-        <div className="detail-item"><span className="label">평점: </span>⭐ {rating.toFixed(1)}</div>
+        <div className="detail-item">
+          <span className="label">평점: </span>
+          <span style={{ color: '#7c3aed', fontSize: '16px' }}>★</span> {rating.toFixed(1)}
+        </div>
+
         <p className="description">{description}</p>
 
         {/* 신고 버튼을 info 영역 오른쪽 아래에 위치시키기 위한 wrapper */}

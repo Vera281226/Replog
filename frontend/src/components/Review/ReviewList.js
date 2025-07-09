@@ -120,7 +120,9 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
       <div className="review-list-header">
         <h2>리뷰 목록</h2>
         <div className="review-list-controls">
-          <button onClick={() => openModal(initReviews)}>리뷰 작성</button>
+          <button className="btn-deep-purple" onClick={() => openModal(initReviews)}>
+            리뷰 작성
+          </button>
           <select value={sortType} onChange={(e) => setSortType(e.target.value)}>
             <option value="LATEST">최신순</option>
             <option value="RATING">별점 높은 순</option>
