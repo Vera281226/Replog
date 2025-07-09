@@ -1,11 +1,10 @@
 // src/components/chat/ChatRoomList.js
 import React from 'react';
 
-const ChatRoomList = ({ chatRooms, selectedRoom, onRoomSelect, loading, currentUser }) => {
+const ChatRoomList = ({ chatRooms, selectedRoom, onRoomSelect, onLeaveRoom, loading, currentUser }) => {
   
   const formatLastMessageTime = (dateTime) => {
     if (!dateTime) return '';
-    
     const now = new Date();
     const messageTime = new Date(dateTime);
     const diffMinutes = Math.floor((now - messageTime) / (1000 * 60));
@@ -24,26 +23,31 @@ const ChatRoomList = ({ chatRooms, selectedRoom, onRoomSelect, loading, currentU
     }
   };
 
-  const truncateMessage = (message, maxLength = 30) => {
+  const truncateMessage = (message, maxLength = 20) => {
     if (!message) return '메시지가 없습니다';
     return message.length > maxLength ? message.substring(0, maxLength) + '...' : message;
+  };
+
+  const handleLeaveClick = (e, roomId) => {
+    e.stopPropagation(); // 채팅방 선택 이벤트 방지
+    onLeaveRoom(roomId);
   };
 
   if (loading) {
     return (
       <div style={styles.container}>
-        <div style={styles.loading}>
-          ⏳ 로딩 중...
+        <div style={styles.loadingContainer}>
+          <div style={styles.loadingSpinner}></div>
+          <p>로딩 중...</p>
         </div>
       </div>
     );
   }
 
-  if (chatRooms.length === 0) {
+  if (!chatRooms || chatRooms.length === 0) {
     return (
       <div style={styles.container}>
-        <div style={styles.empty}>
-          <p>📭</p>
+        <div style={styles.emptyContainer}>
           <p>채팅방이 없습니다</p>
         </div>
       </div>
@@ -53,7 +57,7 @@ const ChatRoomList = ({ chatRooms, selectedRoom, onRoomSelect, loading, currentU
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        채팅방 목록
+        <h4 style={styles.headerTitle}>채팅방 목록</h4>
       </div>
       
       <div style={styles.roomList}>
@@ -62,32 +66,42 @@ const ChatRoomList = ({ chatRooms, selectedRoom, onRoomSelect, loading, currentU
             key={room.chatRoomId}
             style={{
               ...styles.roomItem,
-              backgroundColor: selectedRoom?.chatRoomId === room.chatRoomId ? '#e3f2fd' : 'transparent'
+              ...(selectedRoom?.chatRoomId === room.chatRoomId ? styles.selectedRoom : {})
             }}
             onClick={() => onRoomSelect(room)}
           >
-            <div style={styles.roomHeader}>
-              <span style={styles.roomIcon}>{getRoomIcon(room.roomType)}</span>
-              <span style={styles.roomName}>{room.roomName}</span>
-            </div>
-            
             <div style={styles.roomInfo}>
-              <div style={styles.lastMessage}>
-                {truncateMessage(room.lastMessage)}
+              <div style={styles.roomHeader}>
+                <span style={styles.roomIcon}>{getRoomIcon(room.roomType)}</span>
+                <span style={styles.roomName}>{truncateMessage(room.roomName, 15)}</span>
+                {room.roomType !== 'AI' && (
+                  <button
+                    style={styles.leaveButton}
+                    onClick={(e) => handleLeaveClick(e, room.chatRoomId)}
+                    title="채팅방 나가기"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
-              <div style={styles.roomMeta}>
+              
+              <div style={styles.roomDetails}>
                 <span style={styles.participantCount}>
-                  👥 {room.participantCount}
+                  👥 {room.participantCount || 0}명
                 </span>
-                <span style={styles.lastTime}>
-                  {formatLastMessageTime(room.lastMessageTime)}
-                </span>
+                {room.lastMessageTime && (
+                  <span style={styles.lastMessageTime}>
+                    {formatLastMessageTime(room.lastMessageTime)}
+                  </span>
+                )}
               </div>
+              
+              {room.lastMessage && (
+                <div style={styles.lastMessage}>
+                  {truncateMessage(room.lastMessage)}
+                </div>
+              )}
             </div>
-            
-            {room.roomType === 'AI' && (
-              <div style={styles.aiBadge}>AI</div>
-            )}
           </div>
         ))}
       </div>
@@ -95,107 +109,145 @@ const ChatRoomList = ({ chatRooms, selectedRoom, onRoomSelect, loading, currentU
   );
 };
 
+// 스타일 정의
 const styles = {
   container: {
     height: '100%',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    backgroundColor: '#f8f9fa'
   },
 
   header: {
-    padding: '12px 15px',
-    fontWeight: 'bold',
-    fontSize: '12px',
-    color: '#666',
+    padding: '15px 10px',
     borderBottom: '1px solid #eee',
-    backgroundColor: '#f8f9fa'
+    backgroundColor: '#fff'
+  },
+
+  headerTitle: {
+    margin: 0,
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#333'
   },
 
   roomList: {
     flex: 1,
-    overflowY: 'auto'
+    overflowY: 'auto',
+    padding: '5px'
   },
 
   roomItem: {
-    padding: '12px 15px',
+    padding: '12px 10px',
+    margin: '2px 0',
+    backgroundColor: '#fff',
+    borderRadius: '6px',
     cursor: 'pointer',
-    borderBottom: '1px solid #f0f0f0',
-    transition: 'background-color 0.2s',
+    transition: 'all 0.2s ease',
+    border: '1px solid transparent',
     position: 'relative'
+  },
+
+  selectedRoom: {
+    backgroundColor: '#e3f2fd',
+    borderColor: '#2196f3'
+  },
+
+  roomInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '4px'
   },
 
   roomHeader: {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '5px'
+    gap: '6px',
+    position: 'relative'
   },
 
   roomIcon: {
     fontSize: '16px',
-    marginRight: '8px'
+    flexShrink: 0
   },
 
   roomName: {
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '500',
     color: '#333',
-    flex: 1
+    flex: 1,
+    minWidth: 0
   },
 
-  roomInfo: {
-    fontSize: '12px'
+  leaveButton: {
+    position: 'absolute',
+    right: '0',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'rgba(244, 67, 54, 0.1)',
+    border: 'none',
+    color: '#f44336',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    cursor: 'pointer',
+    fontSize: '12px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
+    opacity: 0.7
   },
 
-  lastMessage: {
-    color: '#666',
-    marginBottom: '4px',
-    lineHeight: '1.3'
-  },
-
-  roomMeta: {
+  roomDetails: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+    fontSize: '11px',
+    color: '#666'
   },
 
   participantCount: {
-    color: '#999',
-    fontSize: '11px'
+    fontSize: '10px',
+    color: '#666'
   },
 
-  lastTime: {
-    color: '#999',
-    fontSize: '11px'
+  lastMessageTime: {
+    fontSize: '10px',
+    color: '#999'
   },
 
-  aiBadge: {
-    position: 'absolute',
-    top: '8px',
-    right: '8px',
-    background: '#4caf50',
-    color: 'white',
-    fontSize: '8px',
-    padding: '2px 4px',
-    borderRadius: '8px',
-    fontWeight: 'bold'
+  lastMessage: {
+    fontSize: '11px',
+    color: '#888',
+    marginTop: '2px'
   },
 
-  loading: {
+  loadingContainer: {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
     color: '#666'
   },
 
-  empty: {
+  loadingSpinner: {
+    width: '20px',
+    height: '20px',
+    border: '2px solid #f3f3f3',
+    borderTop: '2px solid #2196f3',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite'
+  },
+
+  emptyContainer: {
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     height: '100%',
-    color: '#999',
-    textAlign: 'center'
+    color: '#666',
+    fontSize: '14px'
   }
 };
 

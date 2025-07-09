@@ -96,11 +96,5 @@ public class PartyPostController {
             @RequestBody PartyPostRequest dto) {
         return ResponseEntity.ok(partyPostService.updatePartyPost(partyPostNo, dto));
     }
-    
-    // 삭제
-    @DeleteMapping("/{partyPostNo}")
-    public ResponseEntity<Void> delete(@PathVariable(value = "partyPostNo") Integer partyPostNo) {
-        partyPostService.deletePartyPost(partyPostNo);
-        return ResponseEntity.ok().build();
-    }
+
 }

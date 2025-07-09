@@ -62,6 +62,10 @@ public class ChatRoom {
     @JoinColumn(name = "party_post_no")
     private PartyPost partyPost;
     
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+    
     public enum RoomType {
         PARTY, AI
     }
