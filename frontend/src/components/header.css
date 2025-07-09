@@ -1,27 +1,62 @@
-/* ✅ 헤더 전체 영역 - 상단 고정 + 그림자 효과 */
-header {
-  position: sticky;                /* 스크롤 내려도 화면 상단 고정 */
-  top: 0;                          /* 윈도우 상단에 고정 위치 */
-  z-index: 999;                    /* 다른 요소 위에 표시되도록 설정 */
-  display: flex;                  /* 내부 요소 가로 배치 */
-  align-items: center;           /* 수직 정렬 */
-  justify-content: space-between; /* 좌우 요소 간 간격 자동 정렬 */
-  padding: 15px 30px;             /* 내부 여백 */
-  background-color: #f5f5f5;      /* 배경색 */
-  border-bottom: 1px solid #ccc;  /* 아래 테두리 */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 아주 옅은 그림자 */
-  font-family: 'Segoe UI', sans-serif; /* 기본 폰트 */
+:root {
+  /* Light mode colors (기본) */
+  --header-bg: #f5f5f5;
+  --header-border: #ccc;
+  --header-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  --header-text: #333;
+
+  --footer-bg: #f5f5f5;
+  --footer-border: #ccc;
+  --footer-shadow: 0 -2px 4px rgba(0,0,0,0.03);
+  --footer-text: #666;
+
+  --nav-link: #333;
+  --nav-link-hover: #007bff;
+  --tooltip-bg: #fff;
+  --tooltip-text: #333;
 }
 
-/* ✅ 로고 텍스트 링크 */
+body.dark-mode {
+  /* Dark mode colors */
+  --header-bg: #23262b;        /* 더 짙고 고급스러운 회색 */
+  --header-border: #1a1c20;
+  --header-shadow: 0 2px 8px rgba(0,0,0,0.22);
+  --header-text: #f1f1f1;
+
+  --footer-bg: #23262b;
+  --footer-border: #1a1c20;
+  --footer-shadow: 0 -2px 8px rgba(0,0,0,0.18);
+  --footer-text: #b0b3b8;
+
+  --nav-link: #e0e0e0;
+  --nav-link-hover: #66aaff;
+  --tooltip-bg: #2e3137;
+  --tooltip-text: #f1f1f1;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  box-shadow: var(--header-shadow);
+  font-family: 'Segoe UI', sans-serif;
+  transition: background 0.2s, color 0.2s;
+}
+
 .logo a {
   font-size: 1.5em;
   font-weight: bold;
   text-decoration: none;
-  color: #333;
+  color: var(--header-text);
+  transition: color 0.2s;
 }
 
-/* ✅ 네비게이션 전체 영역 */
 nav {
   display: flex;
   flex: 1;
@@ -29,34 +64,34 @@ nav {
   margin-left: 40px;
 }
 
-/* ✅ 왼쪽 메뉴(콘텐츠 / 게시판 / 메이트), 오른쪽 메뉴(로그인/마이페이지 등) */
 .left-menu,
 .right-menu {
   display: flex;
-  gap: 20px;             /* 항목 간 간격 */
+  gap: 20px;
   align-items: center;
 }
 
-/* ✅ 메뉴 항목 공통 스타일 */
 nav a {
   text-decoration: none;
-  color: #333;
+  color: var(--nav-link);
   font-weight: 500;
   position: relative;
+  transition: color 0.2s;
+}
+nav a:hover {
+  color: var(--nav-link-hover);
 }
 
-/* ✅ 콘텐츠 요청 버튼(＋) 툴팁 위치 설정 */
 .add-tooltip {
   position: relative;
   display: inline-block;
 }
 
-/* ✅ 툴팁 텍스트 기본 숨김 상태 */
 .add-tooltip .tooltip-text {
   display: none;
   width: 260px;
-  background-color: #fff;
-  color: #333;
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-text);
   text-align: center;
   border-radius: 6px;
   padding: 10px;
@@ -65,18 +100,27 @@ nav a {
   top: 125%;
   left: 50%;
   transform: translateX(-50%);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   font-size: 0.9em;
-  white-space: pre-wrap; /* 줄바꿈 유지 */
+  white-space: pre-wrap;
+  transition: background 0.2s, color 0.2s;
 }
-
-/* ✅ 툴팁 hover 시 표시 */
 .add-tooltip:hover .tooltip-text {
   display: block;
 }
-
-/* ✅ 툴팁 내부 아이콘 스타일 */
 .add-tooltip a {
   font-size: 1.5em;
-  color: #007bff;
+  color: var(--nav-link-hover);
+}
+
+footer {
+  border-top: 1px solid var(--footer-border);
+  background-color: var(--footer-bg);
+  padding: 15px 30px;
+  text-align: center;
+  font-size: 0.9em;
+  color: var(--footer-text);
+  margin-top: 40px;
+  box-shadow: var(--footer-shadow);
+  transition: background 0.2s, color 0.2s;
 }
