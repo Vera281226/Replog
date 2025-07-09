@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from '../../error/api/interceptor';
 import GenreSelect from '../../components/member/GenreSelect';
 import './ProfileEdit.css';
+import InfoModal from '../../components/InfoModal';
 
 export default function ProfileEdit() {
   const nav = useNavigate();
@@ -19,6 +20,7 @@ export default function ProfileEdit() {
   const [charLeft, setCharLeft] = useState(100);
   const [msg,      setMsg]      = useState('');
   const [loading,  setLoading]  = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // 프로필 로드
   useEffect(() => {
@@ -73,8 +75,7 @@ export default function ProfileEdit() {
         withCredentials:true,
         headers:{'Content-Type':'multipart/form-data'}
       });
-      alert('프로필이 수정되었습니다.');
-      nav('/mypage', { replace:true });
+      setModalOpen(true);
     } catch (e) {
       const m = e.response?.data?.message || e.message || '수정 실패';
       setMsg(m);
@@ -145,48 +146,19 @@ export default function ProfileEdit() {
 
       <div className="btn-area">
         <button onClick={handleSave} className="btn primary">저장</button>
-        <button onClick={()=>nav(-1)} className="btn">취소</button>
+        <button onClick={()=>nav(-1)} className="btn cancel">취소</button>
       </div>
+
+      <InfoModal
+        isOpen={modalOpen}
+        type="success"
+        title="프로필 수정 완료"
+        message="프로필이 성공적으로 수정되었습니다."
+        confirmLabel="메인으로"
+        cancelLabel="마이페이지로"
+        onConfirm={() => nav('/', { replace:true })}
+        onCancel={() => nav('/mypage', { replace:true })}
+      />
     </section>
   );
 }
-
-/* ProfileEdit.css에 아래 스타일을 추가하세요.
-
-.profile-edit .img-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.profile-edit .preview {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2.5px solid #d1c4e9;
-  background: #f3f0fa;
-  box-shadow: 0 2px 8px #e1d8fa55;
-}
-
-.profile-edit-btn {
-  margin-top: 12px;
-  background: linear-gradient(90deg, #b39ddb 0%, #e1bee7 100%);
-  color: #5c469c;
-  border: none;
-  border-radius: 18px;
-  padding: 7px 18px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-  box-shadow: 0 1px 4px #e1bee755;
-}
-
-.profile-edit-btn:hover {
-  background: linear-gradient(90deg, #9575cd 0%, #ce93d8 100%);
-  color: #311b92;
-}
-*/
-
