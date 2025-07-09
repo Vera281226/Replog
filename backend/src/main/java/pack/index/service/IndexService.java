@@ -10,10 +10,10 @@ import pack.index.dto.ContentsNetflixResponse;
 import pack.index.dto.IndexHotReviewResponse;
 import pack.index.dto.IndexNowPlayingResponse;
 import pack.index.dto.TrailerResponse;
-import pack.index.dto.UpcomingResponse;
 import pack.index.repository.IndexReviewRepository;
 import pack.modules.contents.model.Contents;
 import pack.modules.contents.repository.ContentsRepository;
+import pack.modules.contentprovider.repository.ContentProvidersRepository; // ✅ 수정된 import
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -41,17 +41,23 @@ public class IndexService {
     // ✅ 콘텐츠 테이블 Repository
     private final ContentsRepository contentsRepository;
 
+    // ✅ 콘텐츠별 플랫폼 조회 Repository (올바른 경로로 수정됨)
+    private final ContentProvidersRepository contentProvidersRepository;
+
     // ✅ 리뷰 좋아요 기반 조회용 Repository
     private final IndexReviewRepository indexReviewRepository;
 
     /**
-     * ✅ 현재 상영작 조회 (DB 기반)
+     * ✅ 현재 상영작 조회 (DB 기반, providerIds 포함)
      */
     public List<IndexNowPlayingResponse> getNowPlayingMovies() {
         List<Contents> contentsList = contentsRepository.findAllContentsForResponse();
         List<IndexNowPlayingResponse> result = new ArrayList<>();
 
         for (Contents c : contentsList) {
+            // ✅ 콘텐츠별 플랫폼 ID 목록 조회 (로고용 platform 정보)
+            List<Integer> providerIds = contentProvidersRepository.findProviderIdsByContentId(c.getContentId());
+
             IndexNowPlayingResponse dto = new IndexNowPlayingResponse();
             dto.setContentId(c.getContentId().longValue());
             dto.setTitle(c.getTitle());
@@ -59,6 +65,7 @@ public class IndexService {
             dto.setPosterPath(c.getPosterPath());
             dto.setReleaseDate(c.getReleaseDate() != null ? c.getReleaseDate().toString() : null);
             dto.setRating(c.getRating());
+            dto.setProviderIds(providerIds); // ✅ 플랫폼 ID 포함
             result.add(dto);
         }
 
@@ -94,26 +101,6 @@ public class IndexService {
 
         for (Contents c : contentsList) {
             ContentsNetflixResponse dto = new ContentsNetflixResponse();
-            dto.setContentId(c.getContentId().longValue());
-            dto.setTitle(c.getTitle());
-            dto.setPosterPath(c.getPosterPath());
-            dto.setReleaseDate(c.getReleaseDate() != null ? c.getReleaseDate().toString() : null);
-            dto.setRating(c.getRating());
-            result.add(dto);
-        }
-
-        return result;
-    }
-
-    /**
-     * ✅ 개봉 예정 콘텐츠 조회 (DB 기반)
-     */
-    public List<UpcomingResponse> getUpcomingContents() {
-        List<Contents> contentsList = contentsRepository.findUpcomingContents();
-        List<UpcomingResponse> result = new ArrayList<>();
-
-        for (Contents c : contentsList) {
-            UpcomingResponse dto = new UpcomingResponse();
             dto.setContentId(c.getContentId().longValue());
             dto.setTitle(c.getTitle());
             dto.setPosterPath(c.getPosterPath());
