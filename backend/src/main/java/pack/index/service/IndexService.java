@@ -10,7 +10,6 @@ import pack.index.dto.ContentsNetflixResponse;
 import pack.index.dto.IndexHotReviewResponse;
 import pack.index.dto.IndexNowPlayingResponse;
 import pack.index.dto.TrailerResponse;
-import pack.index.dto.UpcomingResponse;
 import pack.index.repository.IndexReviewRepository;
 import pack.modules.contents.model.Contents;
 import pack.modules.contents.repository.ContentsRepository;
@@ -105,25 +104,6 @@ public class IndexService {
         return result;
     }
 
-    /**
-     * ✅ 개봉 예정 콘텐츠 조회 (DB 기반)
-     */
-    public List<UpcomingResponse> getUpcomingContents() {
-        List<Contents> contentsList = contentsRepository.findUpcomingContents();
-        List<UpcomingResponse> result = new ArrayList<>();
-
-        for (Contents c : contentsList) {
-            UpcomingResponse dto = new UpcomingResponse();
-            dto.setContentId(c.getContentId().longValue());
-            dto.setTitle(c.getTitle());
-            dto.setPosterPath(c.getPosterPath());
-            dto.setReleaseDate(c.getReleaseDate() != null ? c.getReleaseDate().toString() : null);
-            dto.setRating(c.getRating());
-            result.add(dto);
-        }
-
-        return result;
-    }
 
     /**
      * ✅ 추천 예고편 조회 (TMDB 실시간 호출)

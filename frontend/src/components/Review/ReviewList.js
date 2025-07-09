@@ -4,7 +4,7 @@ import ReviewItem from './ReviewItem';
 import LoadingSpinner from '../common/LoadingSpinner';
 import './ReviewList.css';
 
-function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
+function ReviewList({ contentId, memberId, onCommentAdded, openModal, onReviewUpdated }) {
   const [reviews, setReviews] = useState([]);
   const [sortType, setSortType] = useState('LATEST');
   const [page, setPage] = useState(0);
@@ -12,7 +12,6 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
   const [isLoading, setIsLoading] = useState(false);
   const loaderRef = useRef(null);
 
-  // 🔁 초기 로딩 또는 정렬 바뀔 때 전체 초기화
   const initReviews = useCallback(async () => {
     setIsLoading(true);
     setPage(0);
@@ -42,8 +41,6 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
     }
   }, [contentId, memberId, sortType]);
 
-
-  // 🔄 추가 데이터 불러오기 (무한스크롤 전용)
   const fetchReviews = useCallback(async (currentPage = page) => {
     if (isLoading || !hasMore) return;
     setIsLoading(true);
@@ -83,13 +80,10 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
     }
   }, [contentId, memberId, sortType, page, isLoading, hasMore, reviews]);
 
-
-  // 정렬 옵션 바뀌면 전체 초기화
   useEffect(() => {
     initReviews();
   }, [initReviews]);
 
-  // 무한 스크롤 옵저버
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -106,7 +100,6 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
     };
   }, [fetchReviews, hasMore, isLoading]);
 
-  // 본 리뷰만 필터링 + 내 리뷰 먼저 정렬
   const sortedReviews = reviews
     .filter((r) => r.gnum === r.reviewId)
     .sort((a, b) => {
@@ -115,12 +108,19 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
       return 0;
     });
 
+  const handleOpenModal = () => {
+    openModal(() => {
+      initReviews();
+      onReviewUpdated?.(); // 평점도 갱신
+    });
+  };
+
   return (
     <div className="review-list">
       <div className="review-list-header">
         <h2>리뷰 목록</h2>
         <div className="review-list-controls">
-          <button className="btn-deep-purple" onClick={() => openModal(initReviews)}>
+          <button className="btn-deep-purple" onClick={handleOpenModal}>
             리뷰 작성
           </button>
           <select value={sortType} onChange={(e) => setSortType(e.target.value)}>
@@ -128,7 +128,6 @@ function ReviewList({ contentId, memberId, onCommentAdded, openModal }) {
             <option value="RATING">별점 높은 순</option>
           </select>
         </div>
-
       </div>
 
       {sortedReviews.map((review) => (
