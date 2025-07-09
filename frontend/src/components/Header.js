@@ -1,6 +1,6 @@
 // src/components/Header.js
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate  } from 'react-router-dom';
 import './header.css';
 import ReportButton from './common/ReportButton';
 import axios from 'axios';
@@ -8,6 +8,12 @@ import axios from 'axios';
 const Header = ({ currentUser, onLogout }) => {
   const isLoggedIn = !!currentUser?.memberId;
   const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
+
+ const handleLogout = async () => {
+    await onLogout?.();
+    navigate('/'); // index로 이동
+  };
 
   useEffect(() => {
     const tooltipText = document.getElementById('tooltip-text');
@@ -69,7 +75,7 @@ const Header = ({ currentUser, onLogout }) => {
                 <Link to="/admin" className="admin-menu" title="관리자 페이지">신고처리</Link>
               )}
               <Link to="/mypage" className="header-icon" title="마이페이지">마이페이지</Link>
-              <button onClick={onLogout} className="logout-btn">로그아웃</button>
+              <button onClick={handleLogout} className="logout-btn">로그아웃</button>
             </>
           ) : (
             <>
