@@ -13,7 +13,6 @@ import pack.model.theater.PartyPost;
 import pack.repository.chat.ChatParticipantRepository;
 import pack.repository.chat.ChatRoomRepository;
 import pack.repository.theater.PartyPostRepository;
-import pack.service.theater.PartyPostDeleteService;
 
 import java.util.List;
 import java.util.stream.Collectors;
