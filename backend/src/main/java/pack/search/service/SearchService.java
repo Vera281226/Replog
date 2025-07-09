@@ -26,6 +26,6 @@ public class SearchService {
      * @return 검색 결과 리스트
      */
     public List<SearchResponse> searchContentsByKeyword(String keyword) {
-        return searchRepository.searchByTitleContaining(keyword);
+        return searchRepository.searchByTitleIgnoreSpaces(keyword);
     }
 }

@@ -2,11 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from 'axios';
-
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import FabButton from '../components/fab/FabButton';
+import axios from '../error/api/interceptor';
 
 import SearchBar from './components/SearchBar';
 import SearchResultPoster from './components/SearchResultPoster';
@@ -33,7 +29,7 @@ function SearchPage() {
 
         setLoading(true);
         axios
-            .get(`/api/search?keyword=${encodeURIComponent(keyword)}`)
+            .get(`/search?keyword=${encodeURIComponent(keyword)}`)
             .then((res) => setResults(res.data))
             .catch(() => setResults([]))
             .finally(() => setLoading(false));
@@ -41,8 +37,6 @@ function SearchPage() {
 
     return (
         <div className="search-page-wrapper">
-            {/* ✅ 공통 헤더 */}
-            <Header />
 
             {/* ✅ 메인 콘텐츠 (검색창 + 결과) */}
             <main className="search-page-container">
@@ -65,9 +59,6 @@ function SearchPage() {
                 )}
             </main>
 
-            {/* ✅ 공통 푸터 + FAB 버튼 */}
-            <Footer />
-            <FabButton />
         </div>
     );
 }
