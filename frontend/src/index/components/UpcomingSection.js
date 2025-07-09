@@ -11,7 +11,7 @@ const UpcomingSection = () => {
   useEffect(() => {
     const fetchUpcoming = async () => {
       try {
-        const response = await axios.get('/api/index/upcoming', {
+        const response = await axios.get('/index/upcoming', {
           withCredentials: false, // ✅ 인증 제거
         });
         console.log('🎬 개봉 예정 응답 데이터:', response.data);
