@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "../error/api/interceptor";
 import { ErrorModal } from "../error/components/ErrorModal";
 import BannedWordFilterModal, { checkBannedWords } from "../components/BannedWordFilterModal";
 
-export default function CommentSection({
+export default function CommentSection({ 
   postNo,
   userId,
   nickname,
@@ -11,6 +11,7 @@ export default function CommentSection({
   setComments,
   isAuthenticated,
 }) {
+  const [isAdmin, setIsAdmin] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [editingCommentNo, setEditingCommentNo] = useState(null);
   const [editingContent, setEditingContent] = useState("");
@@ -26,6 +27,21 @@ export default function CommentSection({
     setErrorModalMessage(message);
     setErrorModalOpen(true);
   };
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        await axios.get("/auth/admin-only");
+        setIsAdmin(true);
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+
+    if (isAuthenticated) {
+      checkAdmin();
+    }
+  }, [isAuthenticated]);
 
   const handleCommentSubmit = async () => {
     if (!isAuthenticated) {
@@ -119,6 +135,7 @@ export default function CommentSection({
         const isValidDate = (date) => date && !isNaN(new Date(date).getTime());
         const isEdited = isValidDate(comment.updatedAt);
         const timeLabel = isEdited ? comment.updatedAt : comment.createdAt;
+        const isAuthor = comment.memberId === userId;
 
         return (
           <div className="comment-box" key={comment.commentNo}>
@@ -156,17 +173,22 @@ export default function CommentSection({
             ) : (
               <div className="comment-content-row">
                 <div className="comment-content">{comment.content}</div>
-                {comment.memberId === userId && (
+                {(isAuthor || isAdmin) && (
                   <div className="comment-action-buttons">
+                    {isAuthor && (
+                      <button
+                        onClick={() => {
+                          setEditingCommentNo(comment.commentNo);
+                          setEditingContent(comment.content);
+                        }}
+                      >
+                        수정
+                      </button>
+                    )}
                     <button
-                      onClick={() => {
-                        setEditingCommentNo(comment.commentNo);
-                        setEditingContent(comment.content);
-                      }}
+                      onClick={() => setCommentToDelete(comment.commentNo)}
+                      className="btn-delete"
                     >
-                      수정
-                    </button>
-                    <button onClick={() => setCommentToDelete(comment.commentNo)} className="btn-delete">
                       삭제
                     </button>
                   </div>

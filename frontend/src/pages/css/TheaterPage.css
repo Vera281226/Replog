@@ -1,4 +1,4 @@
-.theater-container {
+.theater-container { 
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -49,6 +49,9 @@
 .search-group button:hover {
   background-color: #5A3E85;
 }
+
+
+
 
 /* ✅ 세로 4열 구조 */
 .theater-brand-columns {
@@ -142,25 +145,58 @@
   box-sizing: border-box;
 }
 
+
+
 .theater-controls > button {
   white-space: nowrap;
   height: 38px;
 }
 
+
 .party-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* ✅ 셀 너비 강제 고정 */
 }
 
-.party-table th {
-  border-bottom: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
-}
-
+.party-table th,
 .party-table td {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #bebdbd;
   padding: 8px;
+  text-align: center;
+  white-space: nowrap;      /* ✅ 줄바꿈 금지 */
+  overflow: hidden;         /* ✅ 넘침 숨기기 */
+  text-overflow: ellipsis;  /* ✅ ... 표시 */
+}
+
+.party-table th:nth-child(1),
+.party-table td:nth-child(1) {
+  width: 22%;
+}
+
+.party-table th:nth-child(2),
+.party-table td:nth-child(2) {
+  width: 18%;
+}
+
+.party-table th:nth-child(3),
+.party-table td:nth-child(3) {
+  width: 18%;
+}
+
+.party-table th:nth-child(4),
+.party-table td:nth-child(4) {
+  width: 18%;
+}
+
+.party-table th:nth-child(5),
+.party-table td:nth-child(5) {
+  width: 12%;
+}
+
+.party-table th:nth-child(6),
+.party-table td:nth-child(6) {
+  width: 12%;
 }
 
 .party-title-link {
