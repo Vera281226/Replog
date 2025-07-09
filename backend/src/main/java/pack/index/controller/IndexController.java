@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import pack.index.dto.IndexNowPlayingResponse;
 import pack.index.dto.ContentsDisneyResponse;
 import pack.index.dto.ContentsNetflixResponse;
-import pack.index.dto.UpcomingResponse;
 import pack.index.dto.TrailerResponse;
 import pack.index.dto.IndexHotReviewResponse; // ✅ 추가
 import pack.index.service.IndexService;
@@ -60,14 +59,6 @@ public class IndexController {
         return ResponseEntity.ok(indexService.getNetflixContents());
     }
 
-    // ----------------------------------------------------------
-    // ✅ 개봉 예정 콘텐츠 API
-    // [GET] /api/index/upcoming
-    // ----------------------------------------------------------
-    @GetMapping("/upcoming")
-    public ResponseEntity<List<UpcomingResponse>> getUpcomingContents() {
-        return ResponseEntity.ok(indexService.getUpcomingContents());
-    }
 
     // ----------------------------------------------------------
     // ✅ 추천 예고편 API
