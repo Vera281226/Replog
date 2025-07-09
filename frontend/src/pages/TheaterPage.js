@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; 
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../error/redux/authSlice";
 import axios from "../error/api/interceptor";
@@ -7,9 +7,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import WritePartyModal from "../components/WritePartyModal";
 import LoginRequiredModal from "../components/LoginRequiredModal";
 import { ErrorModal } from "../error/components/ErrorModal";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import TextField from "@mui/material/TextField";
 import "./css/TheaterPage.css";
 
-const formatDate = (date) => date.toISOString().slice(0, 10);
+const formatDate = (date) => dayjs(date).format("YYYY-MM-DDTHH:mm");
 
 const groupTheatersByBrand = (theaters) => {
   const grouped = { CGV: [], "롯데시네마": [], "메가박스": [], 기타: [] };
@@ -34,8 +39,8 @@ const TheaterPage = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [filteredTheaters, setFilteredTheaters] = useState([]);
   const [postCounts, setPostCounts] = useState({});
-  const [searchStartDate, setSearchStartDate] = useState("");
-  const [searchEndDate, setSearchEndDate] = useState("");
+  const [searchStartDate, setSearchStartDate] = useState(dayjs());
+  const [searchEndDate, setSearchEndDate] = useState(dayjs().add(14, "day"));
   const [searchMovie, setSearchMovie] = useState("");
   const [partyPosts, setPartyPosts] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -54,14 +59,22 @@ const TheaterPage = () => {
     const end = params.get("end");
     const movie = params.get("movie") || "";
 
-    const today = new Date();
-    const twoWeeksLater = new Date();
-    twoWeeksLater.setDate(today.getDate() + 14);
-    const defaultStart = formatDate(today);
-    const defaultEnd = formatDate(twoWeeksLater);
+    const hasQuery = start || end || ids.length > 0 || movie;
 
-    setSearchStartDate(start || defaultStart);
-    setSearchEndDate(end || defaultEnd);
+    if (!hasQuery) {
+      const defaultStart = dayjs().add(30, "minute");
+      const defaultEnd = dayjs().add(14, "day");
+
+      const defaultParams = new URLSearchParams();
+      defaultParams.append("start", formatDate(defaultStart));
+      defaultParams.append("end", formatDate(defaultEnd));
+
+      navigate({ pathname: "/theaters", search: defaultParams.toString() });
+      return;
+    }
+
+    setSearchStartDate(start ? dayjs(start) : dayjs().add(30, "minute"));
+    setSearchEndDate(end ? dayjs(end) : dayjs().add(14, "day"));
     setSearchMovie(movie);
     setSelectedIds(ids);
 
@@ -77,7 +90,7 @@ const TheaterPage = () => {
     };
 
     fetchPosts();
-  }, [location.search]);
+  }, [location.search, navigate]);
 
   useEffect(() => {
     axios.get("/theaters")
@@ -112,8 +125,8 @@ const TheaterPage = () => {
 
     const params = new URLSearchParams();
     newSelected.forEach((id) => params.append("ids", id));
-    if (searchStartDate) params.append("start", searchStartDate);
-    if (searchEndDate) params.append("end", searchEndDate);
+    if (searchStartDate) params.append("start", formatDate(searchStartDate));
+    if (searchEndDate) params.append("end", formatDate(searchEndDate));
     if (searchMovie) params.append("movie", searchMovie);
 
     navigate({ pathname: "/theaters", search: params.toString() });
@@ -122,8 +135,8 @@ const TheaterPage = () => {
   const selectAll = () => {
     setSelectedIds([]);
     const params = new URLSearchParams();
-    if (searchStartDate) params.append("start", searchStartDate);
-    if (searchEndDate) params.append("end", searchEndDate);
+    if (searchStartDate) params.append("start", formatDate(searchStartDate));
+    if (searchEndDate) params.append("end", formatDate(searchEndDate));
     if (searchMovie) params.append("movie", searchMovie);
     navigate({ pathname: "/theaters", search: params.toString() });
   };
@@ -131,8 +144,8 @@ const TheaterPage = () => {
   const handleSearchClick = () => {
     const params = new URLSearchParams();
     if (selectedIds.length > 0) selectedIds.forEach(id => params.append("ids", id));
-    if (searchStartDate) params.append("start", searchStartDate);
-    if (searchEndDate) params.append("end", searchEndDate);
+    if (searchStartDate) params.append("start", formatDate(searchStartDate));
+    if (searchEndDate) params.append("end", formatDate(searchEndDate));
     if (searchMovie) params.append("movie", searchMovie);
     navigate({ pathname: "/theaters", search: params.toString() });
   };
@@ -155,7 +168,6 @@ const TheaterPage = () => {
 
   return (
     <div className="theater-container">
-
       <div className="theater-buttons">
         <div className="left-buttons">
           <button onClick={selectAll}>전체</button>
@@ -172,24 +184,24 @@ const TheaterPage = () => {
       <div className="theater-brand-columns">
         {Object.entries(grouped).map(([brand, list]) => (
           <div key={brand} className="theater-column">
-<h4 className="brand-title">
-  {brandLinks[brand] ? (
-    <a
-      href={brandLinks[brand]}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={brand.toLowerCase()}
-    >
-      <img
-        src={`/images/logo-${brand === "롯데시네마" ? "lotte" : brand === "메가박스" ? "megabox" : "cgv"}.png`}
-        alt={brand}
-        className="brand-logo"
-      />
-    </a>
-  ) : (
-    <span className="brand-text">[{brand}]</span>
-  )}
-</h4>
+            <h4 className="brand-title">
+              {brandLinks[brand] ? (
+                <a
+                  href={brandLinks[brand]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={brand.toLowerCase()}
+                >
+                  <img
+                    src={`/images/logo-${brand === "롯데시네마" ? "lotte" : brand === "메가박스" ? "megabox" : "cgv"}.png`}
+                    alt={brand}
+                    className="brand-logo"
+                  />
+                </a>
+              ) : (
+                <span className="brand-text">[{brand}]</span>
+              )}
+            </h4>
             {getVisibleTheaters(list, isExpanded).map((theater) => (
               <label key={theater.theaterId} className="theater-item">
                 <input
@@ -208,27 +220,36 @@ const TheaterPage = () => {
 
       <div className="theater-controls">
         <div className="search-group">
-<label>
-  시작일: 
-  <input
-    type="date"
-    value={searchStartDate}
-    min={formatDate(new Date())}  // 오늘 이전 선택 불가
-    onChange={(e) => setSearchStartDate(e.target.value)}
-  />
-</label>
-<label>
-  종료일: 
-  <input
-    type="date"
-    value={searchEndDate}
-    min={formatDate(new Date())}  // 종료일도 마찬가지로 오늘 이전 선택 불가
-    onChange={(e) => setSearchEndDate(e.target.value)}
-  />
-</label>
-          <label>
-            영화명: <input type="text" value={searchMovie} onChange={(e) => setSearchMovie(e.target.value)} placeholder="검색할 영화명 입력" />
-          </label>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              label="시작일시"
+              value={searchStartDate}
+              onChange={(newValue) => setSearchStartDate(newValue)}
+              minDateTime={dayjs().add(25, "minute")}
+              format="YYYY-MM-DD HH:mm"
+              renderInput={(params) => (
+                <TextField {...params} size="small" className="custom-datepicker" />
+              )}
+            />
+            <DateTimePicker
+              label="종료일시"
+              value={searchEndDate}
+              onChange={(newValue) => setSearchEndDate(newValue)}
+              minDateTime={searchStartDate}
+              format="YYYY-MM-DD HH:mm"
+              renderInput={(params) => (
+                <TextField {...params} size="small" className="custom-datepicker" />
+              )}
+            />
+          </LocalizationProvider>
+          <TextField
+            label="영화명"
+            value={searchMovie}
+            onChange={(e) => setSearchMovie(e.target.value)}
+            placeholder="검색할 영화명 입력"
+            size="small"
+            className="search-movie-input"
+          />
           <button onClick={handleSearchClick}>검색</button>
         </div>
         <button onClick={handleWriteClick}>글쓰기</button>

@@ -19,8 +19,8 @@ import pack.service.chat.ChatRoomService;
 
 import java.util.Map;
 import java.util.List;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,9 +53,16 @@ public class PartyPostServiceImpl implements PartyPostService {
 
         LocalDateTime startDateTime = null;
         LocalDateTime endDateTime = null;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
         if (hasDateFilter) {
-            startDateTime = LocalDate.parse(start).atStartOfDay();
-            endDateTime = LocalDate.parse(end).atTime(23, 59, 59);
+            try {
+                startDateTime = LocalDateTime.parse(start, formatter);
+                endDateTime = LocalDateTime.parse(end, formatter);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "날짜 형식이 올바르지 않습니다. yyyy-MM-dd'T'HH:mm 형식을 사용하세요.");
+            }
         }
 
         List<PartyPost> posts;

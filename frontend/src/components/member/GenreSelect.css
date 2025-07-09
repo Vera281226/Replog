@@ -5,18 +5,23 @@
   gap: 8px;
 }
 .genre-btn {
-  padding: 6px 12px;
-  border: 1px solid #888;
+  background: #b39ddb;
+  color: #311b92;
+  border: 1.5px solid #7c60b0;
   border-radius: 20px;
-  background: #fff;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 0.875rem;
-  transition: all .15s;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
-.genre-btn.selected {
-  background: #2684ff;
-  border-color: #2684ff;
+
+.genre-btn.selected,
+.genre-btn:active,
+.genre-btn:hover {
+  background: #7c60b0;
   color: #fff;
+  border-color: #5e35b1;
 }
 .counter {
   width: 100%;
