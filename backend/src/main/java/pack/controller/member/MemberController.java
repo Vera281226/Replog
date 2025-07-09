@@ -32,7 +32,7 @@ public class MemberController {
         }
     }
     
-    @PostMapping("/nickname-check")
+    @GetMapping("/nickname-check")
     public ResponseEntity<String> checkNickname(@RequestParam("nickname") String nickname) {
         if (memberService.nicknameExists(nickname)) {
             return ResponseEntity.ok("이미 사용 중인 닉네임입니다.");

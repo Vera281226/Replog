@@ -31,7 +31,7 @@ export default function MyPageMain() {
     <section className="mypage">
       {/* ① 프로필 영역 */}
       <img
-        src={data.profileImage || '/img/default-profile.svg'}
+        src={data.profileImage || '/uploads/profile/default.jpg'}
         alt="프로필"
         className="profile-img"
       />
@@ -40,6 +40,12 @@ export default function MyPageMain() {
       <p className="count">
         게시글 {data.reviewCount ?? 0} | 댓글 {data.commentCount ?? 0}
       </p>
+      {/* ② 프로필 수정 버튼 */}
+      <Link to="/mypage/edit" className="btn edit">프로필 수정</Link>
+
+      {/* ②-1. 회원 정보 수정 버튼 추가 */}
+      <Link to="/member/edit" className="btn info">회원 정보 수정</Link>
+
       <div className="link-box">
         <Link to="#">내가 쓴 리뷰보기</Link>
         <Link to="#">내가 쓴 모집글 · 신청내역</Link>
