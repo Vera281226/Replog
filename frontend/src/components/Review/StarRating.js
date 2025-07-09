@@ -7,7 +7,7 @@ function StarRating({ rating = 0, max = 5, size = 18 }) {
   return (
     <div className="flex gap-0.5 items-center">
       {[...Array(fullStars)].map((_, i) => (
-        <span key={`full-${i}`} style={{ fontSize: size, color: '#facc15' /* 노랑 */ }}>★</span>
+        <span key={`full-${i}`} style={{ fontSize: size, color: '#7c3aed' }}>★</span>
       ))}
       {[...Array(emptyStars)].map((_, i) => (
         <span key={`empty-${i}`} style={{ fontSize: size, color: '#9ca3af' }}>☆</span>

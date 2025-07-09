@@ -10,7 +10,7 @@ function StarSelector({ rating, onChange, max = 5, size = 28 }) {
           <span
             key={value}
             onClick={() => onChange(value)}
-            style={{ fontSize: size, cursor: 'pointer', color: value <= rating ? '#facc15' : '#e5e7eb' }}
+            style={{ fontSize: size, cursor: 'pointer', color: value <= rating ? '#7c3aed' : '#e5e7eb' }}
           >
             ★
           </span>

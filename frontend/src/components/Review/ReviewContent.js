@@ -9,10 +9,6 @@ import './ReviewContent.css';
 function ReviewContent({
   review,
   memberId,
-  liked,
-  setLiked,
-  likeCount,
-  setLikeCount,
   onCommentAdded,
   replies,
   editingReplyId,
@@ -21,14 +17,15 @@ function ReviewContent({
   setReplyEdits,
   onEditClick
 }) {
+  const [liked, setLiked] = useState(review.isLiked); // 초기값 서버에서
+  const [likeCount, setLikeCount] = useState(review.likeCount);
   const [showSpoiler, setShowSpoiler] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState('');
   const { toggleLike, deleteReview } = useReviewApi();
 
-  const isEdited =
-    new Date(review.createdAt).getTime() !== new Date(review.updatedAt).getTime();
+  const isEdited = new Date(review.createdAt).getTime() !== new Date(review.updatedAt).getTime();
 
   const handleLike = async () => {
     try {
@@ -52,30 +49,28 @@ function ReviewContent({
   return (
     <div className="review-box">
       <div className="review-header">
-  <div className="header-left">
-    <div className="review-writer">{review.memberId}</div>
-    <div className="review-date">
-      {new Date(review.updatedAt).toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-      })}
-      {isEdited && <span className="review-edited">(수정됨)</span>}
-    </div>
-  </div>
-
-  {review.memberId !== memberId && (
-    <button
-      onClick={() => alert('신고 기능은 추후 구현')}
-      className="btn-report-top"
-    >
-      🚨 신고하기
-    </button>
-  )}
-</div>
-
+        <div className="header-left">
+          <div className="review-writer">{review.memberId}</div>
+          <div className="review-date">
+            {new Date(review.updatedAt).toLocaleString('ko-KR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+            {isEdited && <span className="review-edited">(수정됨)</span>}
+          </div>
+        </div>
+        {review.memberId !== memberId && (
+          <button
+            onClick={() => alert('신고 기능은 추후 구현')}
+            className="btn-report-top"
+          >
+            🚨 신고하기
+          </button>
+        )}
+      </div>
 
       <StarRating rating={review.rating || 0} />
 
@@ -93,8 +88,29 @@ function ReviewContent({
       </div>
 
       <div className="review-buttons">
-        <button className="like-btn" onClick={handleLike}>🩷{likeCount}</button>
-        <button className="reply-btn" onClick={() => setShowReplyInput(prev => !prev)}>댓글</button>
+        <button className="like-btn" onClick={handleLike}>
+          <span className={liked ? 'heart-icon liked' : 'heart-icon'}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill={liked ? "#ab97ec" : "none"}
+              stroke="#ab97ec"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20.8 4.6c-1.6-1.7-4.3-1.7-6 0L12 7.4l-2.8-2.8c-1.7-1.7-4.4-1.7-6 0-1.7 1.6-1.7 4.3 0 6l8.8 8.8 8.8-8.8c1.7-1.6 1.7-4.3 0-6z" />
+            </svg>
+          </span>
+          {' '}
+          {likeCount}
+        </button>
+
+        <button className="reply-btn" onClick={() => setShowReplyInput(prev => !prev)}>
+          댓글
+        </button>
 
         {review.memberId === memberId && (
           <>

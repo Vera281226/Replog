@@ -100,3 +100,29 @@
    color: #666;
   text-decoration: underline;
 }
+
+.heart-icon {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.heart-icon svg {
+  transition: fill 0.2s;
+}
+
+.heart-icon:hover svg {
+  fill: #d9ccf4; /* 연한 연보라 */
+}
+
+.review-date {
+  color: #888;
+  font-size: 13px;
+  font-weight: normal; /* 진하지 않게 */
+}
+
+.review-content {
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 400;
+  margin-top: 12px; /* 별점과 본문 사이 여백 */
+}
