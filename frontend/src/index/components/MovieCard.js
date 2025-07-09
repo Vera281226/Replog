@@ -1,17 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import '../css/MovieCard.css';
 
 /**
- * ✅ MovieCard 컴포넌트
- * -------------------------------------------------------------------
- * ○ TMDB 콘텐츠 1개 카드 UI
- * ○ 포스터 + 플랫폼 로고 이미지 + 제목 · 연도 + 평점 구성
- * ○ 클릭 시 해당 컨텐츠의 리뷰 페이지로 이동
- * -------------------------------------------------------------------
+ * ✅ MovieCard 컴포넌트 (리뷰 패딩 충돌 완전 방지 버전)
+ * ------------------------------------------------------------
+ * ○ 외부 padding 영향 안 받도록 .card-wrapper로 완전 격리
+ * ○ 포스터 + 플랫폼 로고 + 제목 + 연도 + 평점 표시
+ * ------------------------------------------------------------
  */
-const MovieCard = ({ title, posterPath, releaseDate, voteAverage, platform, contentId }) => {
-    // ✅ 플랫폼 로고 이미지 경로 반환
+const MovieCard = ({ title, posterPath, releaseDate, voteAverage, platform }) => {
     const getPlatformLogo = () => {
         if (platform === 'netflix') return '/images/netflix-logo.png';
         if (platform === 'disney') return '/images/disney-logo.png';
@@ -19,10 +16,7 @@ const MovieCard = ({ title, posterPath, releaseDate, voteAverage, platform, cont
     };
 
     return (
-        <Link 
-            to={`/contents/${contentId}/reviews`} 
-            style={{ textDecoration: 'none', color: 'inherit' }}
-        >
+        <div className="card-wrapper">
             <div className="movie-card">
                 <div className="poster-wrapper">
                     <img
@@ -34,7 +28,6 @@ const MovieCard = ({ title, posterPath, releaseDate, voteAverage, platform, cont
                             e.target.src = '/assets/default-poster.png';
                         }}
                     />
-                    {/* ✅ 플랫폼 로고 이미지 (오른쪽 위) */}
                     {getPlatformLogo() && (
                         <img
                             className="platform-logo"
@@ -45,15 +38,12 @@ const MovieCard = ({ title, posterPath, releaseDate, voteAverage, platform, cont
                 </div>
 
                 <div className="movie-info">
-                    <div className="movie-title">
-                        {title} · {releaseDate?.slice(0, 4)}
-                    </div>
-                    <div className="movie-rating">
-                        평점: {voteAverage?.toFixed(1)}점
-                    </div>
+                    <div className="movie-title">{title}</div>
+                    <div className="movie-release-year">{releaseDate?.slice(0, 4)}</div>
+                    <div className="movie-rating">평점: {voteAverage?.toFixed(1)}점</div>
                 </div>
             </div>
-        </Link>
+        </div>
     );
 };
 

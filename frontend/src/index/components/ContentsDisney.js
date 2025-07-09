@@ -1,22 +1,39 @@
+// src/index/components/ContentsDisney.js
+
 import React, { useEffect, useState } from 'react';
 import axios from '../../error/api/interceptor';
-import MovieCard from './MovieCard'; // 공통 카드 컴포넌트 import
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation } from 'swiper/modules';
+
+import MovieCard from './MovieCard'; // ✅ 공통 카드 컴포넌트
+
+import 'swiper/css';
+import 'swiper/css/navigation';
 
 /**
  * ContentsDisney 컴포넌트
- * - 디즈니+ 인기 콘텐츠를 백엔드 API를 통해 출력
- * - 백엔드 API: GET /api/index/disney
+ * -------------------------------------------------------------------
+ * ✅ 디즈니+ 인기 콘텐츠 슬라이더 섹션
+ * ✅ 백엔드 API: GET /api/index/disney
+ * ✅ MovieCard 컴포넌트 재사용
+ * ✅ Swiper 내장 navigation 사용 (< > 버튼 포함)
+ * -------------------------------------------------------------------
  */
 const ContentsDisney = () => {
+  // ⬛ 콘텐츠 목록 상태
   const [movies, setMovies] = useState([]);
-  const [error, setError] = useState(null); // 에러 상태 관리
 
-  // ✅ 백엔드 API로 디즈니+ 콘텐츠 가져오기
+  // ⬛ 에러 상태
+  const [error, setError] = useState(null);
+
+  // -------------------------------------------------------------
+  // ✅ 디즈니+ 콘텐츠 백엔드에서 호출
+  // -------------------------------------------------------------
   useEffect(() => {
     const fetchDisneyContent = async () => {
       try {
         const response = await axios.get('/index/disney');
-        console.log("🎬 디즈니 응답 데이터:", response.data);
+        console.log('🎬 디즈니 응답 데이터:', response.data);
         setMovies(response.data);
       } catch (error) {
         console.error('❌ 디즈니+ 콘텐츠 불러오기 실패:', error);
@@ -27,35 +44,54 @@ const ContentsDisney = () => {
     fetchDisneyContent();
   }, []);
 
+  // -------------------------------------------------------------
+  // ✅ 렌더링
+  // -------------------------------------------------------------
   return (
-      <section>
+      <div className="contents-disney-section" style={{ position: 'relative', padding: '0 60px' }}>
         <div className="section-inner">
+
+          {/* ✅ 섹션 제목 */}
           <h2 className="section-title">디즈니+ 인기 콘텐츠</h2>
 
-          {/* 오류 메시지 출력 */}
+          {/* ✅ 에러 메시지 출력 */}
           {error && <p className="error-message">{error}</p>}
 
-          {/* ✅ 카드 그리드 */}
-          <div className="card-grid">
-            {movies.map((movie, index) => {
-              if (!movie.posterPath) return null; // ❗포스터 없는 항목 제외
+          {/* ✅ 콘텐츠 없음 안내 */}
+          {!error && movies.length === 0 && (
+              <p>콘텐츠를 불러오지 못했습니다.</p>
+          )}
 
-              return (
-                  <MovieCard
-                      key={`${movie.contentId}-${index}`} // ✅ 고유 key
-                      title={`${index + 1}. ${movie.title}`}
-                      posterPath={movie.posterPath}
-                      releaseDate={movie.releaseDate}
-                      voteAverage={movie.rating}
-                      voteCount={movie.voteCount}
-                      platform="disney" // ✅ 디즈니 로고 출력용
-                      contentId={movie.contentId}
-                  />
-              );
-            })}
-          </div>
+          {/* ✅ 슬라이더 출력 */}
+          {!error && movies.length > 0 && (
+              <Swiper
+                  modules={[Navigation]}
+                  slidesPerView={6}               // ✅ 한 화면에 6개
+                  slidesPerGroup={6}              // ✅ 6개씩 이동
+                  spaceBetween={20}
+                  navigation={true}               // ✅ < > 버튼 사용
+              >
+                {movies.map((movie, index) => {
+                  if (!movie.posterPath) return null;
+
+                  return (
+                      <SwiperSlide key={`${movie.contentId}-${index}`}>
+                        <MovieCard
+                            title={`${index + 1}. ${movie.title}`}
+                            posterPath={movie.posterPath}
+                            releaseDate={movie.releaseDate}
+                            voteAverage={movie.rating}
+                            voteCount={movie.voteCount}
+                            platform="disney" // ✅ 디즈니 플랫폼 로고 출력용
+                            contentId={movie.contentId}
+                        />
+                      </SwiperSlide>
+                  );
+                })}
+              </Swiper>
+          )}
         </div>
-      </section>
+      </div>
   );
 };
 

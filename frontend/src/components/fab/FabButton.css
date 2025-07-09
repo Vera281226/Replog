@@ -1,0 +1,35 @@
+/* ✅ ⚙ FAB 버튼 - 챗봇 왼쪽 고정 */
+.fab-settings {
+  position: fixed;
+  bottom: 20px;
+  right: 90px; /* 챗봇은 right: 20px → 왼쪽으로 70px 여유 */
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #333;
+  color: white;
+  border: none;
+  font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  z-index: 999;
+}
+
+.fab-settings:hover {
+  transform: scale(1.1);
+}
+
+/* ✅ 반응형: 모바일에서는 위치와 크기 조정 */
+@media (max-width: 768px) {
+  .fab-settings {
+    bottom: 80px;
+    right: 85px;  /* 챗봇이 right: 15px이므로 기준 맞춤 */
+    width: 50px;
+    height: 50px;
+    font-size: 1.2em;
+  }
+}

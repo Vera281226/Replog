@@ -6,7 +6,7 @@ import axios from 'axios';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import FabButton from '../components/FabButton';
+import FabButton from '../components/fab/FabButton';
 
 import SearchBar from './components/SearchBar';
 import SearchResultPoster from './components/SearchResultPoster';

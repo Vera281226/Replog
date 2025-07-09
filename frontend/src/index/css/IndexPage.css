@@ -30,6 +30,36 @@ body.dark-mode {
   color: #ffffff;
 }
 
+/** ✅ Hero 상단 영역 (환영 + 검색창)
+ * - 배경 이미지는 IndexPage.jsx에서 style 속성으로 처리
+ */
+.hero-section {
+  /* ❌ background-image 제거됨 (JSX에서 처리함) */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 60px 20px;
+  text-align: center;
+  color: white;
+  position: relative;
+}
+.hero-overlay {
+  background-color: rgba(0, 0, 0, 0.6);  /* ✅ 반투명 검정 배경 */
+  padding: 30px 24px;
+  border-radius: 12px;
+  display: inline-block;
+}
+.hero-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.hero-subtitle {
+  font-size: 16px;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
 /** ✅ 메인 콘텐츠 영역 */
 main {
   flex: 1;
@@ -51,7 +81,7 @@ main {
   color: var(--text-primary);
 }
 
-/** ✅ 검색창 */
+/** ✅ 검색창 (SearchBar용 공통 스타일) */
 .search-bar {
   display: flex;
   align-items: center;
@@ -114,18 +144,18 @@ main {
 /** ✅ Swiper 전체 영역 */
 .swiper {
   padding-bottom: 20px;
-  position: relative;     /* ✅ 버튼 위치 기준 */
-  overflow: visible;      /* ✅ 버튼 잘림 방지 */
+  position: relative;
+  overflow: visible;
   z-index: 0;
 }
 
-/** ✅ Swiper 내비게이션 버튼 스타일 (자연스럽고 얇은 버튼) */
+/** ✅ Swiper 내비게이션 버튼 스타일 */
 .swiper-button-prev,
 .swiper-button-next {
   width: 28px;
   height: 28px;
   font-size: 16px;
-  background-color: rgba(255, 255, 255, 0.8);  /* ✅ 반투명 흰 배경 */
+  background-color: rgba(255, 255, 255, 0.8);
   color: #333;
   border: 1px solid #ddd;
   border-radius: 50%;
@@ -141,7 +171,7 @@ main {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-/** ✅ 호버 시 강조 효과 */
+/** ✅ Swiper 버튼 호버 효과 */
 .swiper-button-prev:hover,
 .swiper-button-next:hover {
   background-color: #ffffff;
@@ -149,17 +179,15 @@ main {
   border-color: #aaa;
 }
 
-/** ✅ 왼쪽 버튼 위치 */
+/** ✅ Swiper 버튼 위치 */
 .swiper-button-prev {
   left: -34px;
 }
-
-/** ✅ 오른쪽 버튼 위치 */
 .swiper-button-next {
   right: -34px;
 }
 
-/** ✅ 왼쪽 버튼: 비활성 시 숨김 */
+/** ✅ 왼쪽 버튼 비활성 시 숨김 */
 .swiper-button-prev.swiper-button-disabled {
   display: none !important;
 }
