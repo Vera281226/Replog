@@ -114,5 +114,7 @@ public interface ContentsRepository extends JpaRepository<Contents, Integer> {
             @Param("genreIds") List<Integer> genreIds,
             @Param("platforms") List<String> platforms
     );
-
+    List<Contents> findTop5ByOrderByReleaseDateDesc();
+    List<Contents> findTop5ByOrderByRatingDesc();
+ 
 }

@@ -27,7 +27,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChatParticipantRepository chatParticipantRepository;
     private final ChatParticipantService chatParticipantService;
     private final PartyPostRepository partyPostRepository;
-    private final PartyPostDeleteService partyPostDeleteService;
     
     @Override
     @Transactional
