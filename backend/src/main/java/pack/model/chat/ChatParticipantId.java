@@ -5,16 +5,18 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@Embeddable
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatParticipantId implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private Integer chatRoomId;
+    private static final long serialVersionUID = 1L;
+    private Integer chatRoomId;
     private String memberId;
     
     @Override
@@ -29,5 +31,13 @@ public class ChatParticipantId implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(chatRoomId, memberId);
+    }
+    
+    @Override
+    public String toString() {
+        return "ChatParticipantId{" +
+                "chatRoomId=" + chatRoomId +
+                ", memberId='" + memberId + '\'' +
+                '}';
     }
 }

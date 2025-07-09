@@ -6,33 +6,56 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * IndexHotReviewResponse DTO
- * - index.html에서 "지금 뜨는 리뷰" 섹션에 표시할 데이터 전용 DTO
- * - review + member + contents 테이블의 일부 필드 사용
- *
- * ⚠ 현재 리뷰 기능은 임시 테스트용으로만 작성됨 (추후 review 엔티티 연동 필요)
+ * IndexHotReviewResponse
+ * ------------------------------------------------------------------
+ * ○ index.html > 지금 뜨는 리뷰 섹션 응답용 DTO
+ * ○ Review, Contents, ReviewLike 테이블을 조인하여 생성
+ * ○ 좋아요 수 내림차순으로 정렬된 결과 리스트용
+ * ------------------------------------------------------------------
  */
 @Getter
 @Setter
-@AllArgsConstructor // 모든 필드 생성자
-@NoArgsConstructor  // 기본 생성자
+@NoArgsConstructor
+@AllArgsConstructor
 public class IndexHotReviewResponse {
 
-    /** 리뷰 ID */
-    private int reviewId;
+    // --------------------------------------------------
+    // ✅ 리뷰 고유 번호 (Primary Key)
+    // --------------------------------------------------
+    private Integer reviewId;
 
-    /** 콘텐츠 제목 */
+    // --------------------------------------------------
+    // ✅ 작성자 ID (member 테이블의 FK 아님, 그대로 출력용)
+    // --------------------------------------------------
+    private String memberId;
+
+    // --------------------------------------------------
+    // ✅ 리뷰 대상 콘텐츠 제목 (contents.title)
+    // --------------------------------------------------
     private String contentTitle;
 
-    /** 작성자 닉네임 */
-    private String nickname;
+    // --------------------------------------------------
+    // ✅ 콘텐츠 포스터 경로 (contents.poster_path)
+    // --------------------------------------------------
+    private String posterPath;
 
-    /** 리뷰 평점 */
-    private int rating;
-
-    /** 리뷰 내용 */
+    // --------------------------------------------------
+    // ✅ 리뷰 본문 내용
+    // --------------------------------------------------
     private String cont;
 
-    /** 작성일 */
-    private String createdAt;
+    // --------------------------------------------------
+    // ✅ 리뷰 평점 (0~10 정수)
+    // --------------------------------------------------
+    private Integer rating;
+
+    // --------------------------------------------------
+    // ✅ 좋아요 수 (집계된 review_likes 수)
+    // --------------------------------------------------
+    private Long likeCount;
+
+    // --------------------------------------------------
+    // ✅ 콘텐츠 ID (댓글 페이지 이동을 위한 고유 번호)
+    // --------------------------------------------------
+    private Integer contentId;
 }

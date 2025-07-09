@@ -12,7 +12,6 @@ import pack.dto.chat.ChatMessageRequest;
 import pack.dto.theater.PartyPostRequest;
 import pack.model.theater.PartyPost;
 import pack.model.chat.ChatRoom.RoomType;
-import pack.repository.member.MemberRepository;
 import pack.repository.theater.PartyPostRepository;
 import pack.repository.theater.TheaterRepository;
 import pack.service.chat.ChatMessageService;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartyPostServiceImpl implements PartyPostService {
 
-	private final MemberRepository memberRepository;
 	private final TheaterRepository theaterRepository;
     private final PartyPostRepository partyPostRepository;
     private final ChatRoomService chatRoomService;
@@ -124,33 +122,6 @@ public class PartyPostServiceImpl implements PartyPostService {
     }
 
 
-
-    private void validateMemberExists(String memberId) {
-        if (memberId == null || memberId.trim().isEmpty()) {
-            throw new IllegalArgumentException("사용자 ID는 필수입니다.");
-        }
-        memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-    }
-
-    private void validatePartyPostRequest(PartyPostRequest dto) {
-        if (dto.getTitle() == null || dto.getTitle().isBlank()) {
-            throw new IllegalArgumentException("제목은 필수입니다.");
-        }
-        if (dto.getContent() == null || dto.getContent().isBlank()) {
-            throw new IllegalArgumentException("내용은 필수입니다.");
-        }
-        if (dto.getMovie() == null || dto.getMovie().isBlank()) {
-            throw new IllegalArgumentException("영화 제목은 필수입니다.");
-        }
-        if (dto.getPartyDeadline() == null || dto.getPartyDeadline().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("마감일은 현재보다 이후여야 합니다.");
-        }
-        if (dto.getTheaterId() == null) {
-            throw new IllegalArgumentException("영화관 ID는 필수입니다.");
-        }
-    }
-
     @Override
     public Map<Integer, Long> countPartyPostsByTheater() {
         LocalDateTime now = LocalDateTime.now();
@@ -177,13 +148,6 @@ public class PartyPostServiceImpl implements PartyPostService {
         return toDto(partyPostRepository.save(post));
     }
 
-    @Override
-    public void deletePartyPost(Integer partyPostNo) {
-        if (!partyPostRepository.existsById(partyPostNo)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "삭제할 모집글이 존재하지 않습니다.");
-        }
-        partyPostRepository.deleteById(partyPostNo);
-    }
 
     private PartyResponse toDto(PartyPost post) {
         String theaterName = theaterRepository.findById(post.getTheaterId())
@@ -230,5 +194,28 @@ public class PartyPostServiceImpl implements PartyPostService {
                 .gender(dto.getGender())
                 .ageGroupsMask(dto.getAgeGroupsMask())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void deletePartyPost(Integer partyPostNo) {
+        PartyPost partyPost = partyPostRepository.findById(partyPostNo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "삭제할 모집글이 존재하지 않습니다."));
+        
+        // 연결된 채팅방 찾기
+        try {
+            ChatRoomResponse chatRoom = chatRoomService.getRoomByPartyPostNo(partyPostNo);
+            if (chatRoom != null) {
+                // 모든 참가자 제거
+                chatRoomService.kickAllParticipants(chatRoom.getChatRoomId());
+                // 채팅방 비활성화
+                chatRoomService.deleteChatRoom(chatRoom.getChatRoomId(), partyPost.getMemberId());
+            }
+        } catch (Exception e) {
+            // 채팅방이 없는 경우 무시
+        }
+        
+        // 모집글 삭제
+        partyPostRepository.deleteById(partyPostNo);
     }
 }

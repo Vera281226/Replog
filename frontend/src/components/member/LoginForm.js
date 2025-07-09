@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { fetchCurrentUser, login } from '../../error/redux/authSlice';
 import './css/LoginForm.css';
+import PasswordResetModal from './PasswordResetModal';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const LoginForm = () => {
   const [errors, setErrors] = useState({});
   const [showPwd, setShowPwd] = useState(false);
   const [msg, setMsg] = useState('');
+    const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -83,6 +85,14 @@ const LoginForm = () => {
         </div>
         {msg && <div className="server-msg">{msg}</div>}
         <button type="submit" className="login-btn">로그인</button>
+        <div className="link-group">
+          <Link onClick={() => setPasswordModalOpen(true)}>
+            비밀번호를 잊어버리셨나요?
+          </Link>
+        </div>
+        {isPasswordModalOpen && (
+          <PasswordResetModal isOpen={isPasswordModalOpen} onClose={() => setPasswordModalOpen(false)} />
+        )}
         <div className="link-group">
           <Link to="/signup">회원가입</Link>
         </div>

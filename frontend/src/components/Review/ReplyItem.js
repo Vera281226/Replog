@@ -57,17 +57,25 @@ function ReplyItem({
       <div className="text-sm mt-1 text-gray-800">
         {isEditing ? (
           <>
-            <input
-              className="w-full border px-2 py-1 rounded text-sm"
+            <textarea
+              className="reply-textarea"
               value={replyEdits[reply.reviewId] || reply.cont}
               onChange={(e) =>
                 setReplyEdits({ ...replyEdits, [reply.reviewId]: e.target.value })
               }
+              onInput={(e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+              }}
+              rows={1}
+              placeholder="댓글을 입력하세요"
             />
-            <div className="mt-1 space-x-2 text-xs">
-              <button onClick={handleSave} className="text-green-600">저장</button>
-              <button onClick={() => setEditingReplyId(null)}>취소</button>
+
+            <div className="reply-actions">
+              <button onClick={handleSave} className="reply-btn">등록</button>
+              <button onClick={() => setEditingReplyId(null)} className="reply-btn cancel">취소</button>
             </div>
+
           </>
         ) : (
           <>

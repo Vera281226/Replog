@@ -124,4 +124,32 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .build();
     }
 
+    @Override
+    @Transactional
+    public void removeParticipant(Integer roomId, String memberId) {
+        ChatRoom chatRoom = chatRoomRepository.findByChatRoomIdAndIsActiveTrue(roomId)
+                .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다"));
+        
+        // 참가자 제거
+        chatParticipantRepository.deleteById(new ChatParticipantId(roomId, memberId));
+        
+        // 모집글 작성자인지 확인
+        if (chatRoom.getPartyPost() != null) {
+            String postAuthor = chatRoom.getPartyPost().getMemberId();
+            if (postAuthor.equals(memberId)) {
+                // 모집글 작성자가 나가는 경우 - 모든 참가자 제거 후 방 비활성화
+                chatParticipantRepository.deleteAllByChatRoomId(roomId);
+                chatRoom.setIsActive(false);
+                chatRoomRepository.save(chatRoom);
+            }
+        }
+    }
+    
+    
+    
+    @Override
+    @Transactional
+    public void kickAllParticipants(Integer roomId) {
+        chatParticipantRepository.deleteAllByChatRoomId(roomId);
+    }
 }

@@ -13,5 +13,5 @@ public interface PartyPostService {
     Map<Integer, Long> countPartyPostsByTheater();
     
     PartyResponse updatePartyPost(Integer partyPostNo, PartyPostRequest dto);
-    void deletePartyPost(Integer partyPostNo);
+	void deletePartyPost(Integer partyPostNo);
 }

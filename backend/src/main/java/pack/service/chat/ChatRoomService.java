@@ -14,4 +14,6 @@ public interface ChatRoomService {
     ChatRoomResponse getChatRoom(Integer roomId);
     List<ChatRoomResponse> getAllActiveRooms();
 	ChatRoomResponse getRoomByPartyPostNo(Integer partyPostNo);
+	void removeParticipant(Integer roomId, String memberId);
+	void kickAllParticipants(Integer roomId);
 }

@@ -3,6 +3,7 @@ package pack.service.member;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class EmailServiceImpl implements EmailService{
 	private final EmailCodeRepository emailCodeRepository;
 	private final MemberRepository memberRepository;
 	private final EmailSender emailSender;
-//	private final PasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 	
 	// 1. 인증코드 발송
 	@Override
@@ -75,7 +76,9 @@ public class EmailServiceImpl implements EmailService{
 		Member member = memberRepository.findByEmail(dto.getEmail()).orElse(null);
 		if(member == null) return false;
 		
-		member.setPwd(dto.getNewPwd());
+		// 비밀번호 인코딩 추가
+	    String encodedPassword = passwordEncoder.encode(dto.getPwd());
+		member.setPwd(encodedPassword);
 		memberRepository.save(member);
 		
 		return true;

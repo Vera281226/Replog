@@ -81,6 +81,39 @@ const ChatApp = ({ currentUser, onClose }) => {
     }
   }, [selectedRoom]);
 
+  // 채팅방 나가기 처리
+  const handleLeaveRoom = useCallback(async (roomId) => {
+    if (!roomId) return;
+
+    // AI 채팅방은 나갈 수 없음
+    const room = chatRooms.find(r => r.chatRoomId === roomId);
+    if (room && room.roomType === 'AI') {
+      alert('AI 채팅방은 나갈 수 없습니다.');
+      return;
+    }
+
+    const confirmLeave = window.confirm('정말로 채팅방을 나가시겠습니까?');
+    if (!confirmLeave) return;
+
+    try {
+      await chatApiService.leaveChatRoom(roomId);
+      
+      // 채팅방 목록 새로고침
+      await loadChatRooms();
+      
+      // 현재 선택된 채팅방이 나간 채팅방이면 선택 해제
+      if (selectedRoom?.chatRoomId === roomId) {
+        setSelectedRoom(null);
+        setMessages([]);
+      }
+
+      alert('채팅방에서 나왔습니다.');
+    } catch (error) {
+      console.error('채팅방 나가기 실패:', error);
+      alert('채팅방 나가기에 실패했습니다: ' + error.message);
+    }
+  }, [chatRooms, selectedRoom, loadChatRooms]);
+
   // 컴포넌트 마운트 시 초기화
   useEffect(() => {
     loadChatRooms();
@@ -125,6 +158,7 @@ const ChatApp = ({ currentUser, onClose }) => {
             chatRooms={chatRooms}
             selectedRoom={selectedRoom}
             onRoomSelect={selectChatRoom}
+            onLeaveRoom={handleLeaveRoom}
             loading={loading}
             currentUser={currentUser}
           />
@@ -137,6 +171,7 @@ const ChatApp = ({ currentUser, onClose }) => {
             messages={messages}
             currentUser={currentUser}
             onSendMessage={sendMessage}
+            onLeaveRoom={handleLeaveRoom}
             loading={loading}
           />
         </div>
@@ -145,7 +180,7 @@ const ChatApp = ({ currentUser, onClose }) => {
   );
 };
 
-// 스타일 정의
+// 스타일 정의 (기존과 동일)
 const styles = {
   container: {
     position: 'fixed',
