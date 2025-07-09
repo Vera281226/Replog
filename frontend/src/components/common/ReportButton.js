@@ -1,4 +1,3 @@
-// src/components/common/ReportButton.js
 import React, { useState } from 'react';
 import ReportModal from './ReportModal';
 
@@ -42,24 +41,43 @@ const ReportButton = ({
   };
 
   const getButtonContent = () => {
+    // 요청 버튼만 "요청하기" 글자로, 나머지는 기존대로
+    if (isRequest) {
+      return "요청하기";
+    }
     if (buttonStyle === 'icon') {
-      return isRequest ? '📝' : '🚨';
+      return '🚨';
     }
     return buttonText;
   };
 
   return (
     <>
-      <button
-        onClick={(e) => {
-          e.stopPropagation(); // 이벤트 버블링 방지
-          setIsModalOpen(true);
-        }}
-        style={getButtonStyle()}
-        title={isRequest ? '요청하기' : '신고하기'}
-      >
-        {getButtonContent()}
-      </button>
+      {isRequest ? (
+        // 요청 버튼은 span으로, 글자형태로 출력
+        <span
+  className="report-btn text"
+  onClick={(e) => {
+    e.stopPropagation();
+    setIsModalOpen(true);
+  }}
+  title="요청하기"
+>
+  요청하기
+</span>
+      ) : (
+        // 신고 버튼은 기존대로
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsModalOpen(true);
+          }}
+          style={getButtonStyle()}
+          title="신고하기"
+        >
+          {getButtonContent()}
+        </button>
+      )}
 
       {isModalOpen && (
         <ReportModal

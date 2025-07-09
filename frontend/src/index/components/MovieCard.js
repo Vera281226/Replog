@@ -25,7 +25,7 @@ const MovieCard = ({ contentId, title, posterPath, releaseDate, voteAverage, pla
             {/* ✅ 카드 전체 클릭 시 리뷰 작성 페이지로 이동 */}
             <div
                 className="movie-card"
-                onClick={() => navigate(`/contents/${contentId}/reviews/write`)}
+                onClick={() => navigate(`/contents/${contentId}/reviews`)}
                 style={{ cursor: 'pointer' }}
             >
                 <div className="poster-wrapper">

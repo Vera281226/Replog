@@ -1,4 +1,3 @@
-// src/components/Header.js
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate  } from 'react-router-dom';
 import './header.css';
@@ -10,7 +9,7 @@ const Header = ({ currentUser, onLogout }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
- const handleLogout = async () => {
+  const handleLogout = async () => {
     await onLogout?.();
     navigate('/'); // index로 이동
   };
@@ -65,21 +64,19 @@ const Header = ({ currentUser, onLogout }) => {
           <ReportButton
             targetType="CONTENT_REQUEST"
             targetId="general"
-            buttonStyle="icon"
+            buttonStyle="text"
             isRequest={true}
           />
           {isLoggedIn ? (
             <>
-              {/* 관리자인 경우에만 "관리자" 메뉴 노출 */}
               {isAdmin && (
                 <Link to="/admin" className="admin-menu" title="관리자 페이지">신고처리</Link>
               )}
               <Link to="/mypage" className="header-icon" title="마이페이지">마이페이지</Link>
-              <button onClick={handleLogout} className="logout-btn">로그아웃</button>
+              <span onClick={handleLogout} className="logout-btn" style={{ cursor: 'pointer' }}>로그아웃</span>
             </>
           ) : (
             <>
-              {/* 비로그인 시에는 관리자 메뉴 노출 X */}
               <Link to="/login">로그인</Link>
               <Link to="/signup">회원가입</Link>
             </>

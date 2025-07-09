@@ -1,6 +1,7 @@
 // src/components/common/ReportModal.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from '../../error/api/interceptor';
+import './ReportModal.css';
 
 const ReportModal = ({ isOpen, onClose, targetType, targetId, isRequest = false }) => {
   const [formData, setFormData] = useState({
@@ -9,7 +10,19 @@ const ReportModal = ({ isOpen, onClose, targetType, targetId, isRequest = false 
   });
   const [loading, setLoading] = useState(false);
 
-  // ✅ 신고/요청 사유 옵션
+  // 모달 오픈 시 body 스크롤 잠금
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  // 신고/요청 사유 옵션
   const getReasonOptions = () => {
     if (isRequest) {
       return [
@@ -89,24 +102,24 @@ const ReportModal = ({ isOpen, onClose, targetType, targetId, isRequest = false 
   if (!isOpen) return null;
 
   return (
-    <div style={styles.overlay} onClick={onClose}>
-      <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-        <div style={styles.header}>
-          <h3 style={styles.title}>
+    <div className="report-modal-overlay">
+      <div className="report-modal" onClick={e => e.stopPropagation()}>
+        <div className="report-modal-header">
+          <h3 className="report-modal-title">
             {isRequest ? '📝 개선 요청' : '🚨 신고하기'}
           </h3>
-          <button onClick={onClose} style={styles.closeButton}>✕</button>
+          <button className="report-modal-close" onClick={onClose}>✕</button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>
+        <form className="report-modal-form" onSubmit={handleSubmit}>
+          <div>
+            <label className="report-modal-label">
               {isRequest ? '요청 사유' : '신고 사유'} *
             </label>
             <select
+              className="report-modal-select"
               value={formData.reason}
               onChange={(e) => setFormData(prev => ({ ...prev, reason: e.target.value }))}
-              style={styles.select}
               required
             >
               <option value="">선택해주세요</option>
@@ -116,38 +129,38 @@ const ReportModal = ({ isOpen, onClose, targetType, targetId, isRequest = false 
             </select>
           </div>
 
-          <div style={styles.formGroup}>
-            <label style={styles.label}>
-              상세 설명 <span style={styles.optional}>(선택사항)</span>
+          <div>
+            <label className="report-modal-label">
+              상세 설명 <span style={{ color: '#999', fontWeight: 'normal', fontSize: '12px' }}>(선택사항)</span>
             </label>
             <textarea
+              className="report-modal-textarea"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               placeholder={isRequest ? 
                 '어떤 부분을 개선하면 좋을지 자세히 알려주세요...' : 
                 '신고 사유에 대해 자세히 설명해주세요...'
               }
-              style={styles.textarea}
               maxLength={1000}
               rows={4}
             />
-            <div style={styles.charCount}>
+            <div className="report-modal-charcount">
               {formData.description.length}/1000
             </div>
           </div>
 
-          <div style={styles.buttonGroup}>
+          <div className="report-modal-buttongroup">
             <button 
               type="button" 
+              className="report-modal-cancel"
               onClick={onClose} 
-              style={styles.cancelButton}
               disabled={loading}
             >
               취소
             </button>
             <button 
               type="submit" 
-              style={styles.submitButton}
+              className="report-modal-submit"
               disabled={loading}
             >
               {loading ? '전송 중...' : (isRequest ? '요청 전송' : '신고 접수')}
@@ -157,113 +170,6 @@ const ReportModal = ({ isOpen, onClose, targetType, targetId, isRequest = false 
       </div>
     </div>
   );
-};
-
-// ✅ 스타일 정의
-const styles = {
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000
-  },
-  modal: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    padding: '0',
-    width: '90%',
-    maxWidth: '400px',
-    maxHeight: '80vh',
-    overflowY: 'auto',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '20px 20px 0 20px',
-    borderBottom: '1px solid #eee',
-    marginBottom: '20px'
-  },
-  title: {
-    margin: 0,
-    fontSize: '16px',
-    fontWeight: 'bold'
-  },
-  closeButton: {
-    background: 'none',
-    border: 'none',
-    fontSize: '18px',
-    cursor: 'pointer',
-    color: '#999'
-  },
-  formGroup: {
-    marginBottom: '20px',
-    padding: '0 20px'
-  },
-  label: {
-    display: 'block',
-    marginBottom: '8px',
-    fontSize: '14px',
-    fontWeight: '500'
-  },
-  optional: {
-    color: '#999',
-    fontWeight: 'normal',
-    fontSize: '12px'
-  },
-  select: {
-    width: '100%',
-    padding: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px'
-  },
-  textarea: {
-    width: '100%',
-    padding: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    fontSize: '14px',
-    resize: 'vertical',
-    fontFamily: 'inherit'
-  },
-  charCount: {
-    textAlign: 'right',
-    fontSize: '12px',
-    color: '#999',
-    marginTop: '4px'
-  },
-  buttonGroup: {
-    display: 'flex',
-    gap: '10px',
-    padding: '20px',
-    borderTop: '1px solid #eee'
-  },
-  cancelButton: {
-    flex: 1,
-    padding: '10px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    backgroundColor: 'white',
-    cursor: 'pointer'
-  },
-  submitButton: {
-    flex: 1,
-    padding: '10px',
-    border: 'none',
-    borderRadius: '4px',
-    backgroundColor: '#dc3545',
-    color: 'white',
-    cursor: 'pointer',
-    fontWeight: 'bold'
-  }
 };
 
 export default ReportModal;

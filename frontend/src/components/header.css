@@ -124,3 +124,23 @@ footer {
   box-shadow: var(--footer-shadow);
   transition: background 0.2s, color 0.2s;
 }
+
+.report-btn.text {
+  color: var(--nav-link-hover);
+  font-weight: 500;
+  font-size: 1em;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--nav-link-hover);
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.report-btn.text:hover {
+  color: var(--nav-link);
+  text-decoration-color: var(--nav-link);
+}
