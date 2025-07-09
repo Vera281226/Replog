@@ -31,4 +31,6 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     List<Review> findByContentIdOrderByRatingDesc(Integer contentId);
 
+    @Query("SELECT r FROM Review r WHERE r.contentId = :contentId")
+    List<Review> findByContentId(@Param("contentId") Integer contentId);
 }

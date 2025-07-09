@@ -48,7 +48,8 @@ export default function ReviewModal({
         });
       }
 
-      onReviewCreated(); // 수정이든 등록이든 성공 후 처리
+      // 리뷰 등록/수정 후 평점 갱신을 위한 함수 호출
+      onReviewCreated(); // 평점 갱신을 위한 함수 호출
     } catch (e) {
       alert(isEdit ? '수정 실패' : '등록 실패');
     }
