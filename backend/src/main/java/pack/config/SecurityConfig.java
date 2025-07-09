@@ -58,7 +58,8 @@ public class SecurityConfig {
                         "/api/auth/logout",
                         "/api/index/**",
                         "/api/import/**",
-                        "/api/email/**"
+                        "/api/email/**",
+                        "/api/search/**"
                     )
             )
 
@@ -79,7 +80,8 @@ public class SecurityConfig {
                     "/api/genres",
                     "/api/contents/**",
                     "/api/index/**",
-                    "/api/import/**"
+                    "/api/import/**",
+                    "/api/search/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()

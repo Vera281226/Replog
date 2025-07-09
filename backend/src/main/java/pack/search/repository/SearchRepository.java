@@ -19,20 +19,22 @@ public interface SearchRepository extends JpaRepository<Contents, Integer> {
      * - title LIKE %:keyword% 조건으로 검색 (대소문자 무시)
      * - 결과는 SearchResponse DTO로 매핑됨
      * - release_date는 String으로 DTO에 매핑됨 (DATE → String 자동 변환됨)
+     * - 띄어쓰기 무시 검색
      */
-    @Query("""
-        SELECT new pack.search.dto.SearchResponse(
-            c.contentId,
-            c.title,
-            c.overview,
-            c.posterPath,
-            c.releaseDate,
-            c.rating,
-            c.mediaType
-        )
-        FROM Contents c
-        WHERE LOWER(c.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
-        ORDER BY c.releaseDate DESC
-    """)
-    List<SearchResponse> searchByTitleContaining(@Param("keyword") String keyword);
+	@Query("""
+	        SELECT new pack.search.dto.SearchResponse(
+	            c.contentId,
+	            c.title,
+	            c.overview,
+	            c.posterPath,
+	            c.releaseDate,
+	            c.rating,
+	            c.mediaType
+	        )
+	        FROM Contents c
+	        WHERE LOWER(REPLACE(c.title, ' ', '')) LIKE LOWER(CONCAT('%', REPLACE(:keyword, ' ', ''), '%'))
+	        ORDER BY c.releaseDate DESC
+	    """)
+	    List<SearchResponse> searchByTitleIgnoreSpaces(@Param("keyword") String keyword);
+
 }
