@@ -1,4 +1,4 @@
-.board-page {
+.board-page { 
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -78,9 +78,11 @@
   background-color: #5A3E85;
 }
 
+/* ✅ 테이블 스타일 */
 .board-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed; /* 고정 너비 */
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -90,6 +92,9 @@
   padding: 8px;
   text-align: center;
   border-bottom: 1px solid #e5e5e5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .board-table th {
@@ -99,6 +104,42 @@
 .board-table td a {
   color: #6C4D9A;
   text-decoration: none;
+}
+
+/* ✅ 각 열 너비 지정 (총 7열 기준) */
+.board-table th:nth-child(1),
+.board-table td:nth-child(1) {
+  width: 6%;  /* 번호 */
+}
+
+.board-table th:nth-child(2),
+.board-table td:nth-child(2) {
+  width: 16%;  /* 카테고리 */
+}
+
+.board-table th:nth-child(3),
+.board-table td:nth-child(3) {
+  width: 38%;  /* 제목 */
+}
+
+.board-table th:nth-child(4),
+.board-table td:nth-child(4) {
+  width: 12%;  /* 닉네임 */
+}
+
+.board-table th:nth-child(5),
+.board-table td:nth-child(5) {
+  width: 14%;  /* 날짜 */
+}
+
+.board-table th:nth-child(6),
+.board-table td:nth-child(6) {
+  width: 7%;  /* 조회 */
+}
+
+.board-table th:nth-child(7),
+.board-table td:nth-child(7) {
+  width: 7%;  /* 추천 */
 }
 
 .board-footer {
@@ -148,3 +189,4 @@
 .write-button:hover {
   background-color: #5A3E85;
 }
+

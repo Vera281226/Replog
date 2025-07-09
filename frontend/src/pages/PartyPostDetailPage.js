@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"; 
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../error/api/interceptor";
 import { ErrorModal } from "../error/components/ErrorModal"; // ✅ 추가

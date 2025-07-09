@@ -1,11 +1,11 @@
-/* ✅ 바닥글(Footer) 기본 구조 */
 footer {
-  border-top: 1px solid #ccc;              /* 상단 경계선 */
-  background-color: #fdf6e3;               /* ✅ 아이보리 배경 */
-  padding: 15px 30px;                      /* 여백 */
-  text-align: center;                      /* 텍스트 중앙 정렬 */
+  border-top: 1px solid var(--footer-border);
+  background-color: var(--footer-bg);
+  padding: 15px 30px;
+  text-align: center;
   font-size: 0.9em;
-  color: #666;
-  margin-top: 40px;                        /* 위쪽 콘텐츠와 거리 확보 */
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.03); /* 위에서 살짝 그림자 */
+  color: var(--footer-text);
+  margin-top: 40px;
+  box-shadow: var(--footer-shadow);
+  transition: background 0.2s, color 0.2s;
 }
