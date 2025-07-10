@@ -53,11 +53,30 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
       Link,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
-    content: form.content,
+    content: "",
     onUpdate: ({ editor }) => {
       setForm((prev) => ({ ...prev, content: editor.getHTML() }));
     },
   });
+
+  useEffect(() => {
+  if (editor) {
+    editor.commands.setContent([
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "내용: " }],
+      },
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "모집위치: " }],
+      },
+      {
+        type: "paragraph",
+        content: [{ type: "text", text: "애프터 여부: " }],
+      },
+    ]);
+  }
+}, [editor]);
 
   useEffect(() => {
     if (!isOpen) return;
