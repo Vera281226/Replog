@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "../error/redux/authSlice";
 import axios from "../error/api/interceptor";
@@ -8,13 +8,8 @@ import WritePartyModal from "../components/WritePartyModal";
 import LoginRequiredModal from "../components/LoginRequiredModal";
 import { ErrorModal } from "../error/components/ErrorModal";
 import dayjs from "dayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import TextField from "@mui/material/TextField";
+import CustomDatePicker from "../components/CustomDatePicker";
 import "./css/TheaterPage.css";
-
-const formatDate = (date) => dayjs(date).format("YYYY-MM-DDTHH:mm");
 
 const groupTheatersByBrand = (theaters) => {
   const grouped = { CGV: [], "롯데시네마": [], "메가박스": [], 기타: [] };
@@ -39,8 +34,8 @@ const TheaterPage = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [filteredTheaters, setFilteredTheaters] = useState([]);
   const [postCounts, setPostCounts] = useState({});
-  const [searchStartDate, setSearchStartDate] = useState(dayjs());
-  const [searchEndDate, setSearchEndDate] = useState(dayjs().add(14, "day"));
+  const [searchStartDate, setSearchStartDate] = useState(dayjs().add(1, "day").format("YYYY-MM-DDTHH:mm"));
+  const [searchEndDate, setSearchEndDate] = useState(dayjs().add(14, "day").format("YYYY-MM-DDTHH:mm"));
   const [searchMovie, setSearchMovie] = useState("");
   const [partyPosts, setPartyPosts] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -62,19 +57,19 @@ const TheaterPage = () => {
     const hasQuery = start || end || ids.length > 0 || movie;
 
     if (!hasQuery) {
-      const defaultStart = dayjs().add(30, "minute");
-      const defaultEnd = dayjs().add(14, "day");
+      const defaultStart = dayjs().format("YYYY-MM-DDTHH:mm");
+      const defaultEnd = dayjs().add(14, "day").format("YYYY-MM-DDTHH:mm");
 
       const defaultParams = new URLSearchParams();
-      defaultParams.append("start", formatDate(defaultStart));
-      defaultParams.append("end", formatDate(defaultEnd));
+      defaultParams.append("start", defaultStart);
+      defaultParams.append("end", defaultEnd);
 
       navigate({ pathname: "/theaters", search: defaultParams.toString() });
       return;
     }
 
-    setSearchStartDate(start ? dayjs(start) : dayjs().add(30, "minute"));
-    setSearchEndDate(end ? dayjs(end) : dayjs().add(14, "day"));
+    setSearchStartDate(start || dayjs().format("YYYY-MM-DDTHH:mm"));
+    setSearchEndDate(end || dayjs().add(14, "day").format("YYYY-MM-DDTHH:mm"));
     setSearchMovie(movie);
     setSelectedIds(ids);
 
@@ -125,8 +120,8 @@ const TheaterPage = () => {
 
     const params = new URLSearchParams();
     newSelected.forEach((id) => params.append("ids", id));
-    if (searchStartDate) params.append("start", formatDate(searchStartDate));
-    if (searchEndDate) params.append("end", formatDate(searchEndDate));
+    if (searchStartDate) params.append("start", searchStartDate);
+    if (searchEndDate) params.append("end", searchEndDate);
     if (searchMovie) params.append("movie", searchMovie);
 
     navigate({ pathname: "/theaters", search: params.toString() });
@@ -135,8 +130,8 @@ const TheaterPage = () => {
   const selectAll = () => {
     setSelectedIds([]);
     const params = new URLSearchParams();
-    if (searchStartDate) params.append("start", formatDate(searchStartDate));
-    if (searchEndDate) params.append("end", formatDate(searchEndDate));
+    if (searchStartDate) params.append("start", searchStartDate);
+    if (searchEndDate) params.append("end", searchEndDate);
     if (searchMovie) params.append("movie", searchMovie);
     navigate({ pathname: "/theaters", search: params.toString() });
   };
@@ -144,8 +139,8 @@ const TheaterPage = () => {
   const handleSearchClick = () => {
     const params = new URLSearchParams();
     if (selectedIds.length > 0) selectedIds.forEach(id => params.append("ids", id));
-    if (searchStartDate) params.append("start", formatDate(searchStartDate));
-    if (searchEndDate) params.append("end", formatDate(searchEndDate));
+    if (searchStartDate) params.append("start", searchStartDate);
+    if (searchEndDate) params.append("end", searchEndDate);
     if (searchMovie) params.append("movie", searchMovie);
     navigate({ pathname: "/theaters", search: params.toString() });
   };
@@ -220,34 +215,26 @@ const TheaterPage = () => {
 
       <div className="theater-controls">
         <div className="search-group">
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DateTimePicker
-              label="시작일시"
-              value={searchStartDate}
-              onChange={(newValue) => setSearchStartDate(newValue)}
-              minDateTime={dayjs().add(25, "minute")}
-              format="YYYY-MM-DD HH:mm"
-              renderInput={(params) => (
-                <TextField {...params} size="small" className="custom-datepicker" />
-              )}
-            />
-            <DateTimePicker
-              label="종료일시"
-              value={searchEndDate}
-              onChange={(newValue) => setSearchEndDate(newValue)}
-              minDateTime={searchStartDate}
-              format="YYYY-MM-DD HH:mm"
-              renderInput={(params) => (
-                <TextField {...params} size="small" className="custom-datepicker" />
-              )}
-            />
-          </LocalizationProvider>
-          <TextField
-            label="영화명"
+<CustomDatePicker
+  label="시작일시"
+  date={searchStartDate}
+  setDate={setSearchStartDate}
+  min={dayjs().format("YYYY-MM-DDTHH:mm")} // 현재 시간 이후만 선택 가능
+  className="datepicker"
+/>
+
+<CustomDatePicker
+  label="종료일시"
+  date={searchEndDate}
+  setDate={setSearchEndDate}
+  min={searchStartDate} // 시작일시 이후만 선택 가능
+  className="datepicker"
+/>
+          <input
+            type="text"
             value={searchMovie}
             onChange={(e) => setSearchMovie(e.target.value)}
             placeholder="검색할 영화명 입력"
-            size="small"
             className="search-movie-input"
           />
           <button onClick={handleSearchClick}>검색</button>

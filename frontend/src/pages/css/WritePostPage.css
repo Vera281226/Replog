@@ -90,3 +90,57 @@
 .btn-secondary:hover {
   background-color: #d1d5db;
 }
+
+/* ✅ WritePostPage 다크모드 */
+.dark-mode .write-post-page {
+  background-color: #1e1e1e;
+  color: var(--text-primary, #f5f5f5);
+}
+
+.dark-mode .write-post-container {
+  background-color: #2a2a2a;
+  box-shadow: none;
+}
+
+.dark-mode .write-post-title {
+  color: #f5f5f5;
+  border-bottom: 2px solid #444;
+}
+
+.dark-mode .write-post-input {
+  background-color: #2b2b2b;
+  color: #f5f5f5;
+  border: 1px solid #555;
+}
+
+.dark-mode .write-post-input[readonly] {
+  color: #aaa;
+}
+
+.dark-mode .write-post-input:focus {
+  border-color: #8C74BD;
+}
+
+.dark-mode .editor-wrapper {
+  background-color: #2b2b2b;
+  border: 1px solid #555;
+  color: #f5f5f5;
+}
+
+.dark-mode .btn-primary {
+  background-color: #8C74BD;
+  color: white;
+}
+
+.dark-mode .btn-primary:hover {
+  background-color: #7A61A9;
+}
+
+.dark-mode .btn-secondary {
+  background-color: #2c2c2c;
+  color: #eee;
+}
+
+.dark-mode .btn-secondary:hover {
+  background-color: #444;
+}

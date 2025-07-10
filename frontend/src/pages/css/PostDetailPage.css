@@ -316,3 +316,141 @@
   background-color: #9ca3af;
   cursor: not-allowed;
 }
+
+/* ✅ PostDetailPage 다크모드 */
+.dark-mode .post-detail-page {
+  background-color: #1e1e1e;
+  color: var(--text-primary, #f5f5f5);
+}
+
+.dark-mode .report-button-wrapper {
+  color: #f5f5f5;
+}
+
+.dark-mode .category-button {
+  background-color: #2b2b2b;
+  color: #bfa6ff;
+  border-color: #8C74BD;
+}
+.dark-mode .category-button.active {
+  background-color: #8C74BD;
+  color: #fff;
+  border-color: #8C74BD;
+}
+
+.dark-mode .post-detail-box {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+
+.dark-mode .post-title {
+  background-color: #2c2c2c;
+  color: #f5f5f5;
+}
+
+.dark-mode .post-content {
+  background-color: #1e1e1e;
+  border-color: #444;
+  color: #ddd;
+}
+
+.dark-mode .post-stats {
+  color: #aaa;
+}
+
+.dark-mode .post-author-info {
+  color: #aaa;
+}
+
+.dark-mode .post-recommend-button.default {
+  background-color: #2c2c2c;
+  color: #eee;
+}
+.dark-mode .post-recommend-button.liked {
+  background-color: #8C74BD;
+  color: #fff;
+}
+.dark-mode .post-recommend-button.disabled {
+  background-color: #444;
+  color: #777;
+}
+
+.dark-mode .post-back-button {
+  background-color: #2c2c2c;
+  color: #eee;
+  border-color: #555;
+}
+
+.dark-mode .post-edit-button {
+  background-color: #3a2f4e;
+  color: #e0d5ff;
+  border-color: #8C74BD;
+}
+
+.dark-mode .post-delete-button {
+  background-color: #4a2e3a;
+  color: #f4b8cc;
+  border-color: #a84a76;
+}
+
+/* ✅ 댓글 영역 */
+.dark-mode .comment-box {
+  background-color: #1e1e1e;
+  border-color: #444;
+  color: #ddd;
+}
+
+.dark-mode .comment-date {
+  color: #999;
+}
+
+.dark-mode .comment-like {
+  color: #aaa;
+}
+.dark-mode .comment-like.liked {
+  color: #bfa6ff;
+}
+
+.dark-mode .comment-edit-area {
+  background-color: #2b2b2b;
+  border-color: #555;
+  color: #f5f5f5;
+}
+
+.dark-mode .btn-confirm {
+  background-color: #8C74BD;
+  color: white;
+}
+
+.dark-mode .btn-cancel {
+  background-color: #666;
+  color: white;
+}
+
+.dark-mode .comment-action-buttons button {
+  background-color: #3a2f4e;
+  color: #e0d5ff;
+  border-color: #8C74BD;
+}
+
+.dark-mode .comment-action-buttons .btn-delete {
+  background-color: #4a2e3a;
+  color: #f4b8cc;
+  border-color: #a84a76;
+}
+
+.dark-mode .comment-input-section textarea {
+  background-color: #2a2a2a;
+  color: #eee;
+  border-color: #555;
+}
+
+.dark-mode .comment-input-section button {
+  background-color: #8C74BD;
+  color: white;
+}
+
+.dark-mode .comment-input-section button:disabled {
+  background-color: #444;
+  color: #999;
+}

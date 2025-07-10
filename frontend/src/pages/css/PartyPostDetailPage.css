@@ -98,3 +98,46 @@
 .detail-back-button:hover {
   background-color: #5A3E85; /* ✅ 호버 시 더 진한 보라색 */
 }
+
+/* 🌙 다크모드 스타일 */
+.dark-mode .detail-card {
+  background-color: #2c2c2c;
+  color: #f0f0f0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .detail-title {
+  color: #e0e0e0;
+  border-bottom: 2px solid #444;
+}
+
+.dark-mode .detail-meta {
+  color: #aaa;
+}
+
+.dark-mode .detail-table th {
+  background-color: #3a3a3a;
+  color: #ddd;
+  border-bottom: 1px solid #555;
+}
+
+.dark-mode .detail-table td {
+  border-bottom: 1px solid #444;
+  color: #ddd;
+}
+
+.dark-mode .detail-text {
+  background-color: #3a3a3a;
+  color: #ddd;
+}
+
+.dark-mode .detail-join-button,
+.dark-mode .detail-back-button {
+  background-color: #8C74BD;
+  color: #fff;
+}
+
+.dark-mode .detail-join-button:hover,
+.dark-mode .detail-back-button:hover {
+  background-color: #a58ad6;
+}

@@ -7,7 +7,9 @@ import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Toolbar from "../components/TiptapToolbar";
 import { ErrorModal } from "../error/components/ErrorModal";
-import "./WritePartyModal.css"; // ✅ 분리된 CSS import
+import CustomDatePicker from "../components/CustomDatePicker";
+import dayjs from "dayjs";
+import "./WritePartyModal.css";
 
 const ageGroups = [
   { label: "10대", value: 0 },
@@ -29,7 +31,7 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
     movie: "",
     title: "",
     content: "",
-    partyDeadline: "",
+    partyDeadline: dayjs().add(1, 'hour').format("YYYY-MM-DDTHH:mm"),
     theaterId: "",
     partyLimit: 2,
     gender: "",
@@ -100,7 +102,7 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
           movie: "",
           title: "",
           content: "",
-          partyDeadline: "",
+          partyDeadline: dayjs().add(1, 'hour').format("YYYY-MM-DDTHH:mm"),
           theaterId: "",
           partyLimit: 2,
           gender: "",
@@ -163,13 +165,11 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
             </div>
           </div>
 
-          <input
-            type="datetime-local"
-            name="partyDeadline"
-            value={form.partyDeadline}
-            onChange={handleChange}
-            min={new Date().toISOString().slice(0, 16)}
-            required
+          <CustomDatePicker
+            label="모집 마감일시"
+            date={form.partyDeadline}
+            setDate={(val) => setForm({ ...form, partyDeadline: val })}
+            min={dayjs().format("YYYY-MM-DDTHH:mm")}
           />
 
           <div className="theater-input-wrapper">
@@ -186,18 +186,20 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
             </span>
           </div>
 
-          <label>
-            모집 인원 (최대 9명):
-            <input
-              type="number"
-              name="partyLimit"
-              min="2"
-              max="9"
-              value={form.partyLimit}
-              onChange={handleChange}
-              required
-            />
-          </label>
+          <div className="party-limit-wrapper">
+            <label>
+              인원:
+              <input
+                type="number"
+                name="partyLimit"
+                min="2"
+                max="9"
+                value={form.partyLimit}
+                onChange={handleChange}
+                required
+              />
+            </label>
+          </div>
 
           <div className="gender-options">
             성별 조건:
@@ -208,8 +210,7 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value=""
                 onChange={handleChange}
                 checked={form.gender === ""}
-              />{" "}
-              무관
+              /> 무관
             </label>
             <label>
               <input
@@ -218,8 +219,7 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value="남"
                 onChange={handleChange}
                 checked={form.gender === "남"}
-              />{" "}
-              남
+              /> 남
             </label>
             <label>
               <input
@@ -228,8 +228,7 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
                 value="여"
                 onChange={handleChange}
                 checked={form.gender === "여"}
-              />{" "}
-              여
+              /> 여
             </label>
           </div>
 
@@ -251,16 +250,9 @@ const WritePartyModal = ({ isOpen, onClose, onSubmitSuccess }) => {
           <button type="submit">등록하기</button>
         </form>
 
-        {/* 영화관 선택 모달 */}
         {isTheaterModalOpen && (
-          <div
-            className="sub-modal"
-            onClick={() => setIsTheaterModalOpen(false)}
-          >
-            <div
-              className="sub-modal-content"
-              onClick={(e) => e.stopPropagation()}
-            >
+          <div className="sub-modal" onClick={() => setIsTheaterModalOpen(false)}>
+            <div className="sub-modal-content" onClick={(e) => e.stopPropagation()}>
               <button
                 className="modal-close-button"
                 onClick={() => setIsTheaterModalOpen(false)}

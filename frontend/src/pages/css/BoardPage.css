@@ -190,3 +190,81 @@
   background-color: #5A3E85;
 }
 
+/* ✅ 게시판 - 다크 모드 스타일 */
+.dark-mode .board-page {
+  background-color: #1e1e1e;
+  color: var(--text-primary, #f5f5f5);
+}
+
+.dark-mode .board-sort select,
+.dark-mode .board-search select,
+.dark-mode .board-search input {
+  background-color: #2b2b2b;
+  color: #f5f5f5;
+  border: 1px solid #555;
+}
+
+.dark-mode .board-search button {
+  background-color: #8C74BD;
+  color: #fff;
+}
+
+.dark-mode .board-search button:hover {
+  background-color: #7A61A9;
+}
+
+.dark-mode .category-button {
+  background-color: #2b2b2b;
+  color: #bfa6ff;
+  border: 1px solid #8C74BD;
+}
+
+.dark-mode .category-button:hover {
+  background-color: #3a2f4e;
+}
+
+.dark-mode .category-button.active {
+  background-color: #8C74BD !important;
+  color: #fff !important;
+  border: 1px solid #8C74BD !important;
+}
+
+.dark-mode .board-table th {
+  background-color: #2a2a2a;
+  color: #ddd;
+}
+
+.dark-mode .board-table td {
+  color: #e0e0e0;
+  border-bottom: 1px solid #444;
+}
+
+.dark-mode .board-table td a {
+  color: #bfa6ff;
+}
+
+.dark-mode .pagination button {
+  background-color: #2c2c2c;
+  color: #ccc;
+  border: 1px solid #555;
+}
+
+.dark-mode .pagination button.active {
+  background-color: #8C74BD;
+  color: #fff;
+}
+
+.dark-mode .pagination button:disabled {
+  background-color: #444;
+  color: #777;
+}
+
+.dark-mode .write-button {
+  background-color: #8C74BD;
+  color: #fff;
+}
+
+.dark-mode .write-button:hover {
+  background-color: #7A61A9;
+}
+

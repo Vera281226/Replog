@@ -239,3 +239,74 @@
   border-radius: 8px;
   box-sizing: border-box;
 }
+
+/* ✅ TheaterPage 다크모드 */
+.dark-mode .theater-container {
+  background-color: #1e1e1e;
+  color: var(--text-primary, #f5f5f5);
+}
+
+.dark-mode .theater-buttons button,
+.dark-mode .theater-controls > button,
+.dark-mode .search-group button {
+  background-color: #8C74BD;
+  color: white;
+}
+
+.dark-mode .theater-buttons button:hover,
+.dark-mode .theater-controls > button:hover,
+.dark-mode .search-group button:hover {
+  background-color: #7A61A9;
+}
+
+/* 브랜드 박스 */
+.dark-mode .theater-column {
+  background-color: #2a2a2a;
+  border-color: #444;
+  box-shadow: none;
+}
+
+.dark-mode .brand-title span.brand-text {
+  color: #f5f5f5;
+}
+
+.dark-mode .theater-item {
+  background-color: #2c2c2c;
+  color: #eee;
+  border: 1px solid #555;
+}
+
+.dark-mode .theater-item:hover {
+  background-color: #3a3a3a;
+}
+
+/* 검색 그룹 (입력 필드 포함) */
+.dark-mode .search-group input[type="date"],
+.dark-mode .search-group input[type="text"] {
+  background-color: #2b2b2b;
+  color: #ffffff;
+  border: 1px solid #555;
+}
+
+/* 파티 테이블 */
+.dark-mode .party-table th {
+  background-color: #2a2a2a;
+  color: #f5f5f5;
+  border-bottom: 1px solid #444;
+}
+
+.dark-mode .party-table td {
+  background-color: transparent;
+  color: #ddd;
+  border-bottom: 1px solid #444;
+}
+
+.dark-mode .party-title-link {
+  color: #bfa6ff;
+}
+
+/* 지도 영역 */
+.dark-mode .theater-map {
+  border-color: #444;
+}
+
