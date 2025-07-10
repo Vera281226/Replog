@@ -17,7 +17,7 @@ function ReviewContent({
   setReplyEdits,
   onEditClick
 }) {
-  const [liked, setLiked] = useState(review.isLiked); // 초기값 서버에서
+  const [liked, setLiked] = useState(review.isLiked);
   const [likeCount, setLikeCount] = useState(review.likeCount);
   const [showSpoiler, setShowSpoiler] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -50,7 +50,10 @@ function ReviewContent({
     <div className="review-box">
       <div className="review-header">
         <div className="header-left">
-          <div className="review-writer">{review.memberId}</div>
+          <div className="review-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="review-writer">{review.memberId}</div>
+            <StarRating rating={review.rating || 0} />
+          </div>
           <div className="review-date">
             {new Date(review.updatedAt).toLocaleString('ko-KR', {
               year: 'numeric',
@@ -71,8 +74,6 @@ function ReviewContent({
           </button>
         )}
       </div>
-
-      <StarRating rating={review.rating || 0} />
 
       <div className="review-content">
         {review.isSpoiler && !showSpoiler ? (

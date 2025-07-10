@@ -1,4 +1,3 @@
-// src/components/Review/ReplyItem.js
 import React, { useState } from 'react';
 import { useReviewApi } from '../../hooks/useReviewApi';
 import InfoModal from '../InfoModal';
@@ -25,8 +24,7 @@ function ReplyItem({
       });
       setEditingReplyId(null);
       onCommentAdded();
-    } catch {
-    }
+    } catch {}
   };
 
   const handleDeleteClick = () => {
@@ -57,20 +55,30 @@ function ReplyItem({
           marginTop: '12px'
         }}
       >
-        <div className="review-header">
-          <div className="header-left">
-            <div className="review-writer">{reply.memberId}</div>
-            <div className="review-date">
-              {reply.createdAt &&
-                new Date(reply.createdAt).toLocaleString('ko-KR', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
+        {/* 아이디 + 날짜 한 줄 정렬 */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#333',
+            marginBottom: '4px'
+          }}
+        >
+          <div className="reply-writer">{reply.memberId}</div>
+          {reply.createdAt && (
+            <div className="reply-date" style={{ color: '#777', fontSize: '13px', fontWeight: '400' }}>
+              {new Date(reply.createdAt).toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
             </div>
-          </div>
+          )}
         </div>
 
         <div className="review-content">
