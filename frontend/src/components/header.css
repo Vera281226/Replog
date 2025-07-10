@@ -1,4 +1,17 @@
 /* Dark mode CSS 변수 정의 */
+/* 라이트모드에서 헤더 배경 보강 */
+.light-mode header {
+  background-color: rgba(177, 158, 255, 0.4);  /* 연보라빛 반투명 배경 */
+  backdrop-filter: blur(8px);                   /* 흐림 효과로 가독성 향상 */
+}
+
+/* 라이트모드에서 헤더 텍스트 색상 보정 (필요 시) */
+.light-mode header,
+.light-mode .logo a,
+.light-mode nav a {
+  color: var(--header-text, #333);              /* 기존 헤더 텍스트 컬러 유지 */
+}
+
 .dark-mode {
   --header-bg: #23262b;
   --header-border: #1a1c20;
