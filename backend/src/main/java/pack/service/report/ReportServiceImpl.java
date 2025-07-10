@@ -12,6 +12,7 @@ import pack.dto.report.ReportRequest;
 import pack.dto.report.ReportResponse;
 import pack.model.member.Member;
 import pack.model.report.Report;
+import pack.model.report.Report.TargetType;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,16 @@ public class ReportServiceImpl implements ReportService {
     public ReportResponse createReport(String reporterId, ReportRequest request) {
         Member reporter = memberRepository.findById(reporterId)
             .orElseThrow(() -> new IllegalArgumentException("신고자를 찾을 수 없습니다"));
+
+        // targetId가 REVIEW 타입이고 숫자 형태인지 확인
+        if (request.getTargetType() == TargetType.REVIEW) {
+            try {
+                Integer.parseInt(request.getTargetId());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("리뷰 ID는 숫자여야 합니다");
+            }
+        }
+
         Report report = Report.builder()
             .reporter(reporter)
             .targetType(request.getTargetType())
@@ -35,6 +46,7 @@ public class ReportServiceImpl implements ReportService {
             .createdAt(LocalDateTime.now())
             .isProcessed(false)
             .build();
+        
         Report savedReport = reportRepository.save(report);
         return reportResponseMapper.convertToResponse(savedReport);
     }

@@ -10,4 +10,6 @@ public interface ReportAdminService {
     Page<ReportResponse> getUnprocessedReports(Pageable pageable);
     Page<ReportResponse> getReportsByType(TargetType targetType, Pageable pageable);
     ReportResponse processReport(Integer reportId, String processorId);
+    ReportResponse cancelProcess(Integer reportId, String processorId); // ✅ 
+    ReportResponse processReportAndDelete(Integer reportId, String processorId);
 }

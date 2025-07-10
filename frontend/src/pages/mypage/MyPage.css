@@ -1,9 +1,164 @@
-/* MyPage.css */
-.mypage { max-width:460px; margin:40px auto; text-align:center; }
-.profile-img { width:120px; height:120px; border-radius:50%; object-fit:cover; }
-.intro { color:#555; margin:8px 0 4px; }
-.count { font-size:.9rem; color:#666; }
-.btn.edit { display:inline-block; margin:12px 0 24px; padding:8px 24px;
-            border:1px solid #000; background:#fff; }
-.link-box { display:flex; flex-direction:column; gap:12px; }
-.link-box a { color:#000; text-decoration:none; }
+/* src/components/common/MyPage.css */
+
+/* 컨테이너 */
+.mypage {
+  max-width: 460px;
+  margin: 40px auto;
+  text-align: center;
+  background: var(--modal-bg, #fff);
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-shadow: 0 0 0 4px rgba(180,160,255,0.13), 0 10px 36px rgba(120,90,200,0.14);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* 다크모드 */
+.dark-mode .mypage {
+  --modal-bg: #23262b;
+  color: #f1f1f1;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.22), 0 0 0 4px #a7a9fa44;
+}
+
+/* 프로필 이미지 */
+.profile-img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #bbaaff;
+  box-shadow: 0 2px 8px rgba(180,160,255,0.1);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.dark-mode .profile-img {
+  border-color: #7c7fcf;
+  box-shadow: 0 2px 8px #7c7fcf33;
+}
+
+/* 닉네임 */
+.mypage h2 {
+  margin: 16px 0 8px;
+  font-size: 1.5rem;
+  color: #7c7fcf;
+  letter-spacing: -0.5px;
+}
+
+/* 소개글 */
+.intro {
+  color: #555;
+  margin: 8px 0 4px;
+  font-size: 0.95rem;
+}
+.dark-mode .intro {
+  color: #ccc;
+}
+
+/* 카운트 */
+.count {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 16px;
+}
+.dark-mode .count {
+  color: #aaa;
+}
+
+/* 버튼 기본 스타일 */
+.btn {
+  display: inline-block;
+  margin: 12px 8px 24px 8px;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(161,138,255,0.13);
+}
+
+/* 프로필 수정 */
+.btn.edit {
+  border: 2px solid #a18aff;
+  background: #fff;
+  color: #7c7fcf;
+}
+.btn.edit:hover {
+  background: #7c7fcf;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(161,138,255,0.18);
+}
+.dark-mode .btn.edit {
+  border-color: #7c7fcf;
+  color: #a18aff;
+}
+.dark-mode .btn.edit:hover {
+  background: #a18aff;
+}
+
+/* 회원 정보 수정 */
+.btn.info {
+  border: 2px solid #bbaaff;
+  background: #fff;
+  color: #666;
+}
+.btn.info:hover {
+  background: #bbaaff;
+  color: #fff;
+}
+.dark-mode .btn.info {
+  border-color: #7c7fcf;
+  color: #ccc;
+}
+.dark-mode .btn.info:hover {
+  background: #7c7fcf;
+}
+
+/* 링크 박스 */
+.link-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.link-box a,
+.link-box .link-btn {
+  padding: 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #7c7fcf;
+  background: rgba(177,158,255,0.08);
+  transition: background 0.2s, color 0.2s;
+}
+.link-box a:hover,
+.link-box .link-btn:hover {
+  background: #bbaaff;
+  color: #fff;
+}
+.dark-mode .link-box a,
+.dark-mode .link-box .link-btn {
+  background: rgba(124,127,207,0.12);
+  color: #a18aff;
+}
+.dark-mode .link-box a:hover,
+.dark-mode .link-box .link-btn:hover {
+  background: #7c7fcf;
+  color: #fff;
+}
+
+/* 탈퇴 버튼 */
+.btn.danger {
+  border: 2px solid #dc3545;
+  background: #fff;
+  color: #dc3545;
+}
+.btn.danger:hover {
+  background: #dc3545;
+  color: #fff;
+}
+.dark-mode .btn.danger {
+  background: #2e2e46;
+  color: #dc3545;
+}
+.dark-mode .btn.danger:hover {
+  background: #a84a5f;
+}

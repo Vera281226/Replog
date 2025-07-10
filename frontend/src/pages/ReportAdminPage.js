@@ -1,7 +1,8 @@
 // src/components/admin/ReportAdminPage.js
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from '../error/api/interceptor';
+import InfoModal from '../components/InfoModal';
+import './ReportAdminPage.css';
 
 const TARGET_TYPE_LABELS = {
   USER: '사용자',
@@ -26,6 +27,22 @@ function ReportAdminPage() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // InfoModal 상태
+  const [modal, setModal] = useState({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    msg: '',
+    onOk: () => {},
+  });
+
+  const openModal = useCallback((type, title, msg, onOk) => {
+    setModal({ isOpen: true, type, title, msg, onOk });
+  }, []);
+
+  const closeModal = () => setModal(m => ({ ...m, isOpen: false }));
+
+  // 신고 목록 조회
   useEffect(() => {
     fetchReports();
     // eslint-disable-next-line
@@ -39,85 +56,151 @@ function ReportAdminPage() {
       if (statusTab === 'unprocessed') url += '/unprocessed';
       if (typeTab !== 'ALL') url = `/admin/reports/type/${typeTab}`;
       const { data } = await axios.get(url, { params, withCredentials: true });
-      // data.content로 들어온다고 가정
       setReports(data.content || []);
     } catch (e) {
+      console.error('신고 목록 조회 실패:', e);
     }
     setLoading(false);
   };
 
-  const handleProcess = (reportId) => {
-    // 실제 처리 API 호출은 생략
-    alert(`신고 처리 기능(미구현): ${reportId}`);
+  // 에러 메시지 안전 처리 함수
+  const getErrorMessage = (e, fallback) => {
+    if (typeof e?.response?.data === 'object' && e?.response?.data !== null) {
+      return e.response.data.message || fallback;
+    }
+    return e?.response?.data || fallback;
   };
 
-  const handleDelete = (reportId) => {
-    // 실제 삭제 API 호출은 생략
-    alert(`신고 삭제 기능(미구현): ${reportId}`);
+  // 삭제 및 처리 (USER/CONTENT_REQUEST 예외 처리)
+  const handleProcessAndDelete = (reportId, targetType) => {
+    if (targetType === 'USER') {
+      openModal('error', '불가', 'USER는 삭제할 수 없습니다.', closeModal);
+      return;
+    }
+    if (targetType === 'CONTENT_REQUEST') {
+      openModal(
+        'warning',
+        '신고 처리',
+        '요청 유형은 삭제할 데이터가 없으므로 신고만 처리합니다.',
+        async () => {
+          try {
+            await axios.put(`/admin/reports/${reportId}/process`, null, { withCredentials: true });
+            openModal('success', '처리 완료', '신고가 처리되었습니다.', () => {
+              closeModal();
+              fetchReports();
+            });
+          } catch (e) {
+            openModal('error', '처리 실패', getErrorMessage(e, '처리에 실패하였습니다.'), closeModal);
+          }
+        }
+      );
+      return;
+    }
+    openModal(
+      'warning',
+      '신고 처리 및 삭제',
+      '해당 콘텐츠를 삭제하고 신고를 처리하시겠습니까?',
+      async () => {
+        try {
+          await axios.put(`/admin/reports/${reportId}/process-delete`, null, { withCredentials: true });
+          openModal('success', '처리 완료', '신고가 처리되고 콘텐츠가 삭제되었습니다.', () => {
+            closeModal();
+            fetchReports();
+          });
+        } catch (e) {
+          openModal('error', '처리 실패', getErrorMessage(e, '처리에 실패하였습니다.'), closeModal);
+        }
+      }
+    );
+  };
+
+  // 신고 처리 (원본 삭제 없음, 요청/USER 제외)
+  const handleProcess = (reportId, targetType) => {
+    if (targetType === 'CONTENT_REQUEST') {
+      handleProcessAndDelete(reportId, targetType);
+      return;
+    }
+    openModal(
+      'warning',
+      '신고 처리',
+      '해당 신고를 처리하시겠습니까?\n(원본 콘텐츠는 삭제되지 않습니다)',
+      async () => {
+        try {
+          await axios.put(`/admin/reports/${reportId}/process`, null, { withCredentials: true });
+          openModal('success', '처리 완료', '신고가 처리되었습니다.', () => {
+            closeModal();
+            fetchReports();
+          });
+        } catch (e) {
+          openModal('error', '처리 실패', getErrorMessage(e, '처리에 실패하였습니다.'), closeModal);
+        }
+      }
+    );
+  };
+
+  // 처리 취소
+  const handleCancel = (reportId) => {
+    openModal(
+      'warning',
+      '처리 취소',
+      '해당 신고의 처리 상태를 취소하시겠습니까?',
+      async () => {
+        try {
+          await axios.put(`/admin/reports/${reportId}/cancel`, null, { withCredentials: true });
+          openModal('success', '취소 완료', '처리 상태가 취소되었습니다.', () => {
+            closeModal();
+            fetchReports();
+          });
+        } catch (e) {
+          openModal('error', '취소 실패', getErrorMessage(e, '취소에 실패하였습니다.'), closeModal);
+        }
+      }
+    );
   };
 
   return (
-    <div style={{ padding: 32 }}>
+    <div className="report-admin-page">
       <h2>신고 관리</h2>
+      
       {/* 상태 탭 */}
-      <div style={{ marginBottom: 16 }}>
+      <div className="report-admin-tabs">
         {STATUS_TABS.map(tab => (
           <button
             key={tab.key}
+            className={statusTab === tab.key ? 'active' : ''}
             onClick={() => setStatusTab(tab.key)}
-            style={{
-              fontWeight: statusTab === tab.key ? 'bold' : 'normal',
-              marginRight: 8,
-              padding: '6px 18px',
-              borderRadius: 6,
-              border: statusTab === tab.key ? '2px solid #1976d2' : '1px solid #aaa',
-              background: statusTab === tab.key ? '#e3f2fd' : '#fff',
-              cursor: 'pointer',
-            }}
           >
             {tab.label}
           </button>
         ))}
       </div>
+
       {/* 종류 탭 */}
-      <div style={{ marginBottom: 16 }}>
+      <div className="report-admin-types">
         <button
+          className={typeTab === 'ALL' ? 'active' : ''}
           onClick={() => setTypeTab('ALL')}
-          style={{
-            fontWeight: typeTab === 'ALL' ? 'bold' : 'normal',
-            marginRight: 4,
-            padding: '4px 12px',
-            borderRadius: 4,
-            border: typeTab === 'ALL' ? '2px solid #1976d2' : '1px solid #bbb',
-            background: typeTab === 'ALL' ? '#e3f2fd' : '#fff',
-            cursor: 'pointer',
-          }}
-        >전체</button>
+        >
+          전체
+        </button>
         {TARGET_TYPES.map(type => (
           <button
             key={type}
+            className={typeTab === type ? 'active' : ''}
             onClick={() => setTypeTab(type)}
-            style={{
-              fontWeight: typeTab === type ? 'bold' : 'normal',
-              marginRight: 4,
-              padding: '4px 12px',
-              borderRadius: 4,
-              border: typeTab === type ? '2px solid #1976d2' : '1px solid #bbb',
-              background: typeTab === type ? '#e3f2fd' : '#fff',
-              cursor: 'pointer',
-            }}
           >
             {TARGET_TYPE_LABELS[type]}
           </button>
         ))}
       </div>
+
       {/* 리스트 */}
       {loading ? (
-        <div>로딩 중...</div>
+        <div className="report-admin-loading">로딩 중...</div>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fafafa' }}>
+        <table className="report-admin-table">
           <thead>
-            <tr style={{ background: '#e3e3e3' }}>
+            <tr>
               <th>번호</th>
               <th>상태</th>
               <th>종류</th>
@@ -133,58 +216,95 @@ function ReportAdminPage() {
           </thead>
           <tbody>
             {reports.length === 0 ? (
-              <tr><td colSpan={11} style={{ textAlign: 'center', padding: 32 }}>신고 내역이 없습니다.</td></tr>
+              <tr>
+                <td colSpan={11} className="report-admin-empty">
+                  신고 내역이 없습니다.
+                </td>
+              </tr>
             ) : (
-              reports.map((r, idx) => (
-                <tr key={r.reportId} style={{ borderBottom: '1px solid #ddd' }}>
+              reports.map((r) => (
+                <tr key={r.reportId}>
                   <td>{r.reportId}</td>
                   <td>
-                    <span style={{
-                      color: r.isProcessed ? '#388e3c' : '#d32f2f',
-                      fontWeight: 'bold'
-                    }}>
+                    <span className={r.isProcessed ? 'status-processed' : 'status-unprocessed'}>
                       {r.isProcessed ? '처리됨' : '미처리'}
                     </span>
                   </td>
                   <td>{TARGET_TYPE_LABELS[r.targetType] || r.targetType}</td>
-                  <td>{r.reporterNickname}</td>
-                  <td>
-                    {r.targetTitle && <b>{r.targetTitle}</b>}<br />
-                    {r.targetContent && <span style={{ color: '#666', fontSize: 12 }}>{r.targetContent}</span>}<br />
-                    {r.targetAuthor && <span style={{ color: '#888', fontSize: 11 }}>by {r.targetAuthor}</span>}
+                  <td>{r.reporterNickname || r.reporterId}</td>
+                  <td className="report-admin-target">
+                    {r.targetTitle && (
+                      <div className="target-title">
+                        {r.targetTitle}
+                      </div>
+                    )}
+                    {r.targetContent && (
+                      <div className="target-content">
+                        {r.targetContent.length > 50 
+                          ? r.targetContent.substring(0, 50) + '...' 
+                          : r.targetContent}
+                      </div>
+                    )}
+                    {r.targetAuthor && (
+                      <div className="target-author">
+                        by {r.targetAuthor}
+                      </div>
+                    )}
                   </td>
                   <td>{r.reason}</td>
-                  <td>{r.description}</td>
-                  <td>{r.createdAt?.slice(0, 16).replace('T', ' ')}</td>
-                  <td>{r.processedAt ? r.processedAt.slice(0, 16).replace('T', ' ') : '-'}</td>
+                  <td className="report-admin-desc">
+                    {r.description ? (
+                      r.description.length > 30 
+                        ? r.description.substring(0, 30) + '...' 
+                        : r.description
+                    ) : '-'}
+                  </td>
+                  <td className="report-admin-date">
+                    {r.createdAt ? r.createdAt.slice(0, 16).replace('T', ' ') : '-'}
+                  </td>
+                  <td className="report-admin-date">
+                    {r.processedAt ? r.processedAt.slice(0, 16).replace('T', ' ') : '-'}
+                  </td>
                   <td>{r.processorNickname || '-'}</td>
                   <td>
-                    {!r.isProcessed && (
+                    {!r.isProcessed ? (
+                      <>
+                        {/* 삭제 및 처리 버튼: USER/CONTENT_REQUEST 제외 */}
+                        {r.targetType !== 'USER' && r.targetType !== 'CONTENT_REQUEST' && (
+                          <button
+                            className="report-admin-action-btn delete"
+                            onClick={() => handleProcessAndDelete(r.reportId, r.targetType)}
+                          >
+                            삭제 및 처리
+                          </button>
+                        )}
+                        {/* 요청은 그냥 처리만 */}
+                        {r.targetType === 'CONTENT_REQUEST' && (
+                          <button
+                            className="report-admin-action-btn"
+                            onClick={() => handleProcessAndDelete(r.reportId, r.targetType)}
+                          >
+                            처리
+                          </button>
+                        )}
+                        {/* 일반 처리 버튼: USER만 */}
+                        {r.targetType === 'USER' && (
+                          <button
+                            className="report-admin-action-btn"
+                            onClick={() => handleProcess(r.reportId, r.targetType)}
+                          >
+                            처리
+                          </button>
+                        )}
+                      </>
+                    ) : (
                       <button
-                        onClick={() => handleProcess(r.reportId)}
-                        style={{
-                          background: '#1976d2',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: 4,
-                          padding: '4px 10px',
-                          marginBottom: 4,
-                          cursor: 'pointer'
-                        }}
-                      >처리</button>
+                        className="report-admin-action-btn cancel"
+                        onClick={() => handleCancel(r.reportId)}
+                      >
+                        처리 취소
+                      </button>
                     )}
-                    <br />
-                    <button
-                      onClick={() => handleDelete(r.reportId)}
-                      style={{
-                        background: '#fff',
-                        color: '#d32f2f',
-                        border: '1px solid #d32f2f',
-                        borderRadius: 4,
-                        padding: '3px 10px',
-                        cursor: 'pointer'
-                      }}
-                    >삭제</button>
                   </td>
                 </tr>
               ))
@@ -192,6 +312,18 @@ function ReportAdminPage() {
           </tbody>
         </table>
       )}
+
+      {/* InfoModal 공통 사용 */}
+      <InfoModal
+        isOpen={modal.isOpen}
+        type={modal.type}
+        title={modal.title}
+        message={modal.msg}
+        confirmLabel="확인"
+        cancelLabel="취소"
+        onConfirm={() => { modal.onOk(); }}
+        onCancel={closeModal}
+      />
     </div>
   );
 }
