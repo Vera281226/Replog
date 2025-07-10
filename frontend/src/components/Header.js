@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate  } from 'react-router-dom';
 import './header.css';
 import ReportButton from './common/ReportButton';
-import axios from 'axios';
+import axios from '../error/api/interceptor';
 
 const Header = ({ currentUser, onLogout }) => {
   const isLoggedIn = !!currentUser?.memberId;
@@ -31,7 +31,7 @@ const Header = ({ currentUser, onLogout }) => {
     // 서버에 직접 요청해서 관리자 여부 확인
     const checkAdmin = async () => {
       try {
-        await axios.get('/api/auth/admin-only', { withCredentials: true });
+        await axios.get('/auth/admin-only', { withCredentials: true });
         setIsAdmin(true);
       } catch {
         setIsAdmin(false);

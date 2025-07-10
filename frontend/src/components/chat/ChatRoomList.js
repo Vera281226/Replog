@@ -1,4 +1,3 @@
-// src/components/chat/ChatRoomList.js
 import React from 'react';
 import './css/ChatRoomList.css';
 

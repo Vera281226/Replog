@@ -85,14 +85,14 @@ const LoginForm = () => {
         </div>
         {msg && <div className="server-msg">{msg}</div>}
         <button type="submit" className="login-btn">로그인</button>
-        <div className="link-group">
+        {/* <div className="link-group">
           <Link onClick={() => setPasswordModalOpen(true)}>
             비밀번호를 잊어버리셨나요?
           </Link>
         </div>
         {isPasswordModalOpen && (
           <PasswordResetModal isOpen={isPasswordModalOpen} onClose={() => setPasswordModalOpen(false)} />
-        )}
+        )} */}
         <div className="link-group">
           <Link to="/signup">회원가입</Link>
         </div>
