@@ -1,0 +1,91 @@
+/* src/components/chat/ChatRoomList.css */
+
+.chat-room-list {
+  width: 220px;
+  background: var(--modal-bg, #f5f5ff);
+  border-right: 1.5px solid #e0e0ff;
+  overflow-y: auto;
+  height: 100%;
+  transition: background 0.3s;
+}
+.dark-mode .chat-room-list {
+  --modal-bg: #2e2e46;
+  border-right: 1.5px solid #7c7fcf;
+}
+.chat-room-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.chat-room-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  border-bottom: 1px solid #ede7f6;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+}
+.chat-room-item.selected,
+.chat-room-item:hover {
+  background: #e2d6fa;
+}
+.dark-mode .chat-room-item.selected,
+.dark-mode .chat-room-item:hover {
+  background: #3a3a5a;
+}
+.chat-room-icon {
+  font-size: 1.5em;
+  margin-right: 4px;
+}
+.chat-room-info {
+  flex: 1;
+  min-width: 0;
+}
+.chat-room-title {
+  font-weight: 700;
+  font-size: 1.05em;
+  color: #7c7fcf;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-room-last {
+  font-size: 0.92em;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.chat-room-leave-btn {
+  background: #fff;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.chat-room-leave-btn:hover {
+  background: #fdecec;
+  color: #b71c1c;
+}
+.dark-mode .chat-room-leave-btn {
+  background: #2e2e46;
+  color: #ffbaba;
+  border-color: #d32f2f;
+}
+.dark-mode .chat-room-leave-btn:hover {
+  background: #3a3a5a;
+  color: #ffbaba;
+}
+.chat-room-list-loading,
+.chat-room-list-empty {
+  padding: 40px 0;
+  color: #aaa;
+  text-align: center;
+  font-size: 1.05rem;
+}

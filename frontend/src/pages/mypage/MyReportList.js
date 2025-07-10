@@ -1,6 +1,7 @@
 // src/components/MyReportList.js
 import React, { useEffect, useState } from 'react';
 import api from '../../error/api/interceptor';
+import './MyReportList.css'
 
 const typeToKorean = {
   USER: '회원 신고',

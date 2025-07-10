@@ -1,31 +1,13 @@
-:root {
-  /* Light mode colors (기본) */
-  --header-bg: #f5f5f5;
-  --header-border: #ccc;
-  --header-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  --header-text: #333;
-
-  --footer-bg: #f5f5f5;
-  --footer-border: #ccc;
-  --footer-shadow: 0 -2px 4px rgba(0,0,0,0.03);
-  --footer-text: #666;
-
-  --nav-link: #333;
-  --nav-link-hover: #007bff;
-  --tooltip-bg: #fff;
-  --tooltip-text: #333;
-}
-
-body.dark-mode {
-  /* Dark mode colors */
-  --header-bg: #23262b;        /* 더 짙고 고급스러운 회색 */
+/* Dark mode CSS 변수 정의 */
+.dark-mode {
+  --header-bg: #23262b;
   --header-border: #1a1c20;
-  --header-shadow: 0 2px 8px rgba(0,0,0,0.22);
+  --header-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
   --header-text: #f1f1f1;
 
   --footer-bg: #23262b;
   --footer-border: #1a1c20;
-  --footer-shadow: 0 -2px 8px rgba(0,0,0,0.18);
+  --footer-shadow: 0 -2px 8px rgba(0, 0, 0, 0.18);
   --footer-text: #b0b3b8;
 
   --nav-link: #e0e0e0;
@@ -34,6 +16,7 @@ body.dark-mode {
   --tooltip-text: #f1f1f1;
 }
 
+/* Header */
 header {
   position: sticky;
   top: 0;
@@ -57,6 +40,7 @@ header {
   transition: color 0.2s;
 }
 
+/* Navigation */
 nav {
   display: flex;
   flex: 1;
@@ -78,10 +62,12 @@ nav a {
   position: relative;
   transition: color 0.2s;
 }
+
 nav a:hover {
   color: var(--nav-link-hover);
 }
 
+/* Tooltip */
 .add-tooltip {
   position: relative;
   display: inline-block;
@@ -100,19 +86,22 @@ nav a:hover {
   top: 125%;
   left: 50%;
   transform: translateX(-50%);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   font-size: 0.9em;
   white-space: pre-wrap;
   transition: background 0.2s, color 0.2s;
 }
+
 .add-tooltip:hover .tooltip-text {
   display: block;
 }
+
 .add-tooltip a {
   font-size: 1.5em;
   color: var(--nav-link-hover);
 }
 
+/* Footer */
 footer {
   border-top: 1px solid var(--footer-border);
   background-color: var(--footer-bg);
@@ -125,6 +114,7 @@ footer {
   transition: background 0.2s, color 0.2s;
 }
 
+/* Report 버튼 */
 .report-btn.text {
   color: var(--nav-link-hover);
   font-weight: 500;

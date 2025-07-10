@@ -51,12 +51,31 @@ public class ReportAdminController {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(reportAdminService.getReportsByType(targetType, pageable));
     }
-
+    
+    /* 신고 처리 */
     @PutMapping("/{reportId}/process")
     public ResponseEntity<ReportResponse> processReport(
         @PathVariable(name = "reportId") Integer reportId
     ) {
-    	String processorId = AuthUtil.getCurrentMemberId();
+        String processorId = AuthUtil.getCurrentMemberId();
         return ResponseEntity.ok(reportAdminService.processReport(reportId, processorId));
+    }
+
+    /* 신고 처리 취소 */
+    @PutMapping("/{reportId}/cancel")
+    public ResponseEntity<ReportResponse> cancelProcess(
+        @PathVariable(name = "reportId") Integer reportId
+    ) {
+        String processorId = AuthUtil.getCurrentMemberId();
+        return ResponseEntity.ok(reportAdminService.cancelProcess(reportId, processorId));
+    }
+
+    /* 신고 삭제 및 처리 */
+    @PutMapping("/{reportId}/process-delete")
+    public ResponseEntity<?> processReportAndDelete(
+        @PathVariable(name = "reportId") Integer reportId
+    ) {
+        String processorId = AuthUtil.getCurrentMemberId();
+        return ResponseEntity.ok(reportAdminService.processReportAndDelete(reportId, processorId));
     }
 }

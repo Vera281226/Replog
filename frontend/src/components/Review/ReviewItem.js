@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReviewContent from './ReviewContent';
 import ReviewModal from './ReviewModal';
+import ReportButton from '../common/ReportButton';
 
 function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
   const [liked, setLiked] = useState(review.liked || false);
@@ -45,7 +46,12 @@ function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
         replyEdits={replyEdits}              // 💡 추가
         setReplyEdits={setReplyEdits}        // 💡 추가
       />
-
+      <ReportButton
+          targetType="REVIEW"
+          targetId={review.reviewId}
+          buttonText="신고"
+          buttonStyle="small"
+        />
       {showEditModal && (
         <ReviewModal
           isEdit={true}

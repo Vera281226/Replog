@@ -1,3 +1,5 @@
+/* src/components/common/ReportModal.css */
+
 .report-modal-overlay {
   position: fixed;
   inset: 0;
@@ -18,15 +20,13 @@
   max-height: 88vh;
   overflow-y: auto;
   box-shadow: 0 0 0 4px rgba(180, 160, 255, 0.16), 0 10px 36px rgba(120, 90, 200, 0.18);
-  /* 연보라색 느낌의 그림자 추가 */
   animation: modalFadeIn 0.22s cubic-bezier(0.23, 1, 0.32, 1);
   border: 1.5px solid var(--modal-border, #eee);
   position: relative;
-  margin: 0 16px; /* 모바일에서 좌우 여백 */
+  margin: 0 16px;
   scrollbar-width: thin;
   scrollbar-color: #bbb #e5e5e5;
 }
-
 
 .report-modal::-webkit-scrollbar {
   width: 7px;
@@ -41,23 +41,23 @@
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(40px);}
-  to { opacity: 1; transform: translateY(0);}
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-body.dark-mode .report-modal {
+.dark-mode .report-modal {
   --modal-bg: #23262b;
   --modal-text: #f1f1f1;
   --modal-border: #7c7fcf;
   box-shadow:
     0 10px 36px rgba(0,0,0,0.26),
-    0 0 0 4px #a7a9fa55; /* 다크모드 연보라 그림자 */
+    0 0 0 4px #a7a9fa55;
   scrollbar-color: #444 #23262b;
 }
-body.dark-mode .report-modal::-webkit-scrollbar-thumb {
+.dark-mode .report-modal::-webkit-scrollbar-thumb {
   background: #444;
 }
-body.dark-mode .report-modal::-webkit-scrollbar-track {
+.dark-mode .report-modal::-webkit-scrollbar-track {
   background: #23262b;
 }
 
@@ -110,7 +110,7 @@ body.dark-mode .report-modal::-webkit-scrollbar-track {
 .report-modal-textarea {
   width: 90%;
   padding: 12px;
-  border: 2px solid #bbaaff; /* 연보라색 계열로 경계선 강조 */
+  border: 2px solid #bbaaff;
   border-radius: 6px;
   font-size: 15px;
   margin-bottom: 10px;
@@ -123,7 +123,7 @@ body.dark-mode .report-modal::-webkit-scrollbar-track {
 }
 .report-modal-select:focus,
 .report-modal-textarea:focus {
-  border-color: #a084e8; /* 더 진한 연보라 */
+  border-color: #a084e8;
   outline: none;
   box-shadow: 0 0 0 2px #e2d6fa;
 }
@@ -143,40 +143,105 @@ body.dark-mode .report-modal::-webkit-scrollbar-track {
   border-top: 1px solid var(--modal-border, #e0e0ff);
 }
 .report-modal-cancel,
+/* 요청 전송(신고 접수) 버튼 확대 및 둥글게 */
 .report-modal-submit {
-  background: #a18aff;   /* 단색 연보라 */
+  /* 기존 스타일 유지 */
+  background: #a18aff;
+  color: #fff;
   border: none;
   box-shadow: 0 2px 8px rgba(161,138,255,0.13);
   letter-spacing: 0.5px;
   font-weight: 700;
+  transition: background 0.2s, box-shadow 0.2s, padding 0.2s;
+  
+  /* 크기 2배 */
+  padding: 12px 24px;        /* 기존 대비 더 넉넉한 패딩 */
+  font-size: 20px;           /* 폰트 크기 확대 */
+  
+  /* 완전 둥근 모서리 */
+  border-radius: 50px;       /* 큰 반경으로 둥글게 */
 }
 
 .report-modal-submit:hover {
-  background: #7c7fcf;   /* hover 시 더 진한 연보라 */
-  color: #fff;
-  box-shadow: 0 4px 16px rgba(161,138,255,0.18);
+  background: #7c7fcf;
+  /* hover 시에도 크기 유지 */
+  padding: 12px 24px;
+  font-size: 20px;
 }
 
-.report-modal-cancel {
-  background: transparent;
-  border: 1.5px solid #e0e0ff;
-  color: var(--modal-text, #222);
-}
-.report-modal-cancel:hover {
-  background: #f5f5ff;
-}
-body.dark-mode .report-modal-cancel {
-  border: 1.5px solid #7c7fcf;
-}
-body.dark-mode .report-modal-cancel:hover {
-  background: #2e2e46;
-}
 /* 다크모드용 */
-body.dark-mode .report-modal-submit {
+.dark-mode .report-modal-submit {
   background: #7c7fcf;
   color: #fff;
 }
-body.dark-mode .report-modal-submit:hover {
+
+.dark-mode .report-modal-submit:hover {
+  background: #a18aff;
+}
+
+.report-modal-cancel {
+  /* 기존 스타일 유지 */
+  background: transparent;
+  border: 1.5px solid #e0e0ff;
+  color: var(--modal-text, #222);
+  
+  /* 크기 2배 */
+  padding: 12px 24px;        /* 기존 4px 6px에서 3배 정도 확대 */
+  font-size: 20px;           /* 기존 16px 정도 가정, 20px로 확대 */
+  
+  /* 완전 둥근 모서리 */
+  border-radius: 50px;       /* 기존 5px에서 훨씬 둥글게 */
+  
+  /* 박스 그림자 유지 */
+  box-shadow: 0 2px 8px rgba(161,138,255,0.13);
+  
+  /* 전환 효과 */
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.report-modal-cancel:hover {
+  background: #f5f5ff;
+  /* hover 시에도 크기 유지 */
+  padding: 12px 24px;
+  font-size: 20px;
+}
+
+/* 다크모드 적용 */
+.dark-mode .report-modal-cancel {
+  border: 1.5px solid #7c7fcf;
+}
+
+.dark-mode .report-modal-cancel:hover {
+  background: #2e2e46;
+}
+
+
+/* 다크모드용 */
+.dark-mode .report-modal-submit {
+  background: #7c7fcf;
+  color: #fff;
+}
+.dark-mode .report-modal-submit:hover {
   background: #a18aff;
   color: #fff;
+}
+
+/* 다크모드용 셀렉트/텍스트에어리어 텍스트 색상 강제 지정 */
+.dark-mode .report-modal-select,
+.dark-mode .report-modal-textarea {
+  background-color: #23262b;  /* 다크모드 배경 */
+  color: #f1f1f1;             /* 다크모드 텍스트 */
+  border: 2px solid #7c7fcf;  /* 기존 다크모드 테두리 */
+}
+
+/* 옵션(드롭다운 아이템) 텍스트 색상 지정 */
+.dark-mode .report-modal-select option {
+  background-color: #23262b;  /* 드롭다운 배경 */
+  color: #f1f1f1;             /* 옵션 텍스트 */
+}
+
+/* 포커스 시 그림자 유지 */
+.dark-mode .report-modal-select:focus,
+.dark-mode .report-modal-textarea:focus {
+  box-shadow: 0 0 0 2px #a18aff44, 0 2px 8px #a18aff55;
+  outline: none;
 }

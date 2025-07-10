@@ -2,6 +2,9 @@ package pack.controller.review;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pack.dto.review.LikeResponse;
@@ -9,6 +12,7 @@ import pack.dto.review.ReviewRequest;
 import pack.dto.review.ReviewResponse;
 import pack.dto.review.ReviewUpdateRequest;
 import pack.service.review.ReviewService;
+import pack.util.AuthUtil;
 
 import java.util.List;
 
@@ -113,5 +117,17 @@ public class ReviewController {
     public ResponseEntity<Double> getAverageRating(@RequestParam Integer contentId) {
         double average = reviewService.getAverageRating(contentId);
         return ResponseEntity.ok(average);
+    }
+    
+    @GetMapping("/my")
+    public ResponseEntity<Page<ReviewResponse>> getMyReviews(
+    		@RequestParam(name = "page", defaultValue = "0") int page,
+    		@RequestParam(name = "size", defaultValue = "10") int size) {
+
+        String memberId = AuthUtil.getCurrentMemberId();      // 로그인 회원
+        Page<ReviewResponse> result = reviewService.getReviewsByMember(
+                memberId, PageRequest.of(page, size));
+
+        return ResponseEntity.ok(result);
     }
 }

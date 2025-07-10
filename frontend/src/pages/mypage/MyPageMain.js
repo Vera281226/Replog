@@ -4,6 +4,7 @@ import api from '../../error/api/interceptor';
 import './MyPage.css';
 import MyReportList from './MyReportList';
 import WithdrawModal from './WithdrawModal';
+import MyReviewList from './MyReviewList';
 
 export default function MyPageMain() {
   const nav = useNavigate();
@@ -11,6 +12,7 @@ export default function MyPageMain() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [showReports, setShowReports] = useState(false);
+  const [showMyReviews, setShowMyReviews] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false); // 탈퇴 모달 표시
 
   useEffect(() => {
@@ -47,8 +49,12 @@ export default function MyPageMain() {
       <Link to="/member/edit" className="btn info">회원 정보 수정</Link>
 
       <div className="link-box">
-        <Link to="#">내가 쓴 리뷰보기</Link>
-        <Link to="#">내가 쓴 모집글 · 신청내역</Link>
+        <button className="link-btn" onClick={() => setShowMyReviews(true)}>
+  내가 쓴 리뷰보기
+</button>
+{showMyReviews && (
+  <MyReviewList onClose={() => setShowMyReviews(false)} />
+)}
         <button className="link-btn" onClick={() => setShowReports(true)}>
           내가 쓴 요청보기
         </button>

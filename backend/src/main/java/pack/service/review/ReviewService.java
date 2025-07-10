@@ -2,6 +2,9 @@ package pack.service.review;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import pack.dto.review.LikeResponse;
 import pack.dto.review.ReviewRequest;
@@ -196,6 +199,12 @@ public class ReviewService {
 
         double sum = valid.stream().mapToDouble(Review::getRating).sum();
         return sum / valid.size();
+    }
+    
+
+    public Page<ReviewResponse> getReviewsByMember(String memberId, Pageable pageable) {
+        return reviewRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable)
+                .map(review -> toResponse(review, memberId));
     }
 
 }

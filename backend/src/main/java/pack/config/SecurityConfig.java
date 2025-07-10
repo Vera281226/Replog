@@ -112,7 +112,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PATCH, "/api/partyposts/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/partyposts/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/member/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/reports/**").hasRole("USER")
+                .requestMatchers("/api/reports/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
