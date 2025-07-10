@@ -169,7 +169,6 @@
 }
 
 .member-register-form input:not([type="radio"]):not([type="checkbox"]):focus {
-
   border-color: #a084e8;
   box-shadow: 0 0 0 2px #e2d6fa, 0 2px 8px rgba(180, 160, 255, 0.15);
 }
@@ -185,4 +184,3 @@
   border-color: #a18aff;
   box-shadow: 0 0 0 2px #a18aff44, 0 2px 8px #a18aff55;
 }
-

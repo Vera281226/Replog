@@ -62,11 +62,6 @@ public class MemberServiceImpl implements MemberService {
 	}
 	
 	@Override
-	public boolean idExists(String id) {
-		return memberRepository.countById(id) > 0;
-	}
-	
-	@Override
     public boolean validateLogin(String memberId, String password) {
         Optional<Member> optional = memberRepository.findById(memberId);
         if (optional.isPresent()) {

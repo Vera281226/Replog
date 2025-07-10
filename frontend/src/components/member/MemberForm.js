@@ -34,14 +34,6 @@ export default function MemberForm({ mode = "register" }) {
   });
   const [loading, setLoading] = useState(mode === "edit"); // 수정모드면 로딩부터
 
-  const [idCheckMessage, setIdCheckMessage] = useState('');
-  const [nicknameCheckMessage, setNicknameCheckMessage] = useState('');
-  const [emailSendMessage, setEmailSendMessage] = useState('');
-
-  const [emailCode, setEmailCode] = useState('');
-  const [verifyResult, setVerifyResult] = useState('');
-  const [isCodeSent, setIsCodeSent] = useState(false); // 인증코드 발송 여부
-
   // 회원정보 수정 모드일 때, 현재 회원 데이터 불러오기
   useEffect(() => {
     if (mode === "edit") {
@@ -107,58 +99,6 @@ export default function MemberForm({ mode = "register" }) {
     navigate("/");
   };
 
-  // 아이디 중복 체크
-  const checkDuplicateId = async () => {
-    try {
-      const response = await axios.post('/member/id-check', { memberId: formData.memberId });
-      setIdCheckMessage(response.data);
-    } catch (err) {
-      const message = err.response?.data?.message || '아이디 중복 확인 중 오류가 발생했습니다.';
-      setIdCheckMessage(message);
-    }
-  };
-
-  // 닉네임 중복 체크
-  const checkDuplicateNickname = async () => {
-    try {
-      const response = await axios.post('/member/nickname-check', { nickname: formData.nickname });
-      setNicknameCheckMessage(response.data);
-    } catch (err) {
-      const message = err.response?.data?.message || '닉네임 중복 확인 중 오류가 발생했습니다.';
-      setNicknameCheckMessage(message);
-    }
-  };
-
-  // 인증 코드 전송
-  const sendEmailCode = async () => {
-    try {
-      await axios.post('/email/send', { email: formData.email });
-      setEmailSendMessage('인증코드가 전송되었습니다.');
-      setIsCodeSent(true); 
-    } catch (err) {
-      setEmailSendMessage(err.response?.data || '이메일 전송 실패');
-      setIsCodeSent(false); 
-    }
-  };
-
-  const handleCodeChange = (e) => {
-    setEmailCode(e.target.value);
-  };
-
-  const verifyEmailCode = async () => {
-    try {
-      await axios.post('/email/verify', {
-        email: formData.email,
-        authCode: String(emailCode)
-      });
-      setIsEmailVerified(true);
-      setVerifyResult('인증이 완료되었습니다. 회원가입을 계속 진행해주세요.');
-    } catch (err) {
-      setVerifyResult(err.response?.data || '인증 실패');
-      setIsEmailVerified(false);
-    }
-  };
-
   // 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -214,7 +154,6 @@ export default function MemberForm({ mode = "register" }) {
         {/* 아이디 */}
         <div>
           <label htmlFor="memberId">아이디</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
           <input
             id="memberId"
             name="memberId"
@@ -224,10 +163,7 @@ export default function MemberForm({ mode = "register" }) {
             readOnly={mode === "edit"}
             style={mode === "edit" ? { background: "#e9ecef", color: "#495057" } : {}}
           />
-          <button type="button" onClick={checkDuplicateId}>중복확인</button>
-          </div>
           {errors.memberId && <InputWarning message={errors.memberId} />}
-          {idCheckMessage && <div className="info-message">{idCheckMessage}</div>}
         </div>
         {/* 비밀번호 */}
         <div>
@@ -257,7 +193,6 @@ export default function MemberForm({ mode = "register" }) {
         {/* 닉네임 */}
         <div>
           <label htmlFor="nickname">닉네임</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
           <input
             id="nickname"
             name="nickname"
@@ -265,15 +200,11 @@ export default function MemberForm({ mode = "register" }) {
             onChange={handleChange}
             placeholder="닉네임"
           />
-          <button type="button" onClick={checkDuplicateNickname}>중복확인</button>
-          </div>
           {errors.nickname && <InputWarning message={errors.nickname} />}
-          {nicknameCheckMessage && <div className="info-message">{nicknameCheckMessage}</div>}
         </div>
         {/* 이메일 */}
         <div>
           <label htmlFor="email">이메일</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
           <input
             id="email"
             name="email"
@@ -281,33 +212,8 @@ export default function MemberForm({ mode = "register" }) {
             onChange={handleChange}
             placeholder="example@mail.com"
           />
-          <button type="button" onClick={sendEmailCode}>인증코드 발송</button>
-          </div>
           {errors.email && <InputWarning message={errors.email} />}
-          {emailSendMessage && <div className="info-message">{emailSendMessage}</div>}
         </div>
-        {/* 인증코드 입력 + 확인 */}
-        {isCodeSent && !isEmailVerified &&(
-        <div className={`verify-box ${isEmailVerified ? 'fade-out-up' : ''}`}>
-          <label htmlFor="emailCode">인증코드 입력</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input
-              id="emailCode"
-              name="emailCode"
-              value={emailCode}
-              onChange={handleCodeChange}
-              placeholder="인증코드 입력"
-            />
-            <button type="button" onClick={verifyEmailCode}>인증코드 확인</button>
-          </div>
-        </div>
-        {/* 인증 결과 메세지 */}
-        {verifyResult && (
-        <div className={`info-message ${isEmailVerified ? 'verified' : 'error'}`}>
-          {verifyResult}
-        </div>
-        )}
-        )}
         {/* 휴대폰 */}
         <div>
           <label htmlFor="phone">휴대폰</label>
