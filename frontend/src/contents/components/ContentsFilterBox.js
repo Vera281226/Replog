@@ -5,9 +5,9 @@ import React, { useState, useEffect } from 'react';
 /**
  * ContentsFilterBox 컴포넌트
  * -------------------------------------------------------------------
- * ○ 콘텐츠 필터 영역
- * ○ 정렬, 개봉일, 장르, 연령, 평점, 러닝타임, 플랫폼 필터 제공
- * ○ '검색하기' 클릭 시 부모로 필터 상태 전달 (onFilterChange)
+ * ○ 컨텍츠 필터 영역
+ * ○ 정렬, 개발일, 장르, 연령, 평점, 러닝타임, 플랫폼 필터 제공
+ * ○ '...검색하기' 클릭 시 부모로 필터 상태 전달 (onFilterChange)
  * -------------------------------------------------------------------
  */
 function ContentsFilterBox({ onFilterChange }) {
@@ -15,7 +15,7 @@ function ContentsFilterBox({ onFilterChange }) {
     // ✅ 필터 상태 정의
     // -------------------------------------------------------------------
     const [formState, setFormState] = useState({
-        sort: '',
+        sort: 'popularity', // ✅ 기본값: 인기순
         releaseStart: '',
         releaseEnd: '',
         genres: [],
@@ -55,7 +55,7 @@ function ContentsFilterBox({ onFilterChange }) {
     };
 
     // -------------------------------------------------------------------
-    // ✅ 체크박스/버튼형 필드 토글 (장르, 플랫폼)
+    // ✅ 체크백스/버튼형 필드 토그램 (장르, 플랫폼)
     // -------------------------------------------------------------------
     const handleToggle = (key, value) => {
         setFormState((prev) => ({
@@ -78,7 +78,7 @@ function ContentsFilterBox({ onFilterChange }) {
     // -------------------------------------------------------------------
     const handleReset = () => {
         const empty = {
-            sort: '',
+            sort: 'popularity',
             releaseStart: '',
             releaseEnd: '',
             genres: [],
@@ -102,7 +102,7 @@ function ContentsFilterBox({ onFilterChange }) {
                 <label>정렬</label>
                 <div>
                     {['popularity', 'oldest', 'latest'].map((value) => (
-                        <label key={value}>
+                        <label key={value} style={{ marginRight: '12px' }}>
                             <input
                                 type="radio"
                                 name="sort"
@@ -116,9 +116,9 @@ function ContentsFilterBox({ onFilterChange }) {
                 </div>
             </div>
 
-            {/* ✅ 개봉일 */}
+            {/* ✅ 개발일 */}
             <div className="filter-section">
-                <label>개봉일</label>
+                <label>상영 일자</label>
                 <input type="date" name="releaseStart" value={formState.releaseStart} onChange={handleChange} />
                 <input type="date" name="releaseEnd" value={formState.releaseEnd} onChange={handleChange} />
             </div>
@@ -132,7 +132,7 @@ function ContentsFilterBox({ onFilterChange }) {
                             key={genre.genreId}
                             type="button"
                             onClick={() => handleToggle('genres', genre.name)}
-                            className={formState.genres.includes(genre.name) ? 'selected' : ''}
+                            className={`genre-button ${formState.genres.includes(genre.name) ? 'selected' : ''}`}
                         >
                             {genre.name}
                         </button>
@@ -199,7 +199,7 @@ function ContentsFilterBox({ onFilterChange }) {
             <div className="filter-section">
                 <label>플랫폼</label>
                 {['Netflix', 'Disney Plus'].map((platform) => (
-                    <label key={platform}>
+                    <label key={platform} style={{ marginRight: '12px' }}>
                         <input
                             type="checkbox"
                             checked={formState.platforms.includes(platform)}
@@ -211,10 +211,10 @@ function ContentsFilterBox({ onFilterChange }) {
             </div>
 
             {/* ✅ 버튼 영역 */}
-            <button className="search-button" onClick={handleSubmit}>
+            <button className="btn primary" onClick={handleSubmit}>
                 검색하기
             </button>
-            <button className="search-button reset" onClick={handleReset}>
+            <button className="btn cancel" onClick={handleReset}>
                 필터 초기화
             </button>
         </div>
