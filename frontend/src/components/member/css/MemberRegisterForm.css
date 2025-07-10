@@ -119,3 +119,16 @@
   border-color: #282828;             /* 진한 테두리 */
   box-shadow: 0 0 0 2px rgba(40, 40, 40, 0.1);
 }
+
+.info-message {
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+.info-message.verified {
+  color: green;
+}
+
+.info-message.error {
+  color: red;
+}
