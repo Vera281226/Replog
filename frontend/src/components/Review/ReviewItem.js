@@ -8,7 +8,7 @@ function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
   const [likeCount, setLikeCount] = useState(review.likeCount || 0);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // ✅ 추가: 대댓글 수정용 상태
+  // 대댓글 수정용 상태
   const [editingReplyId, setEditingReplyId] = useState(null);
   const [replyEdits, setReplyEdits] = useState({});
 
@@ -16,17 +16,11 @@ function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
     r => r.gnum === review.reviewId && r.reviewId !== r.gnum
   ) || [];
 
-  const handleEditClick = () => {
-    setShowEditModal(true);
-  };
-
-  const handleModalClose = () => {
-    setShowEditModal(false);
-  };
-
+  const handleEditClick = () => setShowEditModal(true);
+  const handleModalClose = () => setShowEditModal(false);
   const handleReviewUpdated = () => {
     setShowEditModal(false);
-    onCommentAdded(); // 수정 후 리스트 갱신
+    onCommentAdded();
   };
 
   return (
@@ -41,17 +35,20 @@ function ReviewItem({ review, allReviews, onCommentAdded, memberId }) {
         onCommentAdded={onCommentAdded}
         onEditClick={handleEditClick}
         replies={replies}
-        editingReplyId={editingReplyId}      // 💡 추가
-        setEditingReplyId={setEditingReplyId} // 💡 추가
-        replyEdits={replyEdits}              // 💡 추가
-        setReplyEdits={setReplyEdits}        // 💡 추가
+        editingReplyId={editingReplyId}
+        setEditingReplyId={setEditingReplyId}
+        replyEdits={replyEdits}
+        setReplyEdits={setReplyEdits}
+        // 신고 버튼을 prop으로 전달
+        reportButton={
+          <ReportButton
+            targetType="REVIEW"
+            targetId={review.reviewId}
+            buttonText="신고"
+            buttonStyle="small"
+          />
+        }
       />
-      <ReportButton
-          targetType="REVIEW"
-          targetId={review.reviewId}
-          buttonText="신고"
-          buttonStyle="small"
-        />
       {showEditModal && (
         <ReviewModal
           isEdit={true}

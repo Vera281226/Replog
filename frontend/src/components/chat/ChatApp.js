@@ -1,8 +1,8 @@
-// src/components/chat/ChatApp.js
 import React, { useState, useEffect, useCallback } from 'react';
 import ChatRoomList from './ChatRoomList';
 import ChatMessageArea from './ChatMessageArea';
 import chatApiService from '../services/chatApi';
+import InfoModal from '../InfoModal';
 import './css/ChatApp.css';
 
 const ChatApp = ({ currentUser, onClose }) => {
@@ -11,6 +11,18 @@ const ChatApp = ({ currentUser, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(true);
+
+  // InfoModal 상태
+  const [infoModal, setInfoModal] = useState({
+    isOpen: false,
+    type: 'info',
+    title: '',
+    message: '',
+    confirmLabel: '확인',
+    cancelLabel: '',
+    onConfirm: null,
+    onCancel: null,
+  });
 
   // 채팅방 목록 로드
   const loadChatRooms = useCallback(async () => {
@@ -27,6 +39,16 @@ const ChatApp = ({ currentUser, onClose }) => {
       }
     } catch (error) {
       setConnected(false);
+      setInfoModal({
+        isOpen: true,
+        type: 'error',
+        title: '연결 실패',
+        message: '채팅 서버에 연결할 수 없습니다.',
+        confirmLabel: '확인',
+        cancelLabel: '',
+        onConfirm: () => setInfoModal(im => ({ ...im, isOpen: false })),
+        onCancel: () => setInfoModal(im => ({ ...im, isOpen: false })),
+      });
     } finally {
       setLoading(false);
     }
@@ -41,7 +63,16 @@ const ChatApp = ({ currentUser, onClose }) => {
       const messagesData = await chatApiService.getMessages(room.chatRoomId);
       setMessages(messagesData.content || messagesData || []);
     } catch (error) {
-      // 에러 처리
+      setInfoModal({
+        isOpen: true,
+        type: 'error',
+        title: '메시지 불러오기 실패',
+        message: '채팅 메시지를 불러오지 못했습니다.',
+        confirmLabel: '확인',
+        cancelLabel: '',
+        onConfirm: () => setInfoModal(im => ({ ...im, isOpen: false })),
+        onCancel: () => setInfoModal(im => ({ ...im, isOpen: false })),
+      });
     } finally {
       setLoading(false);
     }
@@ -63,6 +94,16 @@ const ChatApp = ({ currentUser, onClose }) => {
         } catch {}
       }, 1000);
     } catch (error) {
+      setInfoModal({
+        isOpen: true,
+        type: 'error',
+        title: '메시지 전송 실패',
+        message: '메시지 전송에 실패했습니다.',
+        confirmLabel: '확인',
+        cancelLabel: '',
+        onConfirm: () => setInfoModal(im => ({ ...im, isOpen: false })),
+        onCancel: () => setInfoModal(im => ({ ...im, isOpen: false })),
+      });
       throw error;
     }
   }, [selectedRoom]);
@@ -72,21 +113,59 @@ const ChatApp = ({ currentUser, onClose }) => {
     if (!roomId) return;
     const room = chatRooms.find(r => r.chatRoomId === roomId);
     if (room && room.roomType === 'AI') {
-      alert('AI 채팅방은 나갈 수 없습니다.');
+      setInfoModal({
+        isOpen: true,
+        type: 'info',
+        title: '알림',
+        message: 'AI 채팅방은 나갈 수 없습니다.',
+        confirmLabel: '확인',
+        cancelLabel: '',
+        onConfirm: () => setInfoModal(im => ({ ...im, isOpen: false })),
+        onCancel: () => setInfoModal(im => ({ ...im, isOpen: false })),
+      });
       return;
     }
-    if (!window.confirm('정말로 채팅방을 나가시겠습니까?')) return;
-    try {
-      await chatApiService.leaveChatRoom(roomId);
-      await loadChatRooms();
-      if (selectedRoom?.chatRoomId === roomId) {
-        setSelectedRoom(null);
-        setMessages([]);
-      }
-      alert('채팅방에서 나왔습니다.');
-    } catch (error) {
-      alert('채팅방 나가기에 실패했습니다: ' + error.message);
-    }
+    // InfoModal confirm으로 대체
+    setInfoModal({
+      isOpen: true,
+      type: 'warning',
+      title: '채팅방 나가기',
+      message: '정말로 채팅방을 나가시겠습니까?',
+      confirmLabel: '나가기',
+      cancelLabel: '취소',
+      onConfirm: async () => {
+        try {
+          await chatApiService.leaveChatRoom(roomId);
+          await loadChatRooms();
+          if (selectedRoom?.chatRoomId === roomId) {
+            setSelectedRoom(null);
+            setMessages([]);
+          }
+          setInfoModal({
+            isOpen: true,
+            type: 'success',
+            title: '채팅방 나가기',
+            message: '채팅방에서 나왔습니다.',
+            confirmLabel: '확인',
+            cancelLabel: '',
+            onConfirm: () => setInfoModal(im => ({ ...im, isOpen: false })),
+            onCancel: () => setInfoModal(im => ({ ...im, isOpen: false })),
+          });
+        } catch (error) {
+          setInfoModal({
+            isOpen: true,
+            type: 'error',
+            title: '나가기 실패',
+            message: '채팅방 나가기에 실패했습니다: ' + (error.message || ''),
+            confirmLabel: '확인',
+            cancelLabel: '',
+            onConfirm: () => setInfoModal(im => ({ ...im, isOpen: false })),
+            onCancel: () => setInfoModal(im => ({ ...im, isOpen: false })),
+          });
+        }
+      },
+      onCancel: () => setInfoModal(im => ({ ...im, isOpen: false })),
+    });
   }, [chatRooms, selectedRoom, loadChatRooms]);
 
   useEffect(() => {
@@ -130,6 +209,17 @@ const ChatApp = ({ currentUser, onClose }) => {
           loading={loading}
         />
       </div>
+      {/* InfoModal 안내 */}
+      <InfoModal
+        isOpen={infoModal.isOpen}
+        type={infoModal.type}
+        title={infoModal.title}
+        message={infoModal.message}
+        confirmLabel={infoModal.confirmLabel}
+        cancelLabel={infoModal.cancelLabel}
+        onConfirm={infoModal.onConfirm}
+        onCancel={infoModal.onCancel}
+      />
     </div>
   );
 };
