@@ -3,6 +3,7 @@ package pack.controller.member;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
 import pack.dto.common.ApiResponse;
 import pack.dto.member.MemberInfoResponse;
@@ -23,21 +24,33 @@ public class MemberController {
         return ResponseEntity.ok(ApiResponse.success("회원가입 완료"));
     }
 
-    @PostMapping("/email-check")
-    public ResponseEntity<String> checkEmail(@RequestParam("email") String email) {
-        if (memberService.emailExists(email)) {
-            return ResponseEntity.ok("이미 사용 중인 이메일입니다.");
+    @PostMapping("/id-check")
+    public ResponseEntity<String> checkMemberId(@RequestBody Map<String, String> body) {
+        String memberId = body.get("memberId");
+        if (memberService.memberIdExists(memberId)) {
+            return ResponseEntity.ok("이미 사용 중인 아이디입니다.");
         } else {
-            return ResponseEntity.ok("사용 가능한 이메일입니다.");
+            return ResponseEntity.ok("사용 가능한 아이디입니다.");
         }
     }
-    
-    @GetMapping("/nickname-check")
-    public ResponseEntity<String> checkNickname(@RequestParam("nickname") String nickname) {
+
+    @PostMapping("/nickname-check")
+    public ResponseEntity<String> checkNickname(@RequestBody Map<String, String> body) {
+        String nickname = body.get("nickname");
         if (memberService.nicknameExists(nickname)) {
             return ResponseEntity.ok("이미 사용 중인 닉네임입니다.");
         } else {
             return ResponseEntity.ok("사용 가능한 닉네임입니다.");
+        }
+    }
+
+    @PostMapping("/email-check")
+    public ResponseEntity<String> checkEmail(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        if (memberService.emailExists(email)) {
+            return ResponseEntity.ok("이미 사용 중인 이메일입니다.");
+        } else {
+            return ResponseEntity.ok("사용 가능한 이메일입니다.");
         }
     }
     
