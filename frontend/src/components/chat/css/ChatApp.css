@@ -1,0 +1,89 @@
+/* src/components/chat/ChatApp.css */
+
+.chat-app-container {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 700px;
+  height: 500px;
+  background: var(--modal-bg, #fff);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(180,160,255,0.18);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  font-family: 'Noto Sans KR', sans-serif;
+  overflow: hidden;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.dark-mode .chat-app-container {
+  --modal-bg: #23262b;
+  color: #f1f1f1;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.chat-app-header {
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #bbaaff 0%, #7c7fcf 100%);
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chat-app-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.chat-app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.status-indicator {
+  font-size: 11px;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+.close-chat-btn {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background 0.2s;
+}
+.close-chat-btn:hover {
+  background: rgba(255,255,255,0.4);
+}
+.chat-app-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+.chat-login-required {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .chat-app-container {
+    width: 98vw;
+    right: 1vw;
+    min-width: 0;
+  }
+}
+@media (max-width: 600px) {
+  .chat-app-container {
+    width: 100vw;
+    height: 100vh;
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
+  }
+}

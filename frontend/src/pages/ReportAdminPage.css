@@ -1,0 +1,184 @@
+/* src/components/admin/ReportAdminPage.css */
+
+/* 전체 컨테이너 */
+.report-admin-page {
+  max-width: 1200px;
+  margin: 40px auto;
+  background: var(--modal-bg, #fff);
+  border-radius: 18px;
+  box-shadow: 0 0 0 4px rgba(180,160,255,0.13), 0 10px 36px rgba(120,90,200,0.14);
+  padding: 36px 28px 32px 28px;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.dark-mode .report-admin-page {
+  --modal-bg: #23262b;
+  color: #f1f1f1;
+  box-shadow: 0 10px 36px rgba(0,0,0,0.22), 0 0 0 4px #a7a9fa44;
+}
+
+/* 제목 */
+.report-admin-page h2 {
+  text-align: left;
+  margin-bottom: 24px;
+  font-size: 1.6rem;
+  color: #7c7fcf;
+  letter-spacing: -0.5px;
+}
+
+/* 탭 버튼 */
+.report-admin-tabs,
+.report-admin-types {
+  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+}
+.report-admin-tabs button,
+.report-admin-types button {
+  font-weight: 600;
+  padding: 6px 18px;
+  border-radius: 8px;
+  border: 2px solid #bbaaff;
+  background: #fff;
+  color: #7c7fcf;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.report-admin-tabs button.active,
+.report-admin-types button.active {
+  border: 2px solid #7c7fcf;
+  background: #e3e6fd;
+  color: #5e35b1;
+}
+.report-admin-tabs button:hover,
+.report-admin-types button:hover {
+  background: #bbaaff;
+  color: #fff;
+}
+.dark-mode .report-admin-tabs button,
+.dark-mode .report-admin-types button {
+  background: #23262b;
+  color: #a18aff;
+  border: 2px solid #7c7fcf;
+}
+.dark-mode .report-admin-tabs button.active,
+.dark-mode .report-admin-types button.active {
+  background: #7c7fcf;
+  color: #fff;
+}
+.dark-mode .report-admin-tabs button:hover,
+.dark-mode .report-admin-types button:hover {
+  background: #a18aff;
+  color: #fff;
+}
+
+/* 테이블 */
+.report-admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--modal-bg, #fafafa);
+  margin-bottom: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.report-admin-table th,
+.report-admin-table td {
+  padding: 12px 8px;
+  border: 1px solid var(--modal-border, #e0e0ff);
+  text-align: center;
+  font-size: 0.98rem;
+}
+.report-admin-table th {
+  background: var(--modal-border, #e0e0ff);
+  font-weight: 700;
+  color: #7c7fcf;
+}
+.report-admin-table tbody tr:nth-child(even) {
+  background: rgba(180,160,255,0.05);
+}
+.dark-mode .report-admin-table {
+  background: #23262b;
+}
+.dark-mode .report-admin-table th {
+  background: #2e2e46;
+  color: #a18aff;
+}
+.dark-mode .report-admin-table td {
+  border-color: #7c7fcf;
+}
+.dark-mode .report-admin-table tbody tr:nth-child(even) {
+  background: rgba(124,127,207,0.08);
+}
+
+/* 상태 컬러 */
+.report-admin-table td .status-processed {
+  color: #388e3c;
+  font-weight: bold;
+}
+.report-admin-table td .status-unprocessed {
+  color: #d32f2f;
+  font-weight: bold;
+}
+
+/* 액션 버튼 */
+.report-admin-action-btn {
+  background: #a18aff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(161,138,255,0.13);
+}
+.report-admin-action-btn:hover {
+  background: #7c7fcf;
+  color: #fff;
+}
+.report-admin-action-btn.cancel {
+  background: #fff;
+  color: #d32f2f;
+  border: 1.5px solid #d32f2f;
+}
+.report-admin-action-btn.cancel:hover {
+  background: #fdecec;
+  color: #b71c1c;
+}
+.dark-mode .report-admin-action-btn {
+  background: #7c7fcf;
+}
+.dark-mode .report-admin-action-btn:hover {
+  background: #a18aff;
+}
+.dark-mode .report-admin-action-btn.cancel {
+  background: #23262b;
+  color: #d32f2f;
+  border-color: #d32f2f;
+}
+.dark-mode .report-admin-action-btn.cancel:hover {
+  background: #2e2e46;
+  color: #ffbaba;
+}
+
+/* 빈 데이터 */
+.report-admin-empty {
+  text-align: center;
+  padding: 32px 0;
+  color: #aaa;
+  font-size: 1.1rem;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .report-admin-page {
+    padding: 16px 4px;
+  }
+  .report-admin-table th, .report-admin-table td {
+    font-size: 0.92rem;
+    padding: 8px 3px;
+  }
+}

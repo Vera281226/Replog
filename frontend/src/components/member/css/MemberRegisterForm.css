@@ -1,13 +1,22 @@
-/* src/components/member/MemberRegisterForm.css */
+/* src/components/css/MemberRegisterForm.css */
 
 .member-register-form {
   max-width: 500px;
   margin: 40px auto;
-  padding: 24px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 32px 24px;
+  background: var(--modal-bg, #fff);
+  border-radius: 16px;
+  box-shadow: 0 0 0 4px rgba(180, 160, 255, 0.13), 0 10px 36px rgba(120, 90, 200, 0.14);
   font-family: 'Noto Sans KR', sans-serif;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.dark-mode .member-register-form {
+  --modal-bg: #23262b;
+  color: #f1f1f1;
+  box-shadow:
+    0 10px 36px rgba(0,0,0,0.22),
+    0 0 0 4px #a7a9fa44;
 }
 
 /* 제목 */
@@ -15,12 +24,13 @@
   text-align: center;
   margin-bottom: 24px;
   font-size: 24px;
-  color: #282828;
+  color: #7c7fcf;
+  letter-spacing: -0.5px;
 }
 
 /* 전체 form 레이아웃 통일 */
 .member-register-form form > div {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 /* 공통 input 스타일 */
@@ -29,28 +39,45 @@
 .member-register-form input[type="date"],
 .member-register-form input[readonly] {
   width: 100%;
-  height: 44px;                /* 높이 통일 */
-  padding: 0 12px;             /* 수평 패딩만 */
-  border: 2px solid #ccc;      /* 테두리 굵기 2px */
-  border-radius: 4px;
-  font-size: 14px;
+  height: 44px;
+  padding: 0 12px;
+  border: 2px solid #bbaaff;
+  border-radius: 6px;
+  font-size: 15px;
   outline: none;
   box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  background: inherit;
+  color: inherit;
+  box-shadow: 0 2px 8px rgba(180, 160, 255, 0.08);
+  transition: border 0.18s, box-shadow 0.22s;
 }
 
-/* 포커스 시 강조 */
 .member-register-form input:focus {
-  border-color: #282828;             /* 진한 테두리 */
-  box-shadow: 0 0 0 2px rgba(40, 40, 40, 0.1);
+  border-color: #a084e8;
+  box-shadow: 0 0 0 2px #e2d6fa, 0 2px 8px rgba(180, 160, 255, 0.15);
+}
+
+.dark-mode .member-register-form input[type="text"],
+.dark-mode .member-register-form input[type="password"],
+.dark-mode .member-register-form input[type="date"],
+.dark-mode .member-register-form input[readonly] {
+  background: #23262b;
+  color: #f1f1f1;
+  border: 2px solid #7c7fcf;
+  box-shadow: 0 2px 8px #7c7fcf33;
+}
+
+.dark-mode .member-register-form input:focus {
+  border-color: #a18aff;
+  box-shadow: 0 0 0 2px #a18aff44, 0 2px 8px #a18aff55;
 }
 
 /* 라벨 */
 .member-register-form label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   font-size: 14px;
-  color: #333;
+  color: inherit;
 }
 
 /* 라디오 버튼 라벨 간격 */
@@ -74,48 +101,86 @@
 .member-register-form button[type="submit"] {
   display: block;
   width: 100%;
-  height: 44px;                   /* 높이 통일 */
-  background-color: #282828;
-  color: #ffffff;
+  height: 44px;
+  background-color: #a18aff;
+  color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  box-shadow: 0 2px 8px rgba(161,138,255,0.13);
+  letter-spacing: 0.5px;
+  transition: background 0.18s, box-shadow 0.18s;
 }
 
 .member-register-form button[type="submit"]:hover {
-  background-color: #1f1f1f;
+  background-color: #7c7fcf;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(161,138,255,0.18);
+}
+
+.dark-mode .member-register-form button[type="submit"] {
+  background: #7c7fcf;
+  color: #fff;
+}
+
+.dark-mode .member-register-form button[type="submit"]:hover {
+  background: #a18aff;
+  color: #fff;
 }
 
 /* 서버 메시지 */
 .member-register-form .msg {
   text-align: center;
-  color: #282828;
+  color: #7c7fcf;
   margin-bottom: 16px;
   font-size: 14px;
 }
 
+.dark-mode .member-register-form .msg {
+  color: #e2d6fa;
+}
+
 /* 주소 모달 입력 필드 커서 */
 .member-register-form input[readonly] {
-  background-color: #f9f9f9;
+  background-color: #f5f2ff;
   cursor: pointer;
 }
 
-.member-register-form input:not([type="radio"]):not([type="checkbox"]) {
-  width: 100%;
-  height: 44px;                /* 높이 통일 */
-  padding: 0 12px;             /* 수평 패딩만 */
-  border: 2px solid #ccc;      /* 테두리 굵기 2px */
-  border-radius: 4px;
-  font-size: 14px;
-  outline: none;
-  box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
+.dark-mode .member-register-form input[readonly] {
+  background-color: #2e2e46;
 }
 
-/* 포커스 시 강조 */
+/* input:not([type="radio"]):not([type="checkbox"]) 스타일 통일 */
+.member-register-form input:not([type="radio"]):not([type="checkbox"]) {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 2px solid #bbaaff;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  background: inherit;
+  color: inherit;
+  box-shadow: 0 2px 8px rgba(180, 160, 255, 0.08);
+  transition: border 0.18s, box-shadow 0.22s;
+}
+
 .member-register-form input:not([type="radio"]):not([type="checkbox"]):focus {
-  border-color: #282828;             /* 진한 테두리 */
-  box-shadow: 0 0 0 2px rgba(40, 40, 40, 0.1);
+  border-color: #a084e8;
+  box-shadow: 0 0 0 2px #e2d6fa, 0 2px 8px rgba(180, 160, 255, 0.15);
+}
+
+.dark-mode .member-register-form input:not([type="radio"]):not([type="checkbox"]) {
+  background: #23262b;
+  color: #f1f1f1;
+  border: 2px solid #7c7fcf;
+  box-shadow: 0 2px 8px #7c7fcf33;
+}
+
+.dark-mode .member-register-form input:not([type="radio"]):not([type="checkbox"]):focus {
+  border-color: #a18aff;
+  box-shadow: 0 0 0 2px #a18aff44, 0 2px 8px #a18aff55;
 }
